@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Test Results Aggregation</title>
+
+        <script type="text/javascript" src={{ url_for('static', filename='js/jquery-1.11.0.min.js') }}></script>
+
+        <script type="text/javascript" src={{ url_for('static', filename='js/bootstrap.min.js') }}></script>
+        <link type="text/css" href={{ url_for('static', filename='css/bootstrap.min.css') }} rel="stylesheet">
+        <link type="text/css" href={{ url_for('static', filename='css/custom.css') }} rel="stylesheet">
+
+        <script type="text/javascript">
+
+            $(document).ready(
+                function(){
+                    $("a#Project").click(function(){
+
+                        $("ul#Sprints").empty();
+
+                        var name = $(this).text();
+
+                        $.getJSON('/sprints/' + name,
+                            function(data) {
+
+                                $("button#Projects").html(name);
+
+                                $.each(data, function(key) {
+                                    $("ul#Sprints").append('<li role="presentation"><a role="menuitem" tabindex="-1" href="/r/' + name  + '/' + data[key].name + '">' + data[key].name + '</a></li>' );
+                                });
+
+                        });
+
+                    });
+
+                });
+
+        </script>
+
+
+    </head>
+    <body>
+        {% block body %}
+
+        <div class="jumbotron">
+
+                <h2><small>Please choose a project and a sprint to see the results</small></h2>
+
+                <div class="col-md-1">
+
+                    <div class="dropdown">
+                        <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" id="Projects">Project <span class="caret"></span></button>
+
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                            {% for project in projects %}
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="#" id="Project">{{ project }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="dropdown ">
+                        <button id="Sprints" type="button" class="btn dropdown-toggle" data-toggle="dropdown">Sprint <span class="caret"></span></button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" id="Sprints">
+                            </ul>
+                    </div>
+                </div>
+        </div>
+
+    {% endblock %}
+
+    </body>
+</html>

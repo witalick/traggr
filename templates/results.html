@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<br>
+
+<div class="container">
+
+    <ul class="list-group">
+
+        {% for component in data %}
+
+        <li class="list-group-item"><a href="/rs/{{ component['project'] }}/{{ component['sprint'] }}/{{ component['name'] }}">{{ component['name'] }}</a>
+
+            <span class="badge pull-right">{{ component['total'] }}</span>
+            <span class="badge alert-success pull-right">{{ component['passed'] }}</span>
+            {% if component['failed'] != 0 %}
+                <span class="badge alert-danger pull-right">{{ component['failed'] }}</span>
+            {% endif %}
+
+        </li>
+
+        {% endfor %}
+
+        <li class="list-group-item">Totals
+            <span class="badge pull-right">{{ totals['total'] }}</span>
+            <span class="badge alert-success pull-right">{{ totals['passed'] }}</span>
+            {% if totals['failed'] != 0 %}
+                <span class="badge alert-danger pull-right">{{ totals['failed'] }}</span>
+            {% endif %}
+        </li>
+
+    </ul>
+
+</div>
+
+{% endblock %}

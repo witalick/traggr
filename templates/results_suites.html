@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<br>
+
+<div class="container">
+
+    <div class="panel-group" id="accordion">
+
+        {% for suite in data %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'] }}">
+                        {{ suite['name'] }}
+                        <span class="badge pull-right">{{ suite['total'] }}</span>
+                        <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
+                        {% if suite['failed'] != 0 %}
+                            <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
+                        {% endif %}
+                    </h4>
+                </div>
+
+                <div id="collapse{{ suite['name'] }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+
+                        <table class="table">
+                            <tr>
+                                <th>Test ID</th>
+                                <th>Title</th>
+                                <th>Result</th>
+                                <th>Error</th>
+                            </tr>
+
+                            {% for result in suite['rows'] %}
+
+                                <tr class={% if result['result'] == 'passed' %}
+                                                "success"
+                                          {% elif result['result'] == 'failed' %}
+                                                "danger"
+                                          {% endif  %}>
+                                    <td>{{ result['test_id'] }}</td>
+                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'] }}{{ result['test_id'] }}">{{ result['title'] }}</td>
+                                    <td>{{ result['result'] }}</td>
+                                    <td>{% if 'error' in result %}
+                                            <pre class="pre-scrollable-x danger">{{ result['error'] }}</pre>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <div class="modal fade" id="Modal{{ suite['name'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'] }}{{ result['test_id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalLabel">{{result['test_id']}}: {{result['title']}}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>
+{{result['description']}}
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+{% endblock %}

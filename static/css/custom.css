@@ -1,0 +1,5 @@
+
+.pre-scrollable-x {
+  max-width: 340px;
+  overflow-x: scroll;
+}
