@@ -37,7 +37,7 @@
 
                                 <tr class={% if result['result'] == 'passed' %}
                                                 "success"
-                                          {% elif result['result'] == 'failed' %}
+                                          {% elif result['result'] != 'passed' %}
                                                 "danger"
                                           {% endif  %}>
                                     <td>{{ result['test_id'] }}</td>
