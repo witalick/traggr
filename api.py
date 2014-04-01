@@ -19,15 +19,18 @@ def get_db(project):
                          project=project)
 
 
+@api.route('/ping')
+def ping():
+    return make_response('pong', 200)
+
+
 @api.route('/results/<project>/<sprint>', methods=['POST'])
 def add_results(project, sprint):
-
     db = get_db(project)
 
     results = json.loads(request.get_data())
 
     for result in results:
-
         db.upsert_test(component=result['component'],
                        suite=result['suite'],
                        test_id=result['test_id'],
@@ -37,14 +40,15 @@ def add_results(project, sprint):
                               component=result['component'],
                               suite=result['suite'],
                               test_id=result['test_id'],
-                              **result['result_attributes'])
+                              **dict(result['result_attributes'].items() +
+                                     result['other_attributes'].items()))
 
     return make_response('', 200)
 
 
 if __name__ == '__main__':
 
-    api.run(debug=True)
+    api.run(port=5001, debug=True)
 
 
 # EOF
