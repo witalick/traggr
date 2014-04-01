@@ -31,8 +31,9 @@ class AggregationDB(MyMongoClient):
 
     def upsert_test_result(self, sprint, component, suite, test_id, **result_attributes):
         sprint_collection_name = self._collection_name_results % sprint
-        self._db[sprint_collection_name].update(
-            {'test_id': test_id, 'suite': suite, 'component': component},
+        query = {'test_id': test_id, 'suite': suite, 'component': component}
+        self._db[sprint_collection_name].remove(query)
+        self._db[sprint_collection_name].update(query,
             {'$set': result_attributes}, upsert=True)
 
     def get_test_results(self, sprint, **query):
