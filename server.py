@@ -26,65 +26,118 @@ def get_db(project=None):
 def root():
 
     db = get_db()
-    projects = db.get_projects()
-    return render_template('base.html', projects=projects)
+    projects = db.get_project_names()
+    latest_sprints = dict((project, db.get_latest_sprint_name(project)) for project in projects)
+    return render_template('base.html', projects=projects, latest_sprints=latest_sprints)
 
 
-@server.route('/r/<project>/<sprint>')
+@server.route('/<project>/<sprint>')
 def results(project, sprint):
 
     db = get_db(project)
-    results = db.get_test_results(sprint)
-    components = set([r['component'] for r in results])
 
-    data = []
+    projects = db.get_project_names()
+    if project not in projects:
+        return 'I don\'t have results for this project... Sorry... :/', 404
+    projects.remove(project)
+
+    sprints = db.get_sprint_names()
+    if sprint not in sprints:
+        return 'I don\'t have results for this sprint... Sorry... :/', 404
+    sprints.remove(sprint)
+
+    test_results = db.get_test_results(sprint)
+    components = set([r['component'] for r in test_results])
+
+    components_data = []
     for component in components:
-        component_data = {'project': project, 'sprint': sprint, 'name': component}
+        component_data = {'name': component}
 
-        tests = [r for r in results if r['component'] == component]
+        tests = [r for r in test_results if r['component'] == component]
 
         component_data['total'] = len(tests)
         component_data['passed'] = len([t for t in tests if t['result'] == 'passed'])
         component_data['failed'] = len([t for t in tests if t['result'] != 'passed'])
-        data.append(component_data)
+        components_data.append(component_data)
 
-    totals = {}
-    totals['total'] = len(results)
-    totals['passed'] = len([t for t in results if t['result'] == 'passed'])
-    totals['failed'] = len([t for t in results if t['result'] != 'passed'])
+    totals = dict()
+    totals['total'] = len(test_results)
+    totals['passed'] = len([t for t in test_results if t['result'] == 'passed'])
+    totals['failed'] = len([t for t in test_results if t['result'] != 'passed'])
 
-    return render_template('results.html', data=data, totals=totals)
+    return render_template('results.html',
+                           components=components_data,
+                           totals=totals,
+                           project=project,
+                           projects=projects,
+                           sprint=sprint,
+                           sprints=sprints)
 
 
-@server.route('/rs/<project>/<sprint>/<component>')
+@server.route('/<project>/<sprint>/<component>')
 def results_suites(project, sprint, component):
 
     db = get_db(project)
-    results = db.get_test_results(sprint, component=component)
-    suite_names = set([s['suite'] for s in results])
+    test_results = db.get_test_results(sprint, component=component)
+    suite_names = set([s['suite'] for s in test_results])
+
+    projects = db.get_project_names()
+    if project not in projects:
+        return 'I don\'t have results for this project... Sorry... :/', 404
+    projects.remove(project)
+
+    sprints = db.get_sprint_names()
+    if sprint not in sprints:
+        return 'I don\'t have results for this sprint... Sorry... :/', 404
+    sprints.remove(sprint)
+
+    components = db.get_component_names(sprint)
+    if component not in components:
+        return 'I don\'t have results for this component... Sorry... :/', 404
+    components.remove(component)
 
     data = []
     for suite_name in suite_names:
 
-        suite_data = {}
+        suite_data = dict()
         suite_data['name'] = suite_name
-        tests = [r for r in results if r['suite'] == suite_name]
+        tests = [r for r in test_results if r['suite'] == suite_name]
         tests.sort(key=lambda x: x['result'])
         suite_data['rows'] = tests
         suite_data['total'] = len(tests)
         suite_data['passed'] = len([t for t in tests if t['result'] == 'passed'])
         suite_data['failed'] = len([t for t in tests if t['result'] != 'passed'])
+        suite_data['has_errors'] = any('error' in test for test in tests)
+        suite_data['has_comments'] = any('comment' in test for test in tests)
+        suite_data['has_attributes'] = any('attributes' in test for test in tests)
+
         data.append(suite_data)
 
-    return render_template('results_suites.html', data=data)
+    return render_template('results_suites.html',
+                           data=data,
+                           project=project,
+                           projects=projects,
+                           sprint=sprint,
+                           sprints=sprints,
+                           component=component,
+                           components=components)
 
 
-@server.route('/sprints/<project>')
-def sprints(project):
+@server.route('/<project>')
+def project_sprints(project):
 
     db = get_db(project)
-    sprints_list = db.get_sprint_names()
-    return json.dumps([{'name': sprint} for sprint in sprints_list])
+    projects = db.get_project_names()
+    sprints = db.get_sprint_names()
+
+    if project not in projects:
+        return 'I don\'t have results for this project... Sorry... :/', 404
+    projects.remove(project)
+
+    return render_template('project_sprints.html',
+                           project=project,
+                           projects=projects,
+                           sprints=sprints)
 
 
 if __name__ == '__main__':

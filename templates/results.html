@@ -1,37 +1,77 @@
 {% extends "base.html" %}
 
+
+{% block menu %}
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ project }} <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for p in projects%}
+
+                <li><a href="/{{ p }}">{{ p }}</a></li>
+
+                {% endfor %}
+
+            </ul>
+        </li>
+
+        <li class="dropdown">
+
+            {% if sprints %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    {{ sprint }} <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    {% for s in sprints%}
+                    <li><a href="/{{ project }}/{{ s }}">{{ s }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                <a href="/{{ project }}/{{ sprint }}">{{ sprint }} </a>
+            {% endif %}
+
+        </li>
+
+{% endblock %}
+
+
 {% block body %}
 
-<br>
+        <ul class="list-group">
 
-<div class="container">
+            {% for component in components %}
 
-    <ul class="list-group">
+            <li class="list-group-item"><a href="/{{ project }}/{{ sprint }}/{{ component['name'] }}">{{ component['name'] }}</a>
 
-        {% for component in data %}
+                <span class="badge pull-right">{{ component['total'] }}</span>
+                {% if component['passed'] != 0 %}
+                    <span class="badge alert-success pull-right">{{ component['passed'] }}</span>
+                {% endif %}
+                {% if component['failed'] != 0 %}
+                    <span class="badge alert-danger pull-right">{{ component['failed'] }}</span>
+                {% endif %}
 
-        <li class="list-group-item"><a href="/rs/{{ component['project'] }}/{{ component['sprint'] }}/{{ component['name'] }}">{{ component['name'] }}</a>
+            </li>
 
-            <span class="badge pull-right">{{ component['total'] }}</span>
-            <span class="badge alert-success pull-right">{{ component['passed'] }}</span>
-            {% if component['failed'] != 0 %}
-                <span class="badge alert-danger pull-right">{{ component['failed'] }}</span>
-            {% endif %}
+            {% endfor %}
 
-        </li>
+            <li class="list-group-item">Totals
+                <span class="badge pull-right">{{ totals['total'] }}</span>
+                {% if totals['passed'] != 0 %}
+                    <span class="badge alert-success pull-right">{{ totals['passed'] }}</span>
+                {% endif %}
+                {% if totals['failed'] != 0 %}
+                    <span class="badge alert-danger pull-right">{{ totals['failed'] }}</span>
+                {% endif %}
+            </li>
 
-        {% endfor %}
-
-        <li class="list-group-item">Totals
-            <span class="badge pull-right">{{ totals['total'] }}</span>
-            <span class="badge alert-success pull-right">{{ totals['passed'] }}</span>
-            {% if totals['failed'] != 0 %}
-                <span class="badge alert-danger pull-right">{{ totals['failed'] }}</span>
-            {% endif %}
-        </li>
-
-    </ul>
-
-</div>
+        </ul>
 
 {% endblock %}

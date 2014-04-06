@@ -1,10 +1,73 @@
 {% extends "base.html" %}
 
+
+{% block menu %}
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ project }} <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for p in projects%}
+
+                <li><a href="/{{ p }}">{{ p }}</a></li>
+
+                {% endfor %}
+
+            </ul>
+        </li>
+
+        <li class="dropdown">
+
+            {% if sprints %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    {{ sprint }} <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    {% for s in sprints%}
+                    <li><a href="/{{ project }}/{{ s }}">{{ s }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                <a href="/{{ project }}/{{ sprint }}">{{ sprint }} </a>
+            {% endif %}
+
+        </li>
+
+        <li class="dropdown">
+
+            {% if components %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    {{ component }} <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    {% for c in components%}
+                    <li><a href="/{{ project }}/{{ sprint }}/{{ c }}">{{ c }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                <a href="/{{ project }}/{{ sprint }}/{{ component }}">{{ component }} </a>
+            {% endif %}
+
+        </li>
+
+{% endblock %}
+
+
 {% block body %}
 
-<br>
-
-<div class="container">
+    <div class="alert alert-info">
+        <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
+        <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a description.
+    </div>
 
     <div class="panel-group" id="accordion">
 
@@ -15,7 +78,9 @@
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'] }}">
                         {{ suite['name'] }}
                         <span class="badge pull-right">{{ suite['total'] }}</span>
-                        <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
+                        {% if suite['passed'] != 0 %}
+                            <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
+                        {% endif %}
                         {% if suite['failed'] != 0 %}
                             <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
                         {% endif %}
@@ -28,9 +93,21 @@
                         <table class="table">
                             <tr>
                                 <th>Test ID</th>
+                                {% if suite['has_attributes'] %}
+                                    <th>Attributes</th>
+                                {% endif %}
+
                                 <th>Title</th>
                                 <th>Result</th>
-                                <th>Error</th>
+
+                                {% if suite['has_errors'] %}
+                                    <th>Error</th>
+                                {% endif %}
+
+                                {% if suite['has_comments'] %}
+                                    <th>Comments</th>
+                                {% endif %}
+
                             </tr>
 
                             {% for result in suite['rows'] %}
@@ -41,13 +118,36 @@
                                                 "danger"
                                           {% endif  %}>
                                     <td>{{ result['test_id'] }}</td>
+
+                                    {% if 'attributes' in result %}
+                                        <td>
+                                            {% for key, value in result['attributes'] %}
+                                                <span class="label label-default">{{ key }}: {{ value }}</span>
+                                            {% endfor %}
+                                        </td>
+                                    {% elif suite['has_attributes'] %}
+                                        <td></td>
+                                    {% endif %}
+
                                     <td data-toggle="modal" data-target="#Modal{{ suite['name'] }}{{ result['test_id'] }}">{{ result['title'] }}</td>
                                     <td>{{ result['result'] }}</td>
-                                    <td>{% if 'error' in result %}
+
+                                    {% if 'error' in result %}
+                                        <td>
                                             <pre class="pre-scrollable-x danger">{{ result['error'] }}</pre>
-                                        {% endif %}
-                                    </td>
+                                        </td>
+                                    {% elif suite['has_errors'] %}
+                                        <td></td>
+                                    {% endif %}
+
+                                    {% if 'comment' in result %}
+                                        <td>{{ result['comment'] }}</td>
+                                    {% elif suite['has_comments'] %}
+                                        <td></td>
+                                    {% endif %}
+
                                 </tr>
+
                                 <div class="modal fade" id="Modal{{ suite['name'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'] }}{{ result['test_id'] }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -75,5 +175,5 @@
 
     </div>
 
-</div>
+
 {% endblock %}
