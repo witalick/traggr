@@ -136,7 +136,7 @@
                                     {% if 'attributes' in result %}
                                         <td>
                                             {% for key, value in result['attributes'] %}
-                                                <span class="label label-default">{{ key }}: {{ value }}</span>
+                                                <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
                                             {% endfor %}
                                         </td>
                                     {% elif suite['has_attributes'] %}
