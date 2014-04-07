@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 
 
+{% block customjs %}
+
+        <script type="text/javsacript">
+            document.body.style.cursor='wait';
+
+            window.onload=function()
+            {
+                document.body.style.cursor='default';
+            }
+        </script>
+
+{% endblock %}
+
+
 {% block menu %}
 
         <li class="dropdown">
