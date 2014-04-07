@@ -39,7 +39,6 @@ def results(project, sprint):
     projects = db.get_project_names()
     if project not in projects:
         return 'I don\'t have results for this project... Sorry... :/', 404
-    projects.remove(project)
 
     sprints = db.get_sprint_names()
     if sprint not in sprints:
@@ -84,12 +83,10 @@ def results_suites(project, sprint, component):
     projects = db.get_project_names()
     if project not in projects:
         return 'I don\'t have results for this project... Sorry... :/', 404
-    projects.remove(project)
 
     sprints = db.get_sprint_names()
     if sprint not in sprints:
         return 'I don\'t have results for this sprint... Sorry... :/', 404
-    sprints.remove(sprint)
 
     components = db.get_component_names(sprint)
     if component not in components:

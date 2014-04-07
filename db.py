@@ -22,7 +22,10 @@ class MyMongoClient(object):
 
     def get_project_names(self):
 
-        return [dn.split('_', 1)[1] for dn in self._client.database_names() if dn.startswith('project_')]
+        project_names = [dn.split('_', 1)[1] for dn in self._client.database_names() \
+                                             if dn.startswith('project_')]
+        project_names.sort()
+        return project_names
 
     def get_latest_sprint_name(self, project):
 
