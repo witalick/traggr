@@ -64,13 +64,17 @@ def results(project, sprint):
     totals['passed'] = len([t for t in test_results if t['result'] == 'passed'])
     totals['failed'] = len([t for t in test_results if t['result'] != 'passed'])
 
+    # Failed tests.
+    failed_tests = [tr for tr in test_results if tr['result'] != 'passed']
+
     return render_template('results.html',
                            components=components_data,
                            totals=totals,
                            project=project,
                            projects=projects,
                            sprint=sprint,
-                           sprints=sprints)
+                           sprints=sprints,
+                           failed_tests=failed_tests)
 
 
 @server.route('/<project>/<sprint>/<component>')
