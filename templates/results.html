@@ -1,5 +1,26 @@
 {% extends "base.html" %}
 
+{% block customjs %}
+
+<script type="text/javascript" src={{ url_for('static', filename='files/js/jquery-1.11.0.min.js') }}></script>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $("#failedTests").click(function(){
+
+            if ($("#failedTestsList").is(":visible")) {
+                $("#failedTestsList").hide();
+            } else {
+                $("#failedTestsList").show();
+            };
+        });
+
+    });
+
+</script>
+
+{% endblock %}
 
 {% block menu %}
 
@@ -44,6 +65,11 @@
 
 {% block body %}
 
+        <div class="alert alert-info">
+            <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
+            <strong>Note:</strong> Click a total failed tests badge to see a list of failed tests for all components.
+        </div>
+
         <ul class="list-group">
 
             {% for component in components %}
@@ -68,7 +94,7 @@
                     <span class="badge alert-success pull-right">{{ totals['passed'] }}</span>
                 {% endif %}
                 {% if totals['failed'] != 0 %}
-                    <span class="badge alert-danger pull-right">{{ totals['failed'] }}</span>
+                    <span class="badge alert-danger pull-right" id="failedTests">{{ totals['failed'] }}</span>
                 {% endif %}
             </li>
 
@@ -78,43 +104,45 @@
 
         <br>
 
-        <table class="table">
+        <div style="display:none" id="failedTestsList">
+            <table class="table">
 
-            <tr>
-                <th>Component</th>
-                <th>Suite</th>
-                <th>Test ID</th>
-                <th>Attributes</th>
-                <th>Title</th>
-                <th>Error</th>
-            </tr>
-
-            {% for result in failed_tests %}
-
-                <tr class="danger">
-
-                    <td>{{ result['component'] }}</td>
-                    <td>{{ result['suite'] }}</td>
-                    <td>{{ result['test_id'] }}</td>
-
-                    <td>
-                        {% if 'attributes' in result %}
-                            {% for key, value in result['attributes'] %}
-                                <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
-                            {% endfor %}
-                        {% endif %}
-                    </td>
-
-                    <td>{{ result['title'] }}</td>
-                    <td>
-                        <pre class="pre-scrollable-x danger">{{ result['error'] }}</pre>
-                    </td>
-
+                <tr>
+                    <th>Component</th>
+                    <th>Suite</th>
+                    <th>Test ID</th>
+                    <th>Attributes</th>
+                    <th>Title</th>
+                    <th>Error</th>
                 </tr>
 
-            {% endfor %}
+                {% for result in failed_tests %}
 
-        </table>
+                    <tr class="danger">
+
+                        <td>{{ result['component'] }}</td>
+                        <td>{{ result['suite'] }}</td>
+                        <td>{{ result['test_id'] }}</td>
+
+                        <td>
+                            {% if 'attributes' in result %}
+                                {% for key, value in result['attributes'] %}
+                                    <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+
+                        <td>{{ result['title'] }}</td>
+                        <td>
+                            <pre class="pre-scrollable-x danger">{{ result['error'] }}</pre>
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </table>
+        </div>
 
         {% endif %}
 
