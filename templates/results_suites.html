@@ -114,10 +114,6 @@
                                 <th>Title</th>
                                 <th>Result</th>
 
-                                {% if suite['has_errors'] %}
-                                    <th>Error</th>
-                                {% endif %}
-
                                 {% if suite['has_comments'] %}
                                     <th>Comments</th>
                                 {% endif %}
@@ -144,15 +140,12 @@
                                     {% endif %}
 
                                     <td data-toggle="modal" data-target="#Modal{{ suite['name'] }}{{ result['test_id'] }}">{{ result['title'] }}</td>
-                                    <td>{{ result['result'] }}</td>
+                                    <td
+                                        {% if 'error' in result %}
+                                            data-toggle="modal" data-target="#ModalError{{ suite['name'] }}{{ result['test_id'] }}"
+                                        {% endif %}
 
-                                    {% if 'error' in result %}
-                                        <td>
-                                            <pre class="pre-scrollable-x danger">{{ result['error'] }}</pre>
-                                        </td>
-                                    {% elif suite['has_errors'] %}
-                                        <td></td>
-                                    {% endif %}
+                                        >{{ result['result'] }}</td>
 
                                     {% if 'comment' in result %}
                                         <td>{{ result['comment'] }}</td>
@@ -161,6 +154,22 @@
                                     {% endif %}
 
                                 </tr>
+
+                                <div class="modal fade" id="ModalError{{ suite['name'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ suite['name'] }}{{ result['test_id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalErrorLabel">Error: {{result['test_id']}}: {{result['title']}}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>
+{{result['error']}}
+                                                </pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="modal fade" id="Modal{{ suite['name'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'] }}{{ result['test_id'] }}" aria-hidden="true">
                                     <div class="modal-dialog">
