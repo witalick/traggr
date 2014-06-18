@@ -114,6 +114,8 @@ def results_suites(project, sprint, component):
 
         data.append(suite_data)
 
+    data.sort(key=lambda e: e['name'])
+
     return render_template('results_suites.html',
                            data=data,
                            project=project,
