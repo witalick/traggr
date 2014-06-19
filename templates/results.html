@@ -113,7 +113,7 @@
                     <th>Test ID</th>
                     <th>Attributes</th>
                     <th>Title</th>
-                    <th>Error</th>
+                    <th>Result</th>
                 </tr>
 
                 {% for result in failed_tests %}
@@ -133,11 +133,25 @@
                         </td>
 
                         <td>{{ result['title'] }}</td>
-                        <td>
-                            <pre class="pre-scrollable-x danger">{{ result['error'] }}</pre>
-                        </td>
+                        <td data-toggle="modal" data-target="#ModalError{{ result['component'] }}{{ result['suite'] }}{{ result['test_id'] }}">{{ result['result'] }}</td>
 
                     </tr>
+
+                    <div class="modal fade" id="ModalError{{ result['component'] }}{{ result['suite'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ result['component'] }}{{ result['suite'] }}{{ result['test_id'] }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                    <h4 class="modal-title" id="myModalErrorLabel">Error: {{ result['component'] }}: {{ result['suite'] }}: {{ result['test_id'] }}</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <pre>
+{{result['error']}}
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 {% endfor %}
 
