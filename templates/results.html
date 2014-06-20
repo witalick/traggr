@@ -133,11 +133,11 @@
                         </td>
 
                         <td>{{ result['title'] }}</td>
-                        <td data-toggle="modal" data-target="#ModalError{{ result['component'].replace(' ', '-') }}{{ result['suite'] }}{{ result['test_id'] }}">{{ result['result'] }}</td>
+                        <td data-toggle="modal" data-target="#ModalError{{ result['component_modified'] }}{{ result['suite'] }}{{ result['test_id'] }}">{{ result['result'] }}</td>
 
                     </tr>
 
-                    <div class="modal fade" id="ModalError{{ result['component'].replace(' ', '-') }}{{ result['suite'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ result['component'].replace(' ', '-') }}{{ result['suite'] }}{{ result['test_id'] }}" aria-hidden="true">
+                    <div class="modal fade" id="ModalError{{ result['component_modified'] }}{{ result['suite'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ result['component_modified'] }}{{ result['suite'] }}{{ result['test_id'] }}" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">

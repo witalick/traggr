@@ -1,5 +1,7 @@
 __author__ = 'vyakoviv'
 
+
+import re
 import json
 
 from flask import Flask, render_template
@@ -66,6 +68,9 @@ def results(project, sprint):
 
     # Failed tests.
     failed_tests = [tr for tr in test_results if tr['result'] != 'passed']
+    regex = re.compile('[\'\"\(\)\[\]\.,\+\s\*@#\$%\^&\?]')
+    for failed_test in failed_tests:
+        failed_test['component_modified'] = re.sub(regex, '-', failed_test['component'])
 
     return render_template('results.html',
                            components=components_data,
