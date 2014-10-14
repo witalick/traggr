@@ -3,14 +3,31 @@
 
 {% block customjs %}
 
-        <script type="text/javsacript">
-            document.body.style.cursor='wait';
+<script type="text/javascript" src={{ url_for('static', filename='files/js/jquery-1.11.0.min.js') }}></script>
+<script type="text/javascript">
 
-            window.onload=function()
-            {
-                document.body.style.cursor='default';
-            }
-        </script>
+    $(document).ready(function() {
+
+        document.body.style.cursor='wait';
+
+        window.onload=function()
+        {
+            document.body.style.cursor='default';
+        };
+
+        window.removeSuite = function(project, sprint, component, suite)
+        {
+            $("#div" +  suite).remove();
+
+            var url = "/_delete_suite/" + project + "/" + sprint + "/" + component + "/" + suite
+            $.ajax({type: "DELETE",
+                    url: url});
+        };
+
+    });
+
+</script>
+
 
 {% endblock %}
 
@@ -87,18 +104,25 @@
 
         {% for suite in data %}
 
-            <div class="panel panel-default">
+            <div id="div{{ suite['name'] }}" class="panel panel-default">
                 <div class="panel-heading">
+
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'] }}">
-                        {{ suite['name'] }}
-                        <span class="badge pull-right">{{ suite['total'] }}</span>
-                        {% if suite['passed'] != 0 %}
-                            <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
-                        {% endif %}
-                        {% if suite['failed'] != 0 %}
-                            <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
-                        {% endif %}
-                    </h4>
+
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-sm" onclick='removeSuite("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
+                            <span class="glyphicon glyphicon-remove pull-left"></span>
+                        </button>&nbsp;
+
+                          {{ suite['name'] }}
+
+                          <span class="badge pull-right">{{ suite['total'] }}</span>
+                          {% if suite['passed'] != 0 %}
+                              <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
+                          {% endif %}
+                          {% if suite['failed'] != 0 %}
+                              <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
+                          {% endif %}
+                     </h4>
                 </div>
 
                 <div id="collapse{{ suite['name'] }}" class="panel-collapse collapse">

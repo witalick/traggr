@@ -10,6 +10,25 @@
         <link type="text/css" href={{ url_for('static', filename='files/css/bootstrap.min.css') }} rel="stylesheet">
         <link type="text/css" href={{ url_for('static', filename='files/css/custom.css') }} rel="stylesheet">
 
+        <script type="text/javascript" src={{ url_for('static', filename='files/js/jquery-1.11.0.min.js') }}></script>
+        <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            $("#liAdmin").click(function() {
+                if ($("#liAdmin").hasClass("active")) {
+                    $("#liAdmin").removeClass("active");
+                    $(".btnRemove").hide();
+                } else {
+                    $("#liAdmin").addClass("active");
+                    $(".btnRemove").show();
+                };
+            });
+
+        });
+
+        </script>
+
         {% block customjs %}
 
         {% endblock %}
@@ -49,8 +68,8 @@
                     </ul>
 
                     <!-- TODO: Implement -->
-                    <ul onclick="alert('Not ready yet. Sorry.')" class="nav navbar-nav navbar-right">
-                        <li><a href="#">Admin</a></li>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li id="liAdmin"><a href="#">Admin</a></li>
                     </ul>
 
                     <ul onclick="alert('Not ready yet. Sorry.')" class="nav navbar-nav navbar-right">

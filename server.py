@@ -147,6 +147,14 @@ def project_sprints(project):
                            projects=projects,
                            sprints=sprints)
 
+@server.route('/_delete_suite/<project>/<sprint>/<component>/<suite>', methods=['DELETE'])
+def delete_suite(project, sprint, component, suite):
+
+    db = get_db(project)
+    db.remove_suite(sprint, component, suite)
+
+    return '', 200
+
 
 if __name__ == '__main__':
 

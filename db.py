@@ -79,6 +79,11 @@ class AggregationDB(MyMongoClient):
         sprint_collection_name = self._cn_results % sprint
         return self._db[sprint_collection_name].distinct('component')
 
+    def remove_suite(self, sprint, component, suite):
+
+        sprint_collection_name = self._cn_results % sprint
+        self._db[sprint_collection_name].remove({'component': component, 'suite': suite})
+
 
 if __name__ == '__main__':
 
