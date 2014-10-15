@@ -84,19 +84,24 @@ class AggregationDB(MyMongoClient):
         sprint_collection_name = self._cn_results % sprint
         self._db[sprint_collection_name].remove({'component': component, 'suite': suite})
 
+    def remove_component(self, sprint, component):
+
+        sprint_collection_name = self._cn_results % sprint
+        self._db[sprint_collection_name].remove({'component': component})
+
 
 if __name__ == '__main__':
 
     project = 'proj'
-    sprint = '2014_04'
+    sprint = '2014_10'
     db = AggregationDB(hostname='localhost', port=27017, project=project)
 
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     print db.get_sprint_names()
 
     print db.get_test_results(sprint)
 
-    component = 'Abc'
+    component = 'Hjk'
     suite = 'AddMessage'
 
     error = \
@@ -118,7 +123,7 @@ Exception: a
                               description='Description more...\nfdfdfdf\n gfggfg',
                               result='passed')
 
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     print db.get_test_results(sprint)
 

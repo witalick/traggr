@@ -155,6 +155,26 @@ def delete_suite(project, sprint, component, suite):
 
     return '', 200
 
+@server.route('/_delete_component/<project>/<sprint>/<component>', methods=['DELETE'])
+def delete_component(project, sprint, component):
+
+    db = get_db(project)
+    db.remove_component(sprint, component)
+
+    return '', 200
+
+@server.route('/_get_sprint_totals/<project>/<sprint>', methods=['GET'])
+def get_sprint_totals(project, sprint):
+
+    db = get_db(project)
+    test_results = db.get_test_results(sprint)
+    totals = dict()
+    totals['total'] = len(test_results)
+    totals['passed'] = len([t for t in test_results if t['result'] == 'passed'])
+    totals['failed'] = len([t for t in test_results if t['result'] != 'passed'])
+
+    return json.dumps(totals), 200
+
 
 if __name__ == '__main__':
 
