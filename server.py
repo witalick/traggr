@@ -163,6 +163,22 @@ def delete_component(project, sprint, component):
 
     return '', 200
 
+@server.route('/_delete_results/<project>/<sprint>', methods=['DELETE'])
+def delete_results(project, sprint):
+
+    db = get_db(project)
+    db.remove_results(sprint)
+
+    return '', 200
+
+@server.route('/_rename_results/<project>/<results>/<new_results>', methods=['PUT'])
+def rename_results(project, results, new_results):
+
+    db = get_db(project)
+    db.rename_results(results, new_results)
+
+    return '', 200
+
 @server.route('/_get_sprint_totals/<project>/<sprint>', methods=['GET'])
 def get_sprint_totals(project, sprint):
 
@@ -174,6 +190,14 @@ def get_sprint_totals(project, sprint):
     totals['failed'] = len([t for t in test_results if t['result'] != 'passed'])
 
     return json.dumps(totals), 200
+
+@server.route('/_get_results_names/<project>', methods=['GET'])
+def get_results_names(project):
+
+    db = get_db(project)
+    results_names = db.get_sprint_names()
+
+    return json.dumps(results_names), 200
 
 
 if __name__ == '__main__':

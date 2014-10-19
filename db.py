@@ -89,6 +89,23 @@ class AggregationDB(MyMongoClient):
         sprint_collection_name = self._cn_results % sprint
         self._db[sprint_collection_name].remove({'component': component})
 
+    def remove_results(self, name):
+
+        results_collection_name = self._cn_results % name
+        self._db.drop_collection(results_collection_name)
+
+        self._db[self._cn_last_update].remove({'sprint_name': name})
+
+    def rename_results(self, name, new_name):
+
+        results_collection_name = self._cn_results % name
+        new_results_collection_name = self._cn_results % new_name
+        self._db[results_collection_name].rename(new_results_collection_name)
+
+        self._db[self._cn_last_update].update({'sprint_name': name},
+                                              {'$set': {'sprint_name': new_name}},
+                                              upsert=False)
+
 
 if __name__ == '__main__':
 
@@ -101,7 +118,7 @@ if __name__ == '__main__':
 
     print db.get_test_results(sprint)
 
-    component = 'Hjk'
+    component = 'Abc'
     suite = 'AddMessage'
 
     error = \
@@ -121,7 +138,7 @@ Exception: a
                               test_id='BAM-%s' % num,
                               title='Test %s if there is foo bar no more foo bbar no more...' % num,
                               description='Description more...\nfdfdfdf\n gfggfg',
-                              result='passed')
+                              result='failed')
 
     # import pdb; pdb.set_trace()
 

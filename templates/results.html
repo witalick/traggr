@@ -7,7 +7,7 @@
 
     $(document).ready(function() {
 
-        $("#failedTests").click(function(){
+        $("#spanContextFailed").click(function() {
 
             if ($("#failedTestsList").is(":visible")) {
                 $("#failedTestsList").hide();
@@ -16,20 +16,27 @@
             };
         });
 
-        window.removeComponent = function(project, sprint, component)
-        {
-            $("#li" +  component).remove();
+        window.removeComponentWithConfirmation = function(project, sprint, component) {
+            
+            $("#btnConfirmDeletion").click(function() {
 
-            var url = "/_delete_component/" + project + "/" + sprint + "/" + component
-            $.ajax({type: "DELETE", url: url});
+                $("#li" +  component).remove();
 
-            url = "/_get_sprint_totals/" + project + "/" + sprint;
-            $.getJSON(url,
-                      function( data ) {
-                          $("#spanContextTotal").text(data.total);
-                          $("#spanContextPassed").text(data.passed);
-                          $("#spanContextFailed").text(data.failed);
-                      });
+                var url = "/_delete_component/" + project + "/" + sprint + "/" + component
+                $.ajax({type: "DELETE", url: url});
+
+                url = "/_get_sprint_totals/" + project + "/" + sprint;
+                $.getJSON(url,
+                          function( data ) {
+                              $("#spanContextTotal").text(data.total);
+                              $("#spanContextPassed").text(data.passed);
+                              $("#spanContextFailed").text(data.failed);
+                          });
+            });
+            $("#divBodyConfirmDeletion").text("Remove " + component + "?");
+
+            $("#ModalConfirmDeletion").modal();
+
         };
 
     });
@@ -81,7 +88,8 @@
 
 {% block body %}
 
-        <div class="alert alert-info">
+
+        <div class="alert alert-info" on>
             <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
             <strong>Note:</strong> Click a total failed tests badge to see a list of failed tests for all components.
         </div>
@@ -92,7 +100,7 @@
 
             <li id="li{{ component.name }}" class="list-group-item">
 
-                <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponent("{{ project }}", "{{ sprint }}", "{{ component.name }}")'>
+                <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component.name }}")'>
                     <span class="glyphicon glyphicon-remove pull-left"></span>
                 </button>&nbsp;
 
@@ -116,7 +124,7 @@
                     <span id="spanContextPassed" class="badge alert-success pull-right">{{ totals.passed }}</span>
                 {% endif %}
                 {% if totals.failed != 0 %}
-                    <span id="spanContextFailed" class="badge alert-danger pull-right" id="failedTests">{{ totals.failed }}</span>
+                    <span id="spanContextFailed" class="badge alert-danger pull-right">{{ totals.failed }}</span>
                 {% endif %}
             </li>
 

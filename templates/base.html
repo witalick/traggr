@@ -19,9 +19,11 @@
                 if ($("#liAdmin").hasClass("active")) {
                     $("#liAdmin").removeClass("active");
                     $(".btnRemove").hide();
+                    $(".btnRename").hide();
                 } else {
                     $("#liAdmin").addClass("active");
                     $(".btnRemove").show();
+                    $(".btnRename").show();
                 };
             });
 
@@ -90,6 +92,20 @@
         <br><br><br><br>
 
         <div class="container">
+
+            <div class="modal fade" id="ModalConfirmDeletion" tabindex="-1" role="dialog" aria-labelledby="ModalConfirmDeletion" aria-hidden="true">
+                <div class="modal-confirmation">
+                    <div class="modal-content">
+
+                        <div id="divBodyConfirmDeletion" class="modal-body">
+                        </div>
+                        <div class="modal-footer">
+                            <button id="btnConfirmDeletion" type="button" class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Yes</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {% block body %}
 

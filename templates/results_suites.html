@@ -10,18 +10,24 @@
 
         document.body.style.cursor='wait';
 
-        window.onload=function()
-        {
+        window.onload=function() {
             document.body.style.cursor='default';
         };
 
-        window.removeSuite = function(project, sprint, component, suite)
-        {
-            $("#div" +  suite).remove();
+        window.removeSuiteWithConfirmation = function(project, sprint, component, suite) {
 
-            var url = "/_delete_suite/" + project + "/" + sprint + "/" + component + "/" + suite
-            $.ajax({type: "DELETE",
-                    url: url});
+            $("#btnConfirmDeletion").click(function() {
+
+                $("#div" +  suite).remove();
+
+                var url = "/_delete_suite/" + project + "/" + sprint + "/" + component + "/" + suite;
+                $.ajax({type: "DELETE", url: url});
+            });
+
+            $("#divBodyConfirmDeletion").text("Remove " + suite + "?");
+
+            $("#ModalConfirmDeletion").modal();
+
         };
 
     });
@@ -109,7 +115,7 @@
 
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'] }}">
 
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuite("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>&nbsp;
 
