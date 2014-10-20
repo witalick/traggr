@@ -8,34 +8,44 @@
 
     $(document).ready(function() {
 
-        window.removeResultsWithConfirmation = function(project, sprint) {
+        $(".btnRemove").click(function() {
+
+            var project = $(this).attr("data-project");
+            var results = $(this).attr("data-results");
 
             $("#btnConfirmDeletion").click(function() {
 
-                $("#li" +  sprint).remove();
+                $("[id='li" +  results + "']").remove();
 
-                var url = "/_delete_results/" + project + "/" + sprint
+                var url = "/_delete_results/" + project + "/" + results
                 $.ajax({type: "DELETE", url: url});
 
+                var a_locator = "[id='a" +  results + "']";
+                $(a_locator).remove();
+
+
             });
-            $("#divBodyConfirmDeletion").text("Remove " + sprint + "?");
+            $("#divBodyConfirmDeletion").text("Remove " + results + "?");
 
             $("#ModalConfirmDeletion").modal();
 
-        };
+        });
 
-        window.renameResults = function(project, sprint) {
+        $(".btnRename").click(function() {
 
-            var link_tag = "<a href='/" + project + "/" + sprint +"'>" + sprint + "</a>"
+            var project = $(this).attr("data-project");
+            var results = $(this).attr("data-results");
 
-            var results_locator = "#li" +  sprint;
-            $(results_locator + " > a").remove();
+            var link_tag = "<a href='/" + project + "/" + results +"'>" + results + "</a>"
 
-            var input_id = "input" + sprint;
+            var results_locator = "[id='li" +  results + "']";
+            $(results_locator).children('a').remove();
+
+            var input_id = "input" + results.replace('.', '');
             var input_locator = "#" + input_id;
             if (!($(results_locator).has('input').length)) {
                 $(results_locator).append("<input id='" + input_id + "' type='text'>");
-                $(input_locator).val(sprint);
+                $(input_locator).val(results);
                 $(input_locator).focus();
 
             };
@@ -51,7 +61,6 @@
 
                 if (event.keyCode === 13) {
 
-
                     var new_name = $(input_locator).val();
 
                     var url = "/_get_results_names/" + project;
@@ -64,12 +73,22 @@
                             return;
                         };
 
-                        url = "/_rename_results/" + project + "/" + sprint + "/" + new_name;
+                        url = "/_rename_results/" + project + "/" + results + "/" + new_name;
                         $.ajax({type: "PUT", url: url});
 
                         $(input_locator).remove();
                         var new_link_tag = "<a href='/" + project + "/" + new_name +"'>" + new_name + "</a>"
                         $(results_locator).append(new_link_tag);
+
+                        $(results_locator).children(".btnRename").attr("data-results", new_name);
+                        $(results_locator).children(".btnRemove").attr("data-results", new_name);
+
+                        $(results_locator).attr("id", "li" + new_name);
+
+                        var a_locator = "[id='a" +  results + "']";
+                        $(a_locator).attr("href", "/" + project + "/" + new_name);
+                        $(a_locator).text(new_name);
+                        $(a_locator).attr("id", "a" + new_name);
 
                     } else {
                         alert("New name is invalid");
@@ -85,7 +104,7 @@
 
             });
 
-        };
+        });
 
     });
 
@@ -119,7 +138,7 @@
             <ul class="dropdown-menu">
 
                 {% for s in sprints%}
-                    <li><a href="/{{ project }}/{{ s }}">{{ s }}</a></li>
+                    <li><a id="a{{ s }}" href="/{{ project }}/{{ s }}">{{ s }}</a></li>
                 {% endfor %}
 
             </ul>
@@ -136,11 +155,11 @@
 
                 {% for sprint in sprints %}
                     <li id="li{{ sprint }}" class="list-group-item">
-                        <button style="display:none" type="button" class="btnRename btn btn-primary btn-xs" onclick='renameResults("{{ project }}", "{{ sprint }}")'>
+                        <button id="btnRenameResults" style="display:none" type="button" class="btnRename btn btn-primary btn-xs" data-project="{{ project }}" data-results="{{ sprint }}">
                             <span class="glyphicon glyphicon-pencil pull-left"></span>
                         </button>&nbsp;
 
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeResultsWithConfirmation("{{ project }}", "{{ sprint }}")'>
+                        <button id="btnRemoveResults" style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-project="{{ project }}" data-results="{{ sprint }}">
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>&nbsp;
 

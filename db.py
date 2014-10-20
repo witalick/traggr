@@ -110,7 +110,7 @@ class AggregationDB(MyMongoClient):
 if __name__ == '__main__':
 
     project = 'proj'
-    sprint = '2014_10'
+    sprint = 'v.1'
     db = AggregationDB(hostname='localhost', port=27017, project=project)
 
     # import pdb; pdb.set_trace()
