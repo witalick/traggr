@@ -9,26 +9,21 @@ from pymongo import MongoClient
 class MyMongoClient(object):
 
     def __init__(self, hostname, port):
-
         self._client = MongoClient(hostname, port)
-
         self._project_db_name = 'project_%s'
         self._cn_last_update = 'last_update'
 
     def get_project_db(self, project):
-
         name = self._project_db_name % project
         return self._client[name]
 
     def get_project_names(self):
-
-        project_names = [dn.split('_', 1)[1] for dn in self._client.database_names() \
+        project_names = [dn.split('_', 1)[1] for dn in self._client.database_names()
                                              if dn.startswith('project_')]
         project_names.sort()
         return project_names
 
     def get_latest_sprint_name(self, project):
-
         project_db = self.get_project_db(project)
         last_updates = list(project_db[self._cn_last_update].find())
         if last_updates:
@@ -39,22 +34,17 @@ class MyMongoClient(object):
 class AggregationDB(MyMongoClient):
 
     def __init__(self, hostname, port, project):
-
         super(AggregationDB, self).__init__(hostname, port)
-
         self._db = self.get_project_db(project)
-
         self._cn_tests = 'tests'
         self._cn_results = 'results_%s'
 
     def upsert_test(self, component, suite, test_id, **test_attributes):
-
         self._db[self._cn_tests].update(
             {'test_id': test_id, 'suite': suite, 'component': component},
             {'$set': test_attributes}, upsert=True)
 
     def upsert_test_result(self, sprint, component, suite, test_id, **result_attributes):
-
         sprint_collection_name = self._cn_results % sprint
         query = {'test_id': test_id, 'suite': suite, 'component': component}
         self._db[sprint_collection_name].remove(query)
@@ -66,45 +56,58 @@ class AggregationDB(MyMongoClient):
                                               {'$set': {'timestamp': time.time()}}, upsert=True)
 
     def get_test_results(self, sprint, **query):
-
         sprint_collection_name = self._cn_results % sprint
         return list(self._db[sprint_collection_name].find(query))
 
     def get_sprint_names(self):
-
         return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('results_')]
 
     def get_component_names(self, sprint):
-
         sprint_collection_name = self._cn_results % sprint
         return self._db[sprint_collection_name].distinct('component')
 
     def remove_suite(self, sprint, component, suite):
-
         sprint_collection_name = self._cn_results % sprint
         self._db[sprint_collection_name].remove({'component': component, 'suite': suite})
 
     def remove_component(self, sprint, component):
-
         sprint_collection_name = self._cn_results % sprint
         self._db[sprint_collection_name].remove({'component': component})
 
     def remove_results(self, name):
-
         results_collection_name = self._cn_results % name
         self._db.drop_collection(results_collection_name)
-
         self._db[self._cn_last_update].remove({'sprint_name': name})
 
     def rename_results(self, name, new_name):
-
         results_collection_name = self._cn_results % name
         new_results_collection_name = self._cn_results % new_name
         self._db[results_collection_name].rename(new_results_collection_name)
-
         self._db[self._cn_last_update].update({'sprint_name': name},
                                               {'$set': {'sprint_name': new_name}},
                                               upsert=False)
+
+    # Manual Tests Methods
+
+    def get_manual_tests(self, **query):
+        sprint_collection_name = self._cn_tests
+        return list(self._db[sprint_collection_name].find(query))
+
+    def get_manual_component_names(self):
+        sprint_collection_name = self._cn_tests
+        return self._db[sprint_collection_name].distinct('component')
+
+    def remove_manual_test(self, component, suite, test_id):
+        sprint_collection_name = self._cn_tests
+        self._db[sprint_collection_name].remove({'component': component, 'suite': suite, 'test_id': test_id})
+
+    def remove_manual_suite(self, component, suite):
+        sprint_collection_name = self._cn_tests
+        self._db[sprint_collection_name].remove({'component': component, 'suite': suite})
+
+    def remove_manual_component(self, component):
+        sprint_collection_name = self._cn_tests
+        self._db[sprint_collection_name].remove({'component': component})
 
 
 if __name__ == '__main__':
