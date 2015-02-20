@@ -90,24 +90,19 @@ class AggregationDB(MyMongoClient):
     # Manual Tests Methods
 
     def get_manual_tests(self, **query):
-        sprint_collection_name = self._cn_tests
-        return list(self._db[sprint_collection_name].find(query))
+        return list(self._db[self._cn_tests].find(query))
 
     def get_manual_component_names(self):
-        sprint_collection_name = self._cn_tests
-        return self._db[sprint_collection_name].distinct('component')
+        return self._db[self._cn_tests].distinct('component')
 
     def remove_manual_test(self, component, suite, test_id):
-        sprint_collection_name = self._cn_tests
-        self._db[sprint_collection_name].remove({'component': component, 'suite': suite, 'test_id': test_id})
+        self._db[self._cn_tests].remove({'component': component, 'suite': suite, 'test_id': test_id})
 
     def remove_manual_suite(self, component, suite):
-        sprint_collection_name = self._cn_tests
-        self._db[sprint_collection_name].remove({'component': component, 'suite': suite})
+        self._db[self._cn_tests].remove({'component': component, 'suite': suite})
 
     def remove_manual_component(self, component):
-        sprint_collection_name = self._cn_tests
-        self._db[sprint_collection_name].remove({'component': component})
+        self._db[self._cn_tests].remove({'component': component})
 
 
 if __name__ == '__main__':
