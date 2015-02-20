@@ -74,9 +74,7 @@ def m_results_suites(m_project, m_component):
 
                       {u'test_id': u'A-2', u'steps': u'Some more description',
                        u'title': u'Test for login2', u'component': u'API',
-                       u'result': u'Pass', u'error': u'Exception',
-                       'expected_results': 'expected_results',
-                       u'suite': u'Functions'}],
+                       'expected_results': 'expected_results'}],
              'name': u'Functions',
              'total': 10}]
 
