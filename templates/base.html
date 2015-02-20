@@ -28,7 +28,38 @@
                 };
             });
 
+            $("#liAdd").click(function() {
+                if ($("#liAdd").hasClass("active")) {
+                    $("#liAdd").removeClass("active");
+                    $("#ModalAddTest").hide();
+                } else {
+                    $("#liAdmin").addClass("active");
+                    $("#ModalAddTest").modal();
+                };
+            });
+
+            $("#btnAddTestCase").click(function(){
+                        var x = document.forms["formTestAdd"].elements;
+                        var title = x['inputTestTitle'].value;
+                        var steps = x['inputTestSteps'].value;
+                        var expected_results = x['inputTestExpectedResults'].value;
+                        var component = "comp";
+                        var test_id = "ajax";
+                        var project = 'project';
+                        var suite = 'suite';
+
+                        console.log(steps);
+                        $("#ModalAddTest").modal('hide')
+                    }
+            );
+
+            $("#btnAddTestCaseCancel").click(function(){
+                        $("#ModalAddTest").modal('hide')
+                    }
+            );
         });
+
+
         </script>
 
         {% block customjs %}
@@ -77,12 +108,12 @@
                         <li><a href="#">Analyze</a></li>
                     </ul>
 
-                    <ul onclick="alert('Not ready yet. Sorry.')" class="nav navbar-nav navbar-right">
-                        <li><a href="#">Add</a></li>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li id="liAdd"><a href="#">Add</a></li>
                     </ul>
 
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="/manual_tc">Manual TCs</a></li>
+                        <li><a href="/manual">Manual TCs</a></li>
                     </ul>
 
 
@@ -110,6 +141,39 @@
                     </div>
                 </div>
             </div>
+
+
+
+            <div class="modal fade" id="ModalAddTest" tabindex="-1" role="dialog" aria-labelledby="ModalAddTest" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4>Add Test</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form name="formTestAdd">
+                                <div class="form-group">
+                                    <label for="inputTestSubject">Test Title</label>
+                                    <input type="text" class="form-control" id="inputTestTitle" placeholder="Title">
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputTestSteps">Test Steps</label>
+                                    <textarea class="form-control" id="inputTestSteps" rows="10" placeholder="Steps"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputTestExpectedResults">Test Expected Results</label>
+                                    <textarea class="form-control" id="inputTestExpectedResults" rows="8"  placeholder="Results ..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="btnAddTestCase">Save</button>
+                                <button type="button" class="btn btn-default" id="btnAddTestCaseCancel" aria-hidden="true">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
 
             {% block body %}
 

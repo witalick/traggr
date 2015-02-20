@@ -33,7 +33,7 @@ def root():
     return render_template('base.html', projects=projects, latest_sprints=latest_sprints)
 
 
-@server.route('/manual_tc', methods=['POST', 'GET'])
+@server.route('/manual', methods=['POST', 'GET'])
 def manual_test_cases():
     db = get_db()
     m_projects = db.get_m_projects()
@@ -42,7 +42,7 @@ def manual_test_cases():
         return render_template('manual_tc.html', m_projects=m_projects)
 
 
-@server.route('/manual_tc/<m_project>', methods=['POST', 'GET'])
+@server.route('/manual/<m_project>', methods=['POST', 'GET'])
 def manual_test_cases_comp(m_project):
     db = get_db(m_project)
     m_projects = db.get_m_projects()
@@ -54,7 +54,7 @@ def manual_test_cases_comp(m_project):
                                components=components)
 
 
-@server.route('/manual_tc/<m_project>/<m_component>')
+@server.route('/manual/<m_project>/<m_component>')
 def m_results_suites(m_project, m_component):
     db = get_db(m_project)
     projects = db.get_m_projects()

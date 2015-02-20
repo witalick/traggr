@@ -32,7 +32,7 @@ class MyMongoClient(object):
 
     def get_m_projects(self):
         project_names = [dn.split('_', 2)[-1] for dn in self._client.database_names()
-                                             if dn.startswith('manual_project_')]
+                                             if dn.startswith('project_manual_')]
         project_names.sort()
         return project_names
 
