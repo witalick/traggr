@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block menu %}
+
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            Projects <b class="caret"></b>
+        </a>
+
+        <ul class="dropdown-menu">
+            {% for p in m_projects%}
+                <li><a href="/manual_tc/{{ p }}">{{ p }}</a></li>
+            {% endfor %}
+
+        </ul>
+    </li>
+
+{% endblock %}
+
+{% block body %}
+
+        <ul class="list-group">
+
+            {% for component in components %}
+
+            <li id="li{{ component.name }}" class="list-group-item">
+
+                <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component.name }}")'>
+                    <span class="glyphicon glyphicon-remove pull-left"></span>
+                </button>&nbsp;
+
+                <a href="/manual_tc/{{ m_project }}/{{ component.name }}">{{ component.name }}</a>
+
+                <span class="badge alert-success pull-right">{{ component.total }}</span>
+
+            </li>
+
+            {% endfor %}
+
+        </ul>
+
+{% endblock %}

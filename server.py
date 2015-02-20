@@ -4,7 +4,7 @@ __author__ = 'vyakoviv'
 import re
 import json
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from db import AggregationDB, MyMongoClient
 from config import config
@@ -32,6 +32,60 @@ def root():
     latest_sprints = dict((project, db.get_latest_sprint_name(project)) for project in projects)
     return render_template('base.html', projects=projects, latest_sprints=latest_sprints)
 
+
+@server.route('/manual_tc', methods=['POST', 'GET'])
+def manual_test_cases():
+    db = get_db()
+    m_projects = db.get_m_projects()
+
+    if request.method == 'GET':
+        return render_template('manual_tc.html', m_projects=m_projects)
+
+
+@server.route('/manual_tc/<m_project>', methods=['POST', 'GET'])
+def manual_test_cases_comp(m_project):
+    db = get_db(m_project)
+    m_projects = db.get_m_projects()
+    components = db.get_manual_component_names()
+    if request.method == 'GET':
+        return render_template('manual_suits.html',
+                               m_projects=m_projects,
+                               m_project=m_project,
+                               components=components)
+
+
+@server.route('/manual_tc/<m_project>/<m_component>')
+def m_results_suites(m_project, m_component):
+    db = get_db(m_project)
+    projects = db.get_m_projects()
+    m_components = db.get_manual_component_names()
+    print 'm_component', m_component
+    tests = db.get_manual_tests(component=m_component)
+    print 'tests', tests
+    a = { "component" : "API", "steps" : "Some more description",
+          "suite" : "Functions", "test_id" : "A-1",
+          'expected_results': 'expected_results',
+          "title" : "Test for login"}
+
+    data = [{'rows': [{u'test_id': u'A-1', u'steps': u'Some more steps',
+                       u'title': u'Test for login', u'component': u'API',
+                       u'suite': u'Functions',
+                       'expected_results': 'expected_results'},
+
+                      {u'test_id': u'A-2', u'steps': u'Some more description',
+                       u'title': u'Test for login2', u'component': u'API',
+                       u'result': u'Pass', u'error': u'Exception',
+                       'expected_results': 'expected_results',
+                       u'suite': u'Functions'}],
+             'name': u'Functions',
+             'total': 10}]
+
+    return render_template('manual_tests_suites.html',
+                           data=data,
+                           project=m_project,
+                           projects=projects,
+                           component=m_component,
+                           components=m_components)
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
@@ -120,6 +174,8 @@ def results_suites(project, sprint, component):
         data.append(suite_data)
 
     data.sort(key=lambda e: e['name'])
+
+    print data
 
     return render_template('results_suites.html',
                            data=data,

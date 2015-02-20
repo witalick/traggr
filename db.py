@@ -30,6 +30,11 @@ class MyMongoClient(object):
             last_updates.sort(key=lambda r: r['timestamp'])
             return last_updates[-1]['sprint_name']
 
+    def get_m_projects(self):
+        project_names = [dn.split('_', 2)[-1] for dn in self._client.database_names()
+                                             if dn.startswith('manual_project_')]
+        project_names.sort()
+        return project_names
 
 class AggregationDB(MyMongoClient):
 
@@ -93,7 +98,10 @@ class AggregationDB(MyMongoClient):
         return list(self._db[self._cn_tests].find(query))
 
     def get_manual_component_names(self):
-        return self._db[self._cn_tests].distinct('component')
+        res = self._db[self._cn_tests].aggregate([{'$group': {'_id': {'name': "$component"},
+                                                              'total': {'$sum': 1} } } ])
+        return [{'name': row['_id']['name'], 'total': row['total']}
+                for row in res['result']]
 
     def remove_manual_test(self, component, suite, test_id):
         self._db[self._cn_tests].remove({'component': component, 'suite': suite, 'test_id': test_id})
