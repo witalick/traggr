@@ -148,6 +148,9 @@ class AggregationDB(MyMongoClient):
         return [{'name': row['_id'], 'total': row['total']}
                 for row in res['result']]
 
+    def get_manual_sprints(self):
+        return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('sprint_')]
+
     def remove_manual_test(self, component, suite, test_id):
         self._db[self._cn_tests].remove({'component': component, 'suite': suite, 'test_id': test_id})
 

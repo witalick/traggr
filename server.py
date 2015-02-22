@@ -39,7 +39,7 @@ def manual_tc():
     m_projects = db.get_m_projects()
 
     if request.method == 'GET':
-        return render_template('manual_tc.html', m_projects=m_projects)
+        return render_template('manual_tc.html', projects=m_projects)
 
 
 @server.route('/manual/<m_project>', methods=['POST', 'GET'])
@@ -47,14 +47,16 @@ def manual_suits(m_project):
     db = get_db(m_project)
     m_projects = db.get_m_projects()
     components = db.get_manual_component_names()
+    m_sprints = db.get_manual_sprints()
     if request.method == 'GET':
         return render_template('manual_suits.html',
-                               m_projects=m_projects,
-                               m_project=m_project,
+                               projects=m_projects,
+                               project=m_project,
+                               sprints=m_sprints,
                                components=components)
 
 
-@server.route('/manual/<m_project>/<m_component>')
+@server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET'])
 def manual_tests_suites(m_project, m_component):
     db = get_db(m_project)
     projects = db.get_m_projects()
@@ -63,12 +65,31 @@ def manual_tests_suites(m_project, m_component):
     if not tests:
         return 'I don\'t have tests for this component... Sorry... :/', 404
     # tests.sort(key=lambda x: x['name'])
-    return render_template('manual_tests_suites.html',
-                           data=tests,
-                           project=m_project,
-                           projects=projects,
-                           component=m_component,
-                           components=m_components)
+    if request.method == 'GET':
+        return render_template('manual_tests_suites.html',
+                               data=tests,
+                               project=m_project,
+                               projects=projects,
+                               component=m_component,
+                               components=m_components)
+
+
+@server.route('/manual/<m_project>/sprint/', methods=['POST', 'GET'])
+def manual_project_sprints(m_project):
+    db = get_db(m_project)
+    projects = db.get_m_projects()
+    sprints = db.get_manual_sprints()
+    if request.method == 'GET':
+        return render_template('manual_project_sprints.html',
+                               project=m_project,
+                               projects=projects,
+                               sprints=sprints)
+
+
+@server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET'])
+def manual_project_sprint_details(m_project, m_sprint):
+    if request.method == 'GET':
+        return 'TODO: ADD sprint details', 404
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):

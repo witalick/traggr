@@ -7,7 +7,7 @@
         </a>
 
         <ul class="dropdown-menu">
-            {% for p in m_projects%}
+            {% for p in projects%}
                 <li><a href="/manual/{{ p }}">{{ p }}</a></li>
             {% endfor %}
 
@@ -23,17 +23,17 @@
 
             <ul class="list-group">
 
-                {% for m_project in m_projects %}
-                    <li id="li{{ m_project }}" class="list-group-item">
-                        <button id="btnRenameResults" style="display:none" type="button" class="btnRename btn btn-primary btn-xs" data-project="{{ project }}" data-results="{{ m_project }}">
+                {% for project in projects %}
+                    <li id="li{{ project }}" class="list-group-item">
+                        <button id="btnRenameResults" style="display:none" type="button" class="btnRename btn btn-primary btn-xs" data-project="{{ project }}" data-results="{{ project }}">
                             <span class="glyphicon glyphicon-pencil pull-left"></span>
                         </button>&nbsp;
 
-                        <button id="btnRemoveResults" style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-project="{{ project }}" data-results="{{ m_project }}">
+                        <button id="btnRemoveResults" style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-project="{{ project }}" data-results="{{ project }}">
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>&nbsp;
 
-                        <a href="/manual/{{ m_project }}">{{ m_project }}</a>
+                        <a href="/manual/{{ project }}">{{ project }}</a>
                     </li>
                 {% endfor %}
 
