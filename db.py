@@ -114,6 +114,7 @@ class AggregationDB(MyMongoClient):
             },
             {'$sort': {'test_id': 1}},
             {
+
                 '$group': {
                     '_id': "$suite",
                     'rows': {'$push': {'test_id': "$test_id",
@@ -129,7 +130,6 @@ class AggregationDB(MyMongoClient):
             {'$sort': {'_id': 1}}
 
         ])
-        print db_result
         result = db_result['result']
         if not result:
             return False
