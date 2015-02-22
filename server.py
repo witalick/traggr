@@ -59,27 +59,12 @@ def m_results_suites(m_project, m_component):
     db = get_db(m_project)
     projects = db.get_m_projects()
     m_components = db.get_manual_component_names()
-    print 'm_component', m_component
     tests = db.get_manual_tests(component=m_component)
-    print 'tests', tests
-    a = { "component" : "API", "steps" : "Some more description",
-          "suite" : "Functions", "test_id" : "A-1",
-          'expected_results': 'expected_results',
-          "title" : "Test for login"}
-
-    data = [{'rows': [{u'test_id': u'A-1', u'steps': u'Some more steps',
-                       u'title': u'Test for login', u'component': u'API',
-                       u'suite': u'Functions',
-                       'expected_results': 'expected_results'},
-
-                      {u'test_id': u'A-2', u'steps': u'Some more description',
-                       u'title': u'Test for login2', u'component': u'API',
-                       'expected_results': 'expected_results'}],
-             'name': u'Functions',
-             'total': 10}]
+    if not tests:
+        return 'I don\'t have tests for this component... Sorry... :/', 404
 
     return render_template('manual_tests_suites.html',
-                           data=data,
+                           data=tests,
                            project=m_project,
                            projects=projects,
                            component=m_component,
