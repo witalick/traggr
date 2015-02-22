@@ -34,7 +34,7 @@ def root():
 
 
 @server.route('/manual', methods=['POST', 'GET'])
-def manual_test_cases():
+def manual_tc():
     db = get_db()
     m_projects = db.get_m_projects()
 
@@ -43,7 +43,7 @@ def manual_test_cases():
 
 
 @server.route('/manual/<m_project>', methods=['POST', 'GET'])
-def manual_test_cases_comp(m_project):
+def manual_suits(m_project):
     db = get_db(m_project)
     m_projects = db.get_m_projects()
     components = db.get_manual_component_names()
@@ -55,14 +55,14 @@ def manual_test_cases_comp(m_project):
 
 
 @server.route('/manual/<m_project>/<m_component>')
-def m_results_suites(m_project, m_component):
+def manual_tests_suites(m_project, m_component):
     db = get_db(m_project)
     projects = db.get_m_projects()
     m_components = db.get_manual_component_names()
     tests = db.get_manual_tests(component=m_component)
     if not tests:
         return 'I don\'t have tests for this component... Sorry... :/', 404
-
+    # tests.sort(key=lambda x: x['name'])
     return render_template('manual_tests_suites.html',
                            data=tests,
                            project=m_project,

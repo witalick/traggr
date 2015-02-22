@@ -109,23 +109,27 @@ class AggregationDB(MyMongoClient):
 
     def get_manual_tests(self, component):
         db_result = self._db[self._cn_tests].aggregate([
-            {'$match': {'component': component}},
-
+            {
+                '$match': {'component': component}
+            },
+            {'$sort': {'test_id': 1}},
             {
                 '$group': {
                     '_id': "$suite",
-                    'rows': {'$addToSet': {'test_id': "$test_id",
-                                          'steps': "$steps",
-                                          'subject': "$subject",
-                                          'component': '$component',
-                                          'suite': '$component',
-                                          'expected_results': '$expected_results'
-                                          }},
+                    'rows': {'$push': {'test_id': "$test_id",
+                                       'steps': "$steps",
+                                       'subject': "$subject",
+                                       'component': '$component',
+                                       'suite': '$component',
+                                       'expected_results': '$expected_results'}
+                             },
                     'total': {'$sum': 1}
                 }
-            }
+            },
+            {'$sort': {'_id': 1}}
 
         ])
+        print db_result
         result = db_result['result']
         if not result:
             return False
@@ -134,8 +138,13 @@ class AggregationDB(MyMongoClient):
         return result
 
     def get_manual_component_names(self):
-        res = self._db[self._cn_tests].aggregate([{'$group': {'_id': "$component",
-                                                              'total': {'$sum': 1} } } ])
+        res = self._db[self._cn_tests].aggregate([
+            {
+                '$group': {'_id': "$component",
+                           'total': {'$sum': 1}}
+            },
+            {'$sort': {'_id': 1}}
+        ])
         return [{'name': row['_id'], 'total': row['total']}
                 for row in res['result']]
 
