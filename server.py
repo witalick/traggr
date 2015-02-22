@@ -158,8 +158,6 @@ def results_suites(project, sprint, component):
 
     data.sort(key=lambda e: e['name'])
 
-    print data
-
     return render_template('results_suites.html',
                            data=data,
                            project=project,
