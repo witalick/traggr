@@ -36,7 +36,7 @@
                             contentType: "application/json; charset=utf-8",
                             dataType: "json"
                       })
-                            .done(function(){$("#ModalAddTest").modal('hide');
+                            .success(function(){$("#ModalAddTest").modal('hide');
                                              window.location.reload()
                             })
                             .fail(function(error){alert(error.responseText)});
@@ -47,6 +47,25 @@
             $("#ModalAddTest").modal('hide');
             $("#liAdd").removeClass("active")}
         );
+
+        window.removeManualComponentWithConfirmation = function(component) {
+            $("#btnConfirmDeletion").click(function() {
+
+                var url = "/manual/" + "{{ project }}";
+                $.ajax({type: "DELETE",
+                        url: url,
+                        data: JSON.stringify({'component': component}),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json"})
+                    .success(function(){window.location.reload()})
+                    .fail(function(error){alert(error.responseText)});
+            });
+
+            $("#divBodyConfirmDeletion").text("Remove " + component + "?");
+            $("#ModalConfirmDeletion").modal();
+
+        };
+
     });
 
 </script>
@@ -54,12 +73,8 @@
 
 
 {% block menu %}
-
     <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            {{ project }} <b class="caret"></b>
-        </a>
-
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ project }} <b class="caret"></b></a>
         <ul class="dropdown-menu">
             {% for p in projects%}
                 <li><a href="/manual/{{ p }}">{{ p }}</a></li>
@@ -67,14 +82,9 @@
         </ul>
     </li>
     <li class="dropdown">
-
             {% if sprints %}
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    Sprints <b class="caret"></b>
-                </a>
-
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sprints <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-
                     <li><a href="/manual/{{ project }}/sprint/">All Sprints</a></li>
 
                     {% for s in sprints%}
@@ -83,69 +93,59 @@
 
                 </ul>
             {% else %}
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    No Sprint Data <b class="caret"></b>
-                </a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">No Sprint Data <b class="caret"></b></a>
             {% endif %}
 
-        </li>
+    </li>
 {% endblock %}
 
 {% block body %}
+    <ul class="list-group">
+        {% for component in components %}
+        <li id="li{{ component.name }}" class="list-group-item">
+            <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualComponentWithConfirmation("{{ component.name }}")'>
+                <span class="glyphicon glyphicon-remove pull-left"></span>
+            </button>&nbsp;
+            <a href="/manual/{{ project }}/{{ component.name }}">{{ component.name }}</a>
+            <span class="badge pull-right">{{ component.total }}</span>
+        </li>
+        {% endfor %}
+    </ul>
 
-        <ul class="list-group">
-
-            {% for component in components %}
-
-            <li id="li{{ component.name }}" class="list-group-item">
-
-                <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component.name }}")'>
-                    <span class="glyphicon glyphicon-remove pull-left"></span>
-                </button>&nbsp;
-
-                <a href="/manual/{{ project }}/{{ component.name }}">{{ component.name }}</a>
-
-                <span class="badge pull-right">{{ component.total }}</span>
-
-            </li>
-
-            {% endfor %}
-
-        </ul>
-        <div class="modal fade" id="ModalAddTest" tabindex="-1" role="dialog" aria-labelledby="ModalAddTest" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4>Add Test</h4>
-                    </div>
-                    <div class="modal-body">
-                        <form name="formTestAdd">
-                            <div class="form-group">
-                                <label for="inputTestComponent">Component</label>
-                                <input type="text" class="form-control" id="inputTestComponent" placeholder="Component">
-                            </div>
-                            <div class="form-group">
-                                <label for="inputTestSuite">Test Suite</label>
-                                <input type="text" class="form-control" id="inputTestSuite" placeholder="Test Suite">
-                            </div>
-                            <div class="form-group">
-                                <label for="inputTestSubject">Test Title</label>
-                                <input type="text" class="form-control" id="inputTestTitle" placeholder="Title">
-                            </div>
-                            <div class="form-group">
-                                <label for="inputTestSteps">Test Steps</label>
-                                <textarea class="form-control" id="inputTestSteps" rows="10" placeholder="Steps"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputTestExpectedResults">Test Expected Results</label>
-                                <textarea class="form-control" id="inputTestExpectedResults" rows="8"  placeholder="Results ..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary" id="btnAddTestCase">Save</button>
-                            <button type="button" class="btn btn-default" id="btnAddTestCaseCancel" aria-hidden="true">Cancel</button>
-                        </form>
-                    </div>
+    <div class="modal fade" id="ModalAddTest" tabindex="-1" role="dialog" aria-labelledby="ModalAddTest" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Add Test</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formTestAdd">
+                        <div class="form-group">
+                            <label for="inputTestComponent">Component</label>
+                            <input type="text" class="form-control" id="inputTestComponent" placeholder="Component">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTestSuite">Test Suite</label>
+                            <input type="text" class="form-control" id="inputTestSuite" placeholder="Test Suite">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTestSubject">Test Title</label>
+                            <input type="text" class="form-control" id="inputTestTitle" placeholder="Title">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTestSteps">Test Steps</label>
+                            <textarea class="form-control" id="inputTestSteps" rows="10" placeholder="Steps"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputTestExpectedResults">Test Expected Results</label>
+                            <textarea class="form-control" id="inputTestExpectedResults" rows="8"  placeholder="Results ..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnAddTestCase">Save</button>
+                        <button type="button" class="btn btn-default" id="btnAddTestCaseCancel" aria-hidden="true">Cancel</button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
 {% endblock %}

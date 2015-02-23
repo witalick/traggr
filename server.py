@@ -42,12 +42,12 @@ def manual_base():
         return render_template('manual_base.html', projects=m_projects)
     elif request.method == 'POST':
         project_data = json.loads(request.get_data())
-        db = get_db('manual_' + project_data['name'])
+        db = get_db('manual_' + project_data['project_name'])
         db.get_manual_component_names()
         return jsonify({})
 
 
-@server.route('/manual/<m_project>', methods=['POST', 'GET'])
+@server.route('/manual/<m_project>', methods=['POST', 'GET', 'DELETE'])
 def manual_components(m_project):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
@@ -67,7 +67,11 @@ def manual_components(m_project):
                        suite=test_data['suite'],
                        test_id=db.get_new_test_id(),
                        **test_data['other_attributes'])
+        return jsonify({})
 
+    elif request.method == 'DELETE':
+        test_data = json.loads(request.get_data())
+        db.remove_manual_component(test_data['component'])
         return jsonify({})
 
 
