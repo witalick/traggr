@@ -111,11 +111,16 @@ def manual_sprints(m_project):
     db = get_db(db_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
+    totals = [db.get_sprint_totals(sprint=m_sprint) for m_sprint in sprints]
+    data = dict()
+    for i, v in zip(sprints, totals):
+        data[i]= v
+    # db.create_sprint('sprint_1_7')
     if request.method == 'GET':
         return render_template('manual_sprints.html',
                                project=m_project,
                                projects=projects,
-                               sprints=sprints)
+                               sprints=data)
 
 
 @server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET'])
@@ -128,7 +133,6 @@ def manual_sprint_suites(m_project, m_sprint):
     totals = db.get_sprint_totals(sprint=m_sprint)
     components_data = db.get_sprint_details(sprint=m_sprint)
     failed_tests = db.get_sprint_failed(sprint=m_sprint)
-
     if request.method == 'GET':
         return render_template('manual_sprint_suites.html',
                                project=m_project,
@@ -260,7 +264,7 @@ def results_suites(project, sprint, component):
         data.append(suite_data)
 
     data.sort(key=lambda e: e['name'])
-    print component, components
+
     return render_template('results_suites.html',
                            data=data,
                            project=project,

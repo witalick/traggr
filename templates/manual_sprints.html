@@ -25,7 +25,7 @@
             <ul class="dropdown-menu">
 
                 {% for s in sprints%}
-                    <li><a id="a{{ s }}" href="/{{ project }}/{{ s }}">{{ s }}</a></li>
+                    <li><a id="a{{ s }}" href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
                 {% endfor %}
 
             </ul>
@@ -41,17 +41,13 @@
 
                 {% for sprint in sprints %}
                     <li id="li{{ sprint }}" class="list-group-item">
-                        <button id="btnRenameResults" style="display:none" type="button" class="btnRename btn btn-primary btn-xs" data-project="{{ project }}" data-results="{{ sprint }}">
-                            <span class="glyphicon glyphicon-pencil pull-left"></span>
-                        </button>&nbsp;
-
-                        <button id="btnRemoveResults" style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-project="{{ project }}" data-results="{{ sprint }}">
-                            <span class="glyphicon glyphicon-remove pull-left"></span>
-                        </button>&nbsp;
-
                         <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }}</a>
+                        <span class="badge pull-right">{{ sprints[sprint]['total'] }}</span>
+                        <span class="badge alert-success pull-right">{{ sprints[sprint]['passed'] }}</span>
+                        <span class="badge alert-danger pull-right">{{ sprints[sprint]['failed'] }}</span>
                     </li>
                 {% endfor %}
+
 
             </ul>
 

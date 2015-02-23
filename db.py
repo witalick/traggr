@@ -241,6 +241,20 @@ class AggregationDB(MyMongoClient):
         return [{'name': row['_id'], 'total': row['total']}
                 for row in res['result']]
 
+    def create_sprint(self, sprint_name):
+
+        self._db.eval('db.tests.copyTo("{0}")'.format(sprint_name))
+        self._db[sprint_name].update({}, {'$set': {"result": ''}},
+                                     upsert=False, multi=False)
+        return
+
+    def sync_sprint(self, sprint_name):
+        new_tc = self._db[sprint_name].find()
+        for tc in new_tc:
+            self._db[sprint_name].update({'_id': tc['_id']}, {'$set': tc},
+                                         upsert=False, multi=False)
+        return
+
     def remove_manual_test(self, component, suite, test_id):
         self._db[self._cn_tests].remove({'component': component, 'suite': suite, 'test_id': test_id})
 

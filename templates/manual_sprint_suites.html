@@ -70,7 +70,7 @@
                 </a>
 
                 <ul class="dropdown-menu">
-
+                    <li><a href="/manual/{{ project }}/sprint/">All Sprints</a></li>
                     {% for s in sprints%}
                     <li><a href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
                     {% endfor %}
@@ -174,9 +174,7 @@
                                     <h4 class="modal-title" id="myModalErrorLabel">Error: {{ result.component }}: {{ result.suite }}: {{ result.test_id }}</h4>
                                 </div>
                                 <div class="modal-body">
-                                    <pre>
-{{ result.error }}
-                                    </pre>
+                                    <pre>{{ result.error }}</pre>
                                 </div>
                             </div>
                         </div>
