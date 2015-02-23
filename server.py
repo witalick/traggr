@@ -75,7 +75,7 @@ def manual_components(m_project):
         return jsonify({})
 
 
-@server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET'])
+@server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET', 'DELETE'])
 def manual_tests_suites(m_project, m_component):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
@@ -92,6 +92,14 @@ def manual_tests_suites(m_project, m_component):
                                projects=projects,
                                component=m_component,
                                components=m_components)
+
+    elif request.method == 'DELETE':
+        test_data = json.loads(request.get_data())
+        if 'test_id' in test_data:
+            db.remove_manual_test(test_data['component'], test_data['suite'], test_data['test_id'])
+        else:
+            db.remove_manual_suite(test_data['component'], test_data['suite'])
+        return jsonify({})
 
 
 @server.route('/manual/<m_project>/sprint/', methods=['POST', 'GET'])

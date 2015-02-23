@@ -17,9 +17,9 @@
 
         $("#btnAddTestCase").click(function(){
                     var x = document.forms["formTestAdd"].elements;
-                    var component = x['inputTestComponent'].value;
-                    var suite = x['inputTestSuite'].value;
-                    var title = x['inputTestTitle'].value;
+                    var component = x['inputTestComponent'].value.replace(/\s{2,}/g, ' ').trim();
+                    var suite = x['inputTestSuite'].value.replace(/\s{2,}/g, ' ').trim();
+                    var title = x['inputTestTitle'].value.replace(/\s{2,}/g, ' ').trim();
                     var steps = x['inputTestSteps'].value;
                     var expected_results = x['inputTestExpectedResults'].value;
 
@@ -50,14 +50,16 @@
 
         window.removeManualComponentWithConfirmation = function(component) {
             $("#btnConfirmDeletion").click(function() {
-
+                $("#li" +  component.replace(' ', '-')).remove();
                 var url = "/manual/" + "{{ project }}";
                 $.ajax({type: "DELETE",
                         url: url,
                         data: JSON.stringify({'component': component}),
                         contentType: "application/json; charset=utf-8",
                         dataType: "json"})
-                    .success(function(){window.location.reload()})
+                    .success(function(){
+//                            window.location.reload()
+                        })
                     .fail(function(error){alert(error.responseText)});
             });
 
@@ -102,7 +104,7 @@
 {% block body %}
     <ul class="list-group">
         {% for component in components %}
-        <li id="li{{ component.name }}" class="list-group-item">
+        <li id="li{{ component.name.replace(' ', '-') }}" class="list-group-item">
             <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualComponentWithConfirmation("{{ component.name }}")'>
                 <span class="glyphicon glyphicon-remove pull-left"></span>
             </button>&nbsp;

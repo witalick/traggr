@@ -6,27 +6,158 @@
 
     $(document).ready(function() {
 
-        document.body.style.cursor='wait';
+        document.body.style.cursor = 'wait';
 
-        window.onload=function() {
-            document.body.style.cursor='default';
+        window.onload = function () {
+            document.body.style.cursor = 'default';
         };
 
-        window.removeSuiteWithConfirmation = function(project, sprint, component, suite) {
+        $("#liAdd").click(function() {
+            if ($("#liAdd").hasClass("active")) {
+                $("#liAdd").removeClass("active");
+                $("#ModalSuiteAddTest").hide();}
+            else {
+                $("#liAdd").addClass("active");
+                $("#ModalSuiteAddTest").modal();}
+        });
 
-            $("#btnConfirmDeletion").click(function() {
+        window.removeManualSuiteWithConfirmation = function (component, suite) {
+            $("#btnConfirmDeletion").click(function () {
+                $("#div" + suite.replace(' ', '-')).remove();
 
-                $("#div" +  suite).remove();
-
-                var url = "/_delete_suite/" + project + "/" + sprint + "/" + component + "/" + suite;
-                $.ajax({type: "DELETE", url: url});
+                var url = "/manual/" + "{{ project }}" + "/" + component;
+                $.ajax({
+                    type: "DELETE",
+                    url: url,
+                    data: JSON.stringify({
+                        'component': component,
+                        'suite': suite
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                })
+                        .success(function () {
+//                            window.location.reload()
+                        })
+                        .fail(function (error) {
+                            alert(error.responseText)
+                        });
             });
 
             $("#divBodyConfirmDeletion").text("Remove " + suite + "?");
-
             $("#ModalConfirmDeletion").modal();
 
         };
+
+        window.removeManualTestWithConfirmation = function (component, suite, test_id) {
+            $("#btnConfirmDeletion").click(function () {
+                $("#td" + test_id).remove();
+
+                var url = "/manual/" + "{{ project }}" + "/" + component;
+                $.ajax({
+                    type: "DELETE",
+                    url: url,
+                    data: JSON.stringify({
+                        'component': component,
+                        'suite': suite,
+                        'test_id': test_id
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                })
+                        .success(function () {
+//                            window.location.reload()
+                        })
+                        .fail(function (error) {
+                            alert(error.responseText)
+                        });
+            });
+
+
+            $("#divBodyConfirmDeletion").text("Remove " + test_id + "?");
+            $("#ModalConfirmDeletion").modal();
+
+        };
+
+        window.addManualTest = function (event, component, suite) {
+            event = event || window.event;
+            event.preventDefault();
+            event.stopPropagation();
+            $("#ModalOneAddTest").modal();
+
+            $("#btnOneAddTestCase").click(function () {
+                var x = document.forms["formOneTestAdd"].elements;
+                var title = x['inputOneTestTitle'].value.replace(/\s{2,}/g, ' ').trim();
+                var steps = x['inputOneTestSteps'].value;
+                var expected_results = x['inputOneTestExpectedResults'].value;
+
+                var test_data = {
+                    'component': component,
+                    'suite': suite,
+                    'other_attributes': {
+                        'title': title,
+                        'steps': steps,
+                        'expected_results': expected_results
+                    }
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/manual/" + "{{ project }}",
+                    data: JSON.stringify(test_data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                })
+                        .success(function () {
+                            $("#ModalOneAddTest").modal('hide');
+                            window.location.reload()
+                        })
+                        .fail(function (error) {
+                            alert(error.responseText)
+                        });
+            });
+        };
+
+        $("#btnOneAddTestCaseCancel").click(function () {
+                    $("#ModalOneAddTest").modal('hide')
+                }
+        );
+
+        $("#btnSuiteAddTestCase").click(function () {
+            var x = document.forms["formSuiteTestAdd"].elements;
+            var suite = x['inputSuiteTestSuite'].value.replace(/\s{2,}/g, ' ').trim();
+            var title = x['inputSuiteTestTitle'].value.replace(/\s{2,}/g, ' ').trim();
+            var steps = x['inputSuiteTestSteps'].value;
+            var expected_results = x['inputSuiteTestExpectedResults'].value;
+
+            var test_data = {
+                'component': "{{ component }}",
+                'suite': suite,
+                'other_attributes': {
+                    'title': title,
+                    'steps': steps,
+                    'expected_results': expected_results
+                }
+            };
+            $.ajax({
+                type: "POST",
+                url: "/manual/" + "{{ project }}",
+                data: JSON.stringify(test_data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            })
+                    .success(function () {
+                        $("#ModalSuiteAddTest").modal('hide');
+                        window.location.reload()
+                    })
+                    .fail(function (error) {
+                        alert(error.responseText)
+                    });
+        });
+
+        $("#btnSuiteAddTestCaseCancel").click(function () {
+                    $("#ModalSuiteAddTest").modal('hide')
+                }
+        );
 
     });
 
@@ -37,41 +168,26 @@
 
 
 {% block menu %}
-
         <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                {{ project }} <b class="caret"></b>
-            </a>
-
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ project }} <b class="caret"></b></a>
             <ul class="dropdown-menu">
-
                 {% for p in projects%}
-
                 <li><a href="/manual/{{ p }}">{{ p }}</a></li>
-
                 {% endfor %}
-
             </ul>
         </li>
 
         <li class="dropdown">
-
             {% if components %}
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    {{ component }} <b class="caret"></b>
-                </a>
-
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ component }} <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-
                     {% for c in components%}
                     <li><a href="/manual/{{ project }}/{{ c.name }}">{{ c.name }}</a></li>
                     {% endfor %}
-
                 </ul>
             {% else %}
                 <a href="/manual/{{ project }}/{{ component }}">{{ component }} </a>
             {% endif %}
-
         </li>
 
 {% endblock %}
@@ -87,52 +203,46 @@
     <div class="panel-group" id="accordion">
 
         {% for suite in data %}
-
-            <div id="div{{ suite['name'].replace(' ', 'a') }}" class="panel panel-default">
+            <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
                 <div class="panel-heading">
-
-                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', 'a') }}">
-
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
+                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualSuiteWithConfirmation("{{ component }}", "{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>&nbsp;
-
                           {{ suite['name'] }}
-
                           <span class="badge pull-right">{{ suite['total'] }}</span>
+                        <button type="button" class="btnAdd btn btn-primary btn-xs" onclick='addManualTest(event, "{{ component }}", "{{ suite.name }}")'>Add Test</button>
                      </h4>
                 </div>
 
-                <div id="collapse{{ suite['name'].replace(' ', 'a') }}" class="panel-collapse collapse">
+                <div id="collapse{{ suite['name'].replace(' ', '-') }}" class="panel-collapse collapse">
                     <div class="panel-body">
-
                         <table class="table">
                             <tr>
                                 <th>Test ID</th>
-
                                 <th>Title</th>
-
                             </tr>
-
-                            {% for result in suite['rows'] %}
-
-                                <tr class=success>
-                                    <td>{{ result['test_id'] }}</td>
-
-                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', 'a') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
-
+                            {% for test in suite['rows'] %}
+                                <tr class=success id="td{{ test['test_id'] }}">
+                                    <td>
+                                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestWithConfirmation("{{ component }}", "{{ suite.name }}", "{{ test['test_id'] }}")'>
+                                        <span class="glyphicon glyphicon-remove pull-left"></span>
+                                        </button>
+                                        {{ test['test_id'] }}
+                                    </td>
+                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}">{{ test['title'] }}</td>
                                 </tr>
 
-                                <div class="modal fade" id="Modal{{ suite['name'].replace(' ', 'a') }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', 'a') }}{{ result['test_id'] }}" aria-hidden="true">
+                                <div class="modal fade" id="Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', 'a') }}{{ test['test_id'] }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                <h4 class="modal-title" id="myModalLabel">{{result['test_id']}}: {{result['title']}}</h4>
+                                                <h4 class="modal-title" id="myModalLabel">{{test['test_id']}}: {{test['title']}}</h4>
                                             </div>
                                             <div class="modal-body">
-                                                <pre>{{result['steps']}}</pre>
-                                                <pre>{{result['expected_results']}}</pre>
+                                                <pre>{{test['steps']}}</pre>
+                                                <pre>{{test['expected_results']}}</pre>
                                             </div>
                                         </div>
                                     </div>
@@ -149,5 +259,64 @@
 
     </div>
 
+    <div class="modal fade" id="ModalOneAddTest" tabindex="-1" role="dialog" aria-labelledby="ModalOneAddTest" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Add Test</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formOneTestAdd">
+                        <div class="form-group">
+                            <label for="inputOneTestSubject">Test Title</label>
+                            <input type="text" class="form-control" id="inputOneTestTitle" placeholder="Title">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputOneTestSteps">Test Steps</label>
+                            <textarea class="form-control" id="inputOneTestSteps" rows="10" placeholder="Steps"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputOneTestExpectedResults">Test Expected Results</label>
+                            <textarea class="form-control" id="inputOneTestExpectedResults" rows="8"  placeholder="Results ..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnOneAddTestCase">Save</button>
+                        <button type="button" class="btn btn-default" id="btnOneAddTestCaseCancel" aria-hidden="true">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ModalSuiteAddTest" tabindex="-1" role="dialog" aria-labelledby="ModalSuiteAddTest" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Add Test</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formSuiteTestAdd">
+                        <div class="form-group">
+                            <label for="inputSuiteTestSuite">Test Suite</label>
+                            <input type="text" class="form-control" id="inputSuiteTestSuite" placeholder="Test Suite">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputSuiteTestSubject">Test Title</label>
+                            <input type="text" class="form-control" id="inputSuiteTestTitle" placeholder="Title">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputSuiteTestSteps">Test Steps</label>
+                            <textarea class="form-control" id="inputSuiteTestSteps" rows="10" placeholder="Steps"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputSuiteTestExpectedResults">Test Expected Results</label>
+                            <textarea class="form-control" id="inputSuiteTestExpectedResults" rows="8"  placeholder="Results ..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnSuiteAddTestCase">Save</button>
+                        <button type="button" class="btn btn-default" id="btnSuiteAddTestCaseCancel" aria-hidden="true">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
