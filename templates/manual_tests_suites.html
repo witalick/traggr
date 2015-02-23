@@ -81,7 +81,7 @@
 
 {% block body %}
 
-    <div class="alert alert-info">
+    <div class="alert alert-info my-alert">
         <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
         <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a steps.
     </div>
@@ -133,14 +133,8 @@
                                                 <h4 class="modal-title" id="myModalLabel">{{result['test_id']}}: {{result['subject']}}</h4>
                                             </div>
                                             <div class="modal-body">
-                                                <pre>
-                                                    {{result['steps']}}
-                                                </pre>
-                                            </div>
-                                            <div class="modal-body">
-                                                <pre>
-                                                    {{result['expected_results']}}
-                                                </pre>
+                                                <pre>{{result['steps']}}</pre>
+                                                <pre>{{result['expected_results']}}</pre>
                                             </div>
                                         </div>
                                     </div>
