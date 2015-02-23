@@ -9,11 +9,10 @@
         $("#liAdd").click(function() {
             if ($("#liAdd").hasClass("active")) {
                 $("#liAdd").removeClass("active");
-                $("#ModalAddTest").hide();
-            } else {
-                $("#liAdmin").addClass("active");
-                $("#ModalAddTest").modal();
-            };
+                $("#ModalAddTest").hide();}
+            else {
+                $("#liAdd").addClass("active");
+                $("#ModalAddTest").modal();}
         });
 
         $("#btnAddTestCase").click(function(){
@@ -37,19 +36,17 @@
                             contentType: "application/json; charset=utf-8",
                             dataType: "json"
                       })
-                            .done(function(){alert('Test Added. Thanks')})
+                            .done(function(){$("#ModalAddTest").modal('hide');
+                                             window.location.reload()
+                            })
                             .fail(function(error){alert(error.responseText)});
-
-                    $("#ModalAddTest").modal('hide');
-                    window.location.reload()
                 }
         );
 
-        $("#btnAddTestCaseCancel").click(function(){
-                    $("#ModalAddTest").modal('hide')
-                }
+        $("#btnAddTestCaseCancel").click(function() {
+            $("#ModalAddTest").modal('hide');
+            $("#liAdd").removeClass("active")}
         );
-
     });
 
 </script>

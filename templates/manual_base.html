@@ -1,44 +1,90 @@
 {% extends "base.html" %}
+
+{% block customjs %}
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $("#liAdd").click(function() {
+            if ($("#liAdd").hasClass("active")) {
+                $("#liAdd").removeClass("active");
+                $("#ModalAddProject").hide();}
+            else {
+                $("#liAdd").addClass("active");
+                $("#ModalAddProject").modal();}
+        });
+
+        $("#btnAddProject").click(function(){
+            var x = document.forms["formProjectAdd"].elements;
+            var project = x['inputProject'].value;
+            if (confirm("Do You Really Want To Create New Project - " + project + "?")){
+                $.ajax({
+                    type: "POST",
+                    url: "/manual",
+                    data: JSON.stringify({'name': project}),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                })
+                        .success(function () {$("#ModalAddProject").modal('hide');
+                                              window.location.reload()})
+                        .fail(function (error) {alert(error.responseText)});
+                }
+            else {$("#ModalAddProject").modal('hide');
+                  $("#liAdd").removeClass("active")}
+            }
+        );
+
+        $("#btnAddProjectCancel").click(function(){$("#ModalAddProject").modal('hide');
+                $("#liAdd").removeClass("active")}
+        );
+    });
+
+</script>
+{% endblock %}
+
 {% block menu %}
-
     <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            Projects <b class="caret"></b>
-        </a>
-
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects <b class="caret"></b></a>
         <ul class="dropdown-menu">
             {% for p in projects%}
                 <li><a href="/manual/{{ p }}">{{ p }}</a></li>
             {% endfor %}
-
         </ul>
     </li>
-
 {% endblock %}
 
 
 {% block body %}
 
         <div class="col-md-6">
-
             <ul class="list-group">
-
                 {% for project in projects %}
                     <li id="li{{ project }}" class="list-group-item">
-                        <button id="btnRenameResults" style="display:none" type="button" class="btnRename btn btn-primary btn-xs" data-project="{{ project }}" data-results="{{ project }}">
-                            <span class="glyphicon glyphicon-pencil pull-left"></span>
-                        </button>&nbsp;
-
-                        <button id="btnRemoveResults" style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-project="{{ project }}" data-results="{{ project }}">
-                            <span class="glyphicon glyphicon-remove pull-left"></span>
-                        </button>&nbsp;
-
                         <a href="/manual/{{ project }}">{{ project }}</a>
                     </li>
                 {% endfor %}
-
             </ul>
+        </div>
 
+        <div class="modal fade" id="ModalAddProject" tabindex="-1" role="dialog" aria-labelledby="ModalAddProject" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Add New Project</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form name="formProjectAdd">
+                            <div class="form-group">
+                                <label for="inputProject">Project Name</label>
+                                <input type="text" class="form-control" id="inputProject" placeholder="Project Name">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnAddProject">Save</button>
+                            <button type="button" class="btn btn-default" id="btnAddProjectCancel" aria-hidden="true">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
 {% endblock %}

@@ -4,7 +4,7 @@ __author__ = 'vyakoviv'
 import re
 import json
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 from db import AggregationDB, MyMongoClient
 from config import config
@@ -40,6 +40,11 @@ def manual_base():
 
     if request.method == 'GET':
         return render_template('manual_base.html', projects=m_projects)
+    elif request.method == 'POST':
+        project_data = json.loads(request.get_data())
+        db = get_db('manual_' + project_data['name'])
+        db.get_manual_component_names()
+        return jsonify({})
 
 
 @server.route('/manual/<m_project>', methods=['POST', 'GET'])
@@ -63,7 +68,8 @@ def manual_components(m_project):
                        suite=test_data['suite'],
                        test_id=db.get_new_test_id(),
                        **test_data['other_attributes'])
-        return '', 200
+        return jsonify({})
+
 @server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET'])
 def manual_tests_suites(m_project, m_component):
     db = get_db('manual_' + m_project)
