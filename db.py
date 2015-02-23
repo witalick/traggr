@@ -250,6 +250,10 @@ class AggregationDB(MyMongoClient):
     def remove_manual_component(self, component):
         self._db[self._cn_tests].remove({'component': component})
 
+    def edit_manual_test(self, test_id, title, steps, expected_results):
+        self._db[self._cn_tests].update(
+            {'test_id': test_id},
+            {'$set': {'title': title, 'steps': steps, 'expected_results': expected_results}})
 
 if __name__ == '__main__':
 

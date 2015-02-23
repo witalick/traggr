@@ -159,6 +159,48 @@
                 }
         );
 
+        window.editManualTest = function (event, test_id, title, steps, expected_results) {
+            event = event || window.event;
+            event.preventDefault();
+            event.stopPropagation();
+
+            $("#btnOneEditTestCase").click(function () {
+                var x = document.forms["formOneTestEdit"].elements;
+                var title = x['inputEditTestSubject'].value.replace(/\s{2,}/g, ' ').trim();
+                var steps = x['inputEditTestSteps'].value;
+                var expected_results = x['inputEditTestExpectedResults'].value;
+                var test_data = {
+                        'test_id': test_id,
+                        'title': title,
+                        'steps': steps,
+                        'expected_results': expected_results
+                    };
+                $.ajax({
+                    type: "POST",
+                    url: "/manual/_edit_manual_test/" + "{{ project }}",
+                    data: JSON.stringify(test_data),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                })
+                        .success(function () {
+                            $("#ModalOneEditTest").modal('hide');
+                            window.location.reload()
+                        })
+                        .fail(function (error) {
+                            alert(error.responseText)
+                        });
+            });
+            $("#inputEditTestSubject").val(title);
+            $("#inputEditTestSteps").val(steps);
+            $("#inputEditTestExpectedResults").val(expected_results);
+            $("#ModalOneEditTest").modal();
+        };
+
+        $("#btnOneEditTestCaseCancel").click(function () {
+                    $("#ModalOneEditTest").modal('hide')
+                }
+        );
+
     });
 
 </script>
@@ -228,6 +270,7 @@
                                         <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestWithConfirmation("{{ component }}", "{{ suite.name }}", "{{ test['test_id'] }}")'>
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
+                                        <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editManualTest(event, "{{ test['test_id'] }}", "{{ test['title'] }}", "{{ test['steps'] }}", "{{ test['expected_results'] }}")'>Edit Test</button>
                                         {{ test['test_id'] }}
                                     </td>
                                     <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}">{{ test['title'] }}</td>
@@ -313,6 +356,34 @@
                         </div>
                         <button type="submit" class="btn btn-primary" id="btnSuiteAddTestCase">Save</button>
                         <button type="button" class="btn btn-default" id="btnSuiteAddTestCaseCancel" aria-hidden="true">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ModalOneEditTest" tabindex="-1" role="dialog" aria-labelledby="ModalOneEditTest" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Add Test</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formOneTestEdit">
+                        <div class="form-group">
+                            <label for="inputEditTestSubject">Test Title</label>
+                            <input type="text" class="form-control" id="inputEditTestSubject" placeholder="Title">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputEditTestSteps">Test Steps</label>
+                            <textarea class="form-control" id="inputEditTestSteps" rows="10" placeholder="Steps"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputEditTestExpectedResults">Test Expected Results</label>
+                            <textarea class="form-control" id="inputEditTestExpectedResults" rows="8"  placeholder="Results ..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnOneEditTestCase">Save</button>
+                        <button type="button" class="btn btn-default" id="btnOneEditTestCaseCancel" aria-hidden="true">Cancel</button>
                     </form>
                 </div>
             </div>
