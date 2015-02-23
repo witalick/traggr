@@ -160,6 +160,87 @@ class AggregationDB(MyMongoClient):
     def get_manual_sprints(self):
         return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('sprint_')]
 
+    def get_sprint_totals(self, sprint):
+        res = self._db['sprint_'+sprint].aggregate([
+            {
+                '$group': {'_id': "id",
+                           'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'Pass']}, 1, 0]}},
+                           'failed': {'$sum': {'$cond': [{'$eq': ['$result', 'Fail']}, 1, 0]}},
+                           'total': {'$sum': {"$cond": [{"$ne": ["$result", 'null']}, 1, 0]}}}
+
+            }
+        ])
+
+        return res['result'][0]
+
+    def get_sprint_details(self, sprint):
+        db_result = self._db['sprint_'+sprint].aggregate([
+            {
+                '$group': {'_id': "$component",
+                           'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'Pass']}, 1, 0]}},
+                           'failed': {'$sum': {'$cond': [{'$eq': ['$result', 'Fail']}, 1, 0]}},
+                           'total': {'$sum': {"$cond": [{"$ne": ["$result", 'null']}, 1, 0]}}}
+            }
+        ])
+        result = db_result['result']
+        if not result:
+            return False
+        result = self._normalize_name(result)
+
+        return result
+
+    def get_sprint_failed(self, sprint):
+        db_result = self._db['sprint_'+sprint].find(
+            {'result': 'Fail'},
+            {'test_id': 1, 'steps': 1, 'title': 1, 'component': 1,
+             'suite': 1, 'expected_results': 1, 'result': 1})
+
+        return list(db_result)
+
+    def get_tests_result(self, sprint, component):
+        db_result = self._db['sprint_'+sprint].aggregate([
+            {
+                '$match': {'component': component}
+            },
+            {'$sort': {'test_id': 1}},
+            {
+
+                '$group': {
+                    '_id': "$suite",
+                    'rows': {'$push': {'test_id': "$test_id",
+                                       'steps': "$steps",
+                                       'title': "$title",
+                                       'component': '$component',
+                                       'suite': '$component',
+                                       'expected_results': '$expected_results',
+                                       'result': '$result',
+                                       'error': '$error'
+                                        }
+                             },
+                    'total': {'$sum': 1}
+                }
+            },
+            {'$sort': {'_id': 1}}
+
+        ])
+        result = db_result['result']
+        if not result:
+            return False
+        result = self._normalize_name(result)
+
+        return result
+
+    def get_manual_sprint_component(self, sprint):
+        res = self._db['sprint_'+sprint].aggregate([
+            {
+                '$group': {'_id': "$component",
+                           'total': {'$sum': 1}}
+            },
+            {'$sort': {'_id': 1}}
+        ])
+        return [{'name': row['_id'], 'total': row['total']}
+                for row in res['result']]
+
     def remove_manual_test(self, component, suite, test_id):
         self._db[self._cn_tests].remove({'component': component, 'suite': suite, 'test_id': test_id})
 

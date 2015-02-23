@@ -103,23 +103,59 @@ def manual_tests_suites(m_project, m_component):
 
 
 @server.route('/manual/<m_project>/sprint/', methods=['POST', 'GET'])
-def manual_project_sprints(m_project):
+def manual_sprints(m_project):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
     if request.method == 'GET':
-        return render_template('manual_project_sprints.html',
+        return render_template('manual_sprints.html',
                                project=m_project,
                                projects=projects,
                                sprints=sprints)
 
 
 @server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET'])
-def manual_project_sprint_details(m_project, m_sprint):
+def manual_sprint_suites(m_project, m_sprint):
+    db_project = 'manual_' + m_project
+    db = get_db(db_project)
+    projects = db.get_m_projects()
+    sprints = db.get_manual_sprints()
+    sprints.remove(m_sprint)
+    totals = db.get_sprint_totals(sprint=m_sprint)
+    components_data = db.get_sprint_details(sprint=m_sprint)
+    failed_tests = db.get_sprint_failed(sprint=m_sprint)
 
     if request.method == 'GET':
-        return 'TODO: ADD sprint details', 404
+        return render_template('manual_sprint_suites.html',
+                               project=m_project,
+                               projects=projects,
+                               sprints=sprints,
+                               sprint=m_sprint,
+                               components=components_data,
+                               totals=totals,
+                               failed_tests=failed_tests)
+
+
+@server.route('/manual/<m_project>/sprint/<m_sprint>/<m_component>', methods=['POST', 'GET'])
+def manual_sprint_component_details(m_project, m_sprint, m_component):
+    db_project = 'manual_' + m_project
+    db = get_db(db_project)
+    projects = db.get_m_projects()
+    sprints = db.get_manual_sprints()
+    sprints.remove(m_sprint)
+    m_components = db.get_manual_sprint_component(sprint=m_sprint)
+    tests_results = db.get_tests_result(sprint=m_sprint, component=m_component)
+
+    if request.method == 'GET':
+        return render_template('manual_sprint_component_details.html',
+                               project=m_project,
+                               projects=projects,
+                               sprints=sprints,
+                               sprint=m_sprint,
+                               components=m_components,
+                               component=m_component,
+                               data=tests_results)
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
@@ -159,7 +195,6 @@ def results(project, sprint):
     regex = re.compile('[\'\"\(\)\[\]\.,\+\s\*@#\$%\^&\?]')
     for failed_test in failed_tests:
         failed_test['component_modified'] = re.sub(regex, '-', failed_test['component'])
-
     return render_template('results.html',
                            components=components_data,
                            totals=totals,
@@ -208,7 +243,7 @@ def results_suites(project, sprint, component):
         data.append(suite_data)
 
     data.sort(key=lambda e: e['name'])
-
+    print component, components
     return render_template('results_suites.html',
                            data=data,
                            project=project,

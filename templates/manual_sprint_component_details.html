@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block menu %}
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ project }} <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for p in projects%}
+
+                <li><a href="/manual/{{ p }}">{{ p }}</a></li>
+
+                {% endfor %}
+
+            </ul>
+        </li>
+
+        <li class="dropdown">
+
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ sprint }} <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for s in sprints%}
+                    <li><a id="a{{ s }}" href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
+                {% endfor %}
+
+            </ul>
+        </li>
+
+        <li class="dropdown">
+
+            {% if components %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    {{ component }} <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    {% for c in components%}
+                    <li><a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ c.name }}">{{ c.name }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                <a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ component }}">{{ component }} </a>
+            {% endif %}
+
+        </li>
+
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="alert alert-info">
+        <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
+        <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a description.
+    </div>
+
+    <div class="panel-group" id="accordion">
+
+        {% for suite in data %}
+
+            <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
+                <div class="panel-heading">
+
+                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
+
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
+                            <span class="glyphicon glyphicon-remove pull-left"></span>
+                        </button>&nbsp;
+
+                          {{ suite['name'] }}
+
+                          <span class="badge pull-right">{{ suite['total'] }}</span>
+                          {% if suite['passed'] != 0 %}
+                              <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
+                          {% endif %}
+                          {% if suite['failed'] != 0 %}
+                              <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
+                          {% endif %}
+                     </h4>
+                </div>
+
+                <div id="collapse{{ suite['name'].replace(' ', '-') }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+
+                        <table class="table">
+                            <tr>
+                                <th>Test ID</th>
+                                {% if suite['has_attributes'] %}
+                                    <th>Attributes</th>
+                                {% endif %}
+
+                                <th>Title</th>
+                                <th>Result</th>
+
+                            </tr>
+
+                            {% for result in suite['rows'] %}
+
+                                <tr class={% if result['result'] == 'Pass' %}
+                                                "success"
+                                          {% elif result['result'] != 'Pass' %}
+                                                "danger"
+                                          {% endif  %}>
+                                    <td>{{ result['test_id'] }}</td>
+
+                                    {% if 'attributes' in result %}
+                                        <td>
+                                            {% for key, value in result['attributes'] %}
+                                                <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
+                                            {% endfor %}
+                                        </td>
+                                    {% elif suite['has_attributes'] %}
+                                        <td></td>
+                                    {% endif %}
+
+                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
+                                    <td
+                                        {% if 'error' in result %}
+                                            data-toggle="modal" data-target="#ModalError{{ suite['name'] }}{{ result['test_id'] }}"
+                                        {% endif %}
+
+                                        >
+                                    {{ result['result'] }}
+                                    <button type="button" style="display: inline-block;">
+                                        <span class="glyphicon glyphicon-remove pull-left"></span>
+                                    </button>
+                                    <button type="button" style="display: inline-block;">
+                                        <span class="glyphicon glyphicon-remove pull-left"></span>
+                                    </button>
+                                    </td>
+
+                                    {% if 'comment' in result %}
+                                        <td>{{ result['comment'] }}</td>
+                                    {% elif suite['has_comments'] %}
+                                        <td></td>
+                                    {% endif %}
+
+                                </tr>
+
+                                <div class="modal fade" id="ModalError{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalErrorLabel">Error: {{result['test_id']}}: {{result['title']}}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>{{result['error']}}</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" id="Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalLabel">{{result['test_id']}}: {{result['title']}}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>{{result['steps']}}</pre>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>{{result['expected_results']}}</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+
+{% endblock %}
