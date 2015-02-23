@@ -80,7 +80,7 @@
 {% block body %}
 
     <div class="alert alert-info my-alert">
-        <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
+        <a class="close" data-dismiss="alert" id="testinfo">&times;</a>
         <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a steps.
     </div>
 
@@ -88,10 +88,10 @@
 
         {% for suite in data %}
 
-            <div id="div{{ suite['name'] }}" class="panel panel-default">
+            <div id="div{{ suite['name'].replace(' ', 'a') }}" class="panel panel-default">
                 <div class="panel-heading">
 
-                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'] }}">
+                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', 'a') }}">
 
                         <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
@@ -103,7 +103,7 @@
                      </h4>
                 </div>
 
-                <div id="collapse{{ suite['name'] }}" class="panel-collapse collapse">
+                <div id="collapse{{ suite['name'].replace(' ', 'a') }}" class="panel-collapse collapse">
                     <div class="panel-body">
 
                         <table class="table">
@@ -119,11 +119,11 @@
                                 <tr class=success>
                                     <td>{{ result['test_id'] }}</td>
 
-                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'] }}{{ result['test_id'] }}">{{ result['title'] }}</td>
+                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', 'a') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
 
                                 </tr>
 
-                                <div class="modal fade" id="Modal{{ suite['name'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'] }}{{ result['test_id'] }}" aria-hidden="true">
+                                <div class="modal fade" id="Modal{{ suite['name'].replace(' ', 'a') }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', 'a') }}{{ result['test_id'] }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
