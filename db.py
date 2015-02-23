@@ -269,6 +269,14 @@ class AggregationDB(MyMongoClient):
             {'test_id': test_id},
             {'$set': {'title': title, 'steps': steps, 'expected_results': expected_results}})
 
+    def fetch_manual_test(self, component, test_id):
+        test = list(self._db[self._cn_tests].find({'test_id': test_id, 'component': component}, {'_id': 0}))
+        if not test:
+            test = {}
+        else:
+            test = test[0]
+        return test
+
 if __name__ == '__main__':
 
     project = 'proj'

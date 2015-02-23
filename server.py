@@ -168,7 +168,6 @@ def manual_sprint_component_details(m_project, m_sprint, m_component):
 def manual_edit_test(m_project):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
-
     if request.method == 'POST':
         test_data = json.loads(request.get_data())
         db.edit_manual_test(test_id=test_data['test_id'],
@@ -176,6 +175,16 @@ def manual_edit_test(m_project):
                             steps=test_data['steps'],
                             expected_results=test_data['expected_results'])
         return jsonify({})
+
+
+@server.route('/manual/_get_manual_test/<m_project>', methods=['POST'])
+def manual_get_test(m_project):
+    db_project = 'manual_' + m_project
+    db = get_db(db_project)
+    if request.method == 'POST':
+        test_data = json.loads(request.get_data())
+        return jsonify(db.fetch_manual_test(component=test_data['component'],
+                             test_id=test_data['test_id']))
 
 
 @server.route('/<project>/<sprint>')
