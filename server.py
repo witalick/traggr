@@ -34,31 +34,39 @@ def root():
 
 
 @server.route('/manual', methods=['POST', 'GET'])
-def manual_tc():
+def manual_base():
     db = get_db()
     m_projects = db.get_m_projects()
 
     if request.method == 'GET':
-        return render_template('manual_tc.html', projects=m_projects)
+        return render_template('manual_base.html', projects=m_projects)
 
 
 @server.route('/manual/<m_project>', methods=['POST', 'GET'])
-def manual_suits(m_project):
-    db = get_db(m_project)
+def manual_components(m_project):
+    db = get_db('manual_' + m_project)
     m_projects = db.get_m_projects()
     components = db.get_manual_component_names()
     m_sprints = db.get_manual_sprints()
     if request.method == 'GET':
-        return render_template('manual_suits.html',
+        return render_template('manual_components.html',
                                projects=m_projects,
                                project=m_project,
                                sprints=m_sprints,
                                components=components)
-
-
+    elif request.method == 'POST':
+        m_project = 'manual_' + m_project
+        test_data = json.loads(request.get_data())
+        db = get_db(m_project)
+        print db.get_new_test_id()
+        db.upsert_test(component=test_data['component'],
+                       suite=test_data['suite'],
+                       test_id=db.get_new_test_id(),
+                       **test_data['other_attributes'])
+        return '', 200
 @server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET'])
 def manual_tests_suites(m_project, m_component):
-    db = get_db(m_project)
+    db = get_db('manual_' + m_project)
     projects = db.get_m_projects()
     m_components = db.get_manual_component_names()
     tests = db.get_manual_tests(component=m_component)
@@ -76,7 +84,7 @@ def manual_tests_suites(m_project, m_component):
 
 @server.route('/manual/<m_project>/sprint/', methods=['POST', 'GET'])
 def manual_project_sprints(m_project):
-    db = get_db(m_project)
+    db = get_db('manual_' + m_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
     if request.method == 'GET':

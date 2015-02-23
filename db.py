@@ -14,11 +14,7 @@ class MyMongoClient(object):
         self._cn_last_update = 'last_update'
 
     def get_project_db(self, project):
-        name = [name for name in self._client.database_names() if project in name]
-        if name == []:
-            name = self._project_db_name % project
-        else:
-            name = name[0]
+        name = self._project_db_name % project
         return self._client[name]
 
     def get_project_names(self):
@@ -50,7 +46,6 @@ class AggregationDB(MyMongoClient):
         self._cn_results = 'results_%s'
 
     def _normalize_name(self, result):
-
         for i, result_dict in enumerate(result):
             if '_id' in result_dict:
                 result[i]['name'] = result[i].pop('_id')
@@ -119,7 +114,7 @@ class AggregationDB(MyMongoClient):
                     '_id': "$suite",
                     'rows': {'$push': {'test_id': "$test_id",
                                        'steps': "$steps",
-                                       'subject': "$subject",
+                                       'title': "$title",
                                        'component': '$component',
                                        'suite': '$component',
                                        'expected_results': '$expected_results'}
@@ -155,7 +150,12 @@ class AggregationDB(MyMongoClient):
                            'test_id': {'$max': '$test_id'}}
             }
         ])
-        return res['result'][0]['test_id']
+        if not res['result']:
+            test_id = self._db.name.split('_')[-1].upper() + '-1'
+        else:
+            test_id = res['result'][0]['test_id']
+            test_id = '-'.join([test_id.split('-')[0], str(int(test_id.split('-')[1]) + 1)])
+        return test_id
 
     def get_manual_sprints(self):
         return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('sprint_')]
