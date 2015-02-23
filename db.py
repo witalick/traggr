@@ -14,12 +14,16 @@ class MyMongoClient(object):
         self._cn_last_update = 'last_update'
 
     def get_project_db(self, project):
-        name = self._project_db_name % project
+        name = [name for name in self._client.database_names() if project in name]
+        if name == []:
+            name = self._project_db_name % project
+        else:
+            name = name[0]
         return self._client[name]
 
     def get_project_names(self):
         project_names = [dn.split('_', 1)[1] for dn in self._client.database_names()
-                                             if dn.startswith('project_')]
+                                             if dn.startswith('project_') and 'manual' not in dn]
         project_names.sort()
         return project_names
 
@@ -36,6 +40,7 @@ class MyMongoClient(object):
         project_names.sort()
         return project_names
 
+
 class AggregationDB(MyMongoClient):
 
     def __init__(self, hostname, port, project):
@@ -43,6 +48,14 @@ class AggregationDB(MyMongoClient):
         self._db = self.get_project_db(project)
         self._cn_tests = 'tests'
         self._cn_results = 'results_%s'
+
+    def _normalize_name(self, result):
+
+        for i, result_dict in enumerate(result):
+            if '_id' in result_dict:
+                result[i]['name'] = result[i].pop('_id')
+
+        return result
 
     def upsert_test(self, component, suite, test_id, **test_attributes):
         self._db[self._cn_tests].update(
@@ -94,14 +107,58 @@ class AggregationDB(MyMongoClient):
 
     # Manual Tests Methods
 
-    def get_manual_tests(self, **query):
-        return list(self._db[self._cn_tests].find(query))
+    def get_manual_tests(self, component):
+        db_result = self._db[self._cn_tests].aggregate([
+            {
+                '$match': {'component': component}
+            },
+            {'$sort': {'test_id': 1}},
+            {
+
+                '$group': {
+                    '_id': "$suite",
+                    'rows': {'$push': {'test_id': "$test_id",
+                                       'steps': "$steps",
+                                       'subject': "$subject",
+                                       'component': '$component',
+                                       'suite': '$component',
+                                       'expected_results': '$expected_results'}
+                             },
+                    'total': {'$sum': 1}
+                }
+            },
+            {'$sort': {'_id': 1}}
+
+        ])
+        result = db_result['result']
+        if not result:
+            return False
+        result = self._normalize_name(result)
+
+        return result
 
     def get_manual_component_names(self):
-        res = self._db[self._cn_tests].aggregate([{'$group': {'_id': {'name': "$component"},
-                                                              'total': {'$sum': 1} } } ])
-        return [{'name': row['_id']['name'], 'total': row['total']}
+        res = self._db[self._cn_tests].aggregate([
+            {
+                '$group': {'_id': "$component",
+                           'total': {'$sum': 1}}
+            },
+            {'$sort': {'_id': 1}}
+        ])
+        return [{'name': row['_id'], 'total': row['total']}
                 for row in res['result']]
+
+    def get_new_test_id(self):
+        res = self._db[self._cn_tests].aggregate([
+            {
+                '$group': {'_id': "id",
+                           'test_id': {'$max': '$test_id'}}
+            }
+        ])
+        return res['result'][0]['test_id']
+
+    def get_manual_sprints(self):
+        return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('sprint_')]
 
     def remove_manual_test(self, component, suite, test_id):
         self._db[self._cn_tests].remove({'component': component, 'suite': suite, 'test_id': test_id})

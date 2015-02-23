@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block menu %}
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ project }} <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for p in projects%}
+                    <li><a href="/manual/{{ p }}">{{ p }}</a></li>
+                {% endfor %}
+
+            </ul>
+        </li>
+
+        <li class="dropdown">
+
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                Sprints <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for s in sprints%}
+                    <li><a id="a{{ s }}" href="/{{ project }}/{{ s }}">{{ s }}</a></li>
+                {% endfor %}
+
+            </ul>
+        </li>
+
+{% endblock %}
+
+{% block body %}
+
+        <div class="col-md-6">
+
+            <ul class="list-group">
+
+                {% for sprint in sprints %}
+                    <li id="li{{ sprint }}" class="list-group-item">
+                        <button id="btnRenameResults" style="display:none" type="button" class="btnRename btn btn-primary btn-xs" data-project="{{ project }}" data-results="{{ sprint }}">
+                            <span class="glyphicon glyphicon-pencil pull-left"></span>
+                        </button>&nbsp;
+
+                        <button id="btnRemoveResults" style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-project="{{ project }}" data-results="{{ sprint }}">
+                            <span class="glyphicon glyphicon-remove pull-left"></span>
+                        </button>&nbsp;
+
+                        <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }}</a>
+                    </li>
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+{% endblock %}

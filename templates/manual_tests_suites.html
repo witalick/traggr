@@ -79,9 +79,9 @@
 
 {% block body %}
 
-    <div class="alert alert-info">
+    <div class="alert alert-info my-alert">
         <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
-        <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a steps. Click a failed test result to see a traceback.
+        <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a steps.
     </div>
 
     <div class="panel-group" id="accordion">
@@ -100,12 +100,6 @@
                           {{ suite['name'] }}
 
                           <span class="badge pull-right">{{ suite['total'] }}</span>
-                          {% if suite['passed'] != 0 %}
-                              <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
-                          {% endif %}
-                          {% if suite['failed'] != 0 %}
-                              <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
-                          {% endif %}
                      </h4>
                 </div>
 
@@ -115,15 +109,8 @@
                         <table class="table">
                             <tr>
                                 <th>Test ID</th>
-                                {% if suite['has_attributes'] %}
-                                    <th>Attributes</th>
-                                {% endif %}
 
                                 <th>Title</th>
-
-                                {% if suite['has_comments'] %}
-                                    <th>Comments</th>
-                                {% endif %}
 
                             </tr>
 
@@ -132,58 +119,20 @@
                                 <tr class=success>
                                     <td>{{ result['test_id'] }}</td>
 
-                                    {% if 'attributes' in result %}
-                                        <td>
-                                            {% for key, value in result['attributes'] %}
-                                                <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
-                                            {% endfor %}
-                                        </td>
-                                    {% elif suite['has_attributes'] %}
-                                        <td></td>
-                                    {% endif %}
-
-                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'] }}{{ result['test_id'] }}">{{ result['title'] }}</td>
-
-                                    {% if 'comment' in result %}
-                                        <td>{{ result['comment'] }}</td>
-                                    {% elif suite['has_comments'] %}
-                                        <td></td>
-                                    {% endif %}
+                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'] }}{{ result['test_id'] }}">{{ result['subject'] }}</td>
 
                                 </tr>
-
-                                <div class="modal fade" id="ModalError{{ suite['name'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ suite['name'] }}{{ result['test_id'] }}" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                <h4 class="modal-title" id="myModalErrorLabel">Error: {{result['test_id']}}: {{result['title']}}</h4>
-                                            </div>
-                                            <div class="modal-body">
-                                                <pre>
-{{result['error']}}
-                                                </pre>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div class="modal fade" id="Modal{{ suite['name'] }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'] }}{{ result['test_id'] }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                <h4 class="modal-title" id="myModalLabel">{{result['test_id']}}: {{result['title']}}</h4>
+                                                <h4 class="modal-title" id="myModalLabel">{{result['test_id']}}: {{result['subject']}}</h4>
                                             </div>
                                             <div class="modal-body">
-                                                <pre>
-                                                    {{result['steps']}}
-                                                </pre>
-                                            </div>
-                                            <div class="modal-body">
-                                                <pre>
-                                                    {{result['expected_results']}}
-                                                </pre>
+                                                <pre>{{result['steps']}}</pre>
+                                                <pre>{{result['expected_results']}}</pre>
                                             </div>
                                         </div>
                                     </div>

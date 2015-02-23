@@ -34,56 +34,62 @@ def root():
 
 
 @server.route('/manual', methods=['POST', 'GET'])
-def manual_test_cases():
+def manual_tc():
     db = get_db()
     m_projects = db.get_m_projects()
 
     if request.method == 'GET':
-        return render_template('manual_tc.html', m_projects=m_projects)
+        return render_template('manual_tc.html', projects=m_projects)
 
 
 @server.route('/manual/<m_project>', methods=['POST', 'GET'])
-def manual_test_cases_comp(m_project):
+def manual_suits(m_project):
     db = get_db(m_project)
     m_projects = db.get_m_projects()
     components = db.get_manual_component_names()
+    m_sprints = db.get_manual_sprints()
     if request.method == 'GET':
         return render_template('manual_suits.html',
-                               m_projects=m_projects,
-                               m_project=m_project,
+                               projects=m_projects,
+                               project=m_project,
+                               sprints=m_sprints,
                                components=components)
 
 
-@server.route('/manual/<m_project>/<m_component>')
-def m_results_suites(m_project, m_component):
+@server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET'])
+def manual_tests_suites(m_project, m_component):
     db = get_db(m_project)
     projects = db.get_m_projects()
     m_components = db.get_manual_component_names()
-    print 'm_component', m_component
     tests = db.get_manual_tests(component=m_component)
-    print 'tests', tests
-    a = { "component" : "API", "steps" : "Some more description",
-          "suite" : "Functions", "test_id" : "A-1",
-          'expected_results': 'expected_results',
-          "title" : "Test for login"}
+    if not tests:
+        return 'I don\'t have tests for this component... Sorry... :/', 404
+    # tests.sort(key=lambda x: x['name'])
+    if request.method == 'GET':
+        return render_template('manual_tests_suites.html',
+                               data=tests,
+                               project=m_project,
+                               projects=projects,
+                               component=m_component,
+                               components=m_components)
 
-    data = [{'rows': [{u'test_id': u'A-1', u'steps': u'Some more steps',
-                       u'title': u'Test for login', u'component': u'API',
-                       u'suite': u'Functions',
-                       'expected_results': 'expected_results'},
 
-                      {u'test_id': u'A-2', u'steps': u'Some more description',
-                       u'title': u'Test for login2', u'component': u'API',
-                       'expected_results': 'expected_results'}],
-             'name': u'Functions',
-             'total': 10}]
+@server.route('/manual/<m_project>/sprint/', methods=['POST', 'GET'])
+def manual_project_sprints(m_project):
+    db = get_db(m_project)
+    projects = db.get_m_projects()
+    sprints = db.get_manual_sprints()
+    if request.method == 'GET':
+        return render_template('manual_project_sprints.html',
+                               project=m_project,
+                               projects=projects,
+                               sprints=sprints)
 
-    return render_template('manual_tests_suites.html',
-                           data=data,
-                           project=m_project,
-                           projects=projects,
-                           component=m_component,
-                           components=m_components)
+
+@server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET'])
+def manual_project_sprint_details(m_project, m_sprint):
+    if request.method == 'GET':
+        return 'TODO: ADD sprint details', 404
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
@@ -172,8 +178,6 @@ def results_suites(project, sprint, component):
         data.append(suite_data)
 
     data.sort(key=lambda e: e['name'])
-
-    print data
 
     return render_template('results_suites.html',
                            data=data,

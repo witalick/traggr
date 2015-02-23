@@ -3,17 +3,38 @@
 
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            {{ m_project }} <b class="caret"></b>
+            {{ project }} <b class="caret"></b>
         </a>
 
         <ul class="dropdown-menu">
-            {% for p in m_projects%}
+            {% for p in projects%}
                 <li><a href="/manual/{{ p }}">{{ p }}</a></li>
             {% endfor %}
-
         </ul>
     </li>
+    <li class="dropdown">
 
+            {% if sprints %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    Sprints <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    <li><a href="/manual/{{ project }}/sprint/">All Sprints</a></li>
+
+                    {% for s in sprints%}
+                    <li><a href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    No Sprint Data <b class="caret"></b>
+                </a>
+            {% endif %}
+
+        </li>
 {% endblock %}
 
 {% block body %}
@@ -28,7 +49,7 @@
                     <span class="glyphicon glyphicon-remove pull-left"></span>
                 </button>&nbsp;
 
-                <a href="/manual/{{ m_project }}/{{ component.name }}">{{ component.name }}</a>
+                <a href="/manual/{{ project }}/{{ component.name }}">{{ component.name }}</a>
 
                 <span class="badge alert-success pull-right">{{ component.total }}</span>
 
