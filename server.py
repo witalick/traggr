@@ -144,7 +144,7 @@ def manual_sprint_components(m_project, m_sprint):
     totals = db.get_sprint_totals(sprint_name=m_sprint)
     components_data = db.get_sprint_details(sprint_name=m_sprint)
     failed_tests = db.get_sprint_failed(sprint_name=m_sprint)
-
+    # db.sync_sprint(m_sprint)
     if request.method == 'GET':
         return render_template('manual_sprint_components.html',
                                project=m_project,
@@ -170,7 +170,6 @@ def manual_sprint_suites(m_project, m_sprint, m_component):
     sprints.remove(m_sprint)
     m_components = db.get_manual_sprint_component(sprint_name=m_sprint)
     tests_results = db.get_tests_result(sprint_name=m_sprint, component=m_component)
-    print tests_results
 
     if request.method == 'GET':
         return render_template('manual_sprint_suites.html',

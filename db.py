@@ -2,7 +2,7 @@ __author__ = 'vyakoviv'
 
 
 import time
-
+from bson.objectid import ObjectId
 from pymongo import MongoClient
 
 
@@ -258,10 +258,15 @@ class AggregationDB(MyMongoClient):
         return
 
     def sync_sprint(self, sprint_name):
-        new_tc = self._db[sprint_name].find()
+        sprint_collection_name = self._cn_results % sprint_name
+        new_tc = self._db[self._cn_tests].find()
+        # print list(new_tc)
         for tc in new_tc:
-            self._db[sprint_name].update({'_id': tc['_id']}, {'$set': tc},
-                                         upsert=False, multi=False)
+            tc_id = tc.pop('_id')
+            print tc_id, tc
+            self._db[sprint_collection_name].update({'_id': tc_id},
+                                                    {'$set': tc},
+                                                    upsert=True, multi=False)
         return
 
     def remove_manual_test(self, component, suite, test_id):
