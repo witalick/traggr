@@ -172,7 +172,11 @@ class AggregationDB(MyMongoClient):
             }
         ])
 
-        return res['result'][0]
+        if res['result']:
+            return res['result'][0]
+        else:
+            return
+
 
     def get_sprint_details(self, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name

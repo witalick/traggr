@@ -41,7 +41,7 @@
 
                 </ul>
             {% else %}
-                <a href="/{{ project }}/{{ sprint }}">{{ sprint }} </a>
+                <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }} </a>
             {% endif %}
 
         </li>
@@ -51,7 +51,7 @@
 
 {% block body %}
 
-
+                {% if components %}
         <div class="alert alert-info" on>
             <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
             <strong>Note:</strong> Click a total failed tests badge to see a list of failed tests for all components.
@@ -59,27 +59,28 @@
 
         <ul class="list-group">
 
-            {% for component in components %}
+                {% for component in components %}
 
-            <li id="li{{ component.name }}" class="list-group-item">
+                <li id="li{{ component.name }}" class="list-group-item">
 
-                <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentResultstWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component.name }}")'>
-                    <span class="glyphicon glyphicon-remove pull-left"></span>
-                </button>&nbsp;
+                    <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentResultstWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component.name }}")'>
+                        <span class="glyphicon glyphicon-remove pull-left"></span>
+                    </button>&nbsp;
 
-                <a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ component.name }}">{{ component.name }}</a>
+                    <a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ component.name }}">{{ component.name }}</a>
 
-                <span class="badge pull-right">{{ component.total }}</span>
-                {% if component.passed != 0 %}
-                    <span class="badge alert-success pull-right">{{ component.passed }}</span>
-                {% endif %}
-                {% if component.failed != 0 %}
-                    <span class="badge alert-danger pull-right">{{ component.failed }}</span>
-                {% endif %}
+                    <span class="badge pull-right">{{ component.total }}</span>
+                    {% if component.passed != 0 %}
+                        <span class="badge alert-success pull-right">{{ component.passed }}</span>
+                    {% endif %}
+                    {% if component.failed != 0 %}
+                        <span class="badge alert-danger pull-right">{{ component.failed }}</span>
+                    {% endif %}
 
-            </li>
+                </li>
 
-            {% endfor %}
+                {% endfor %}
+
 
             <li class="list-group-item">Totals
                 <span id="spanContextTotal" class="badge pull-right">{{ totals.total }}</span>
@@ -90,7 +91,7 @@
                     <span id="spanContextFailed" class="badge alert-danger pull-right">{{ totals.failed }}</span>
                 {% endif %}
             </li>
-
+            {% endif %}
         </ul>
 
         {% if failed_tests %}

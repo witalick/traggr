@@ -135,6 +135,7 @@ def manual_sprint_components(m_project, m_sprint):
     sprints.remove(m_sprint)
     totals = db.get_sprint_totals(sprint_name=m_sprint)
     components_data = db.get_sprint_details(sprint_name=m_sprint)
+    print components_data
     failed_tests = db.get_sprint_failed(sprint_name=m_sprint)
     if request.method == 'GET':
         return render_template('manual_sprint_components.html',
