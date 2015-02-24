@@ -50,9 +50,6 @@
                     </ul>
                     {% block custom_ul_menu %}
                     {% endblock %}
-                    <ul class="nav navbar-nav navbar-right">
-                        <li id="liAdd"><a href="#">Add</a></li>
-                    </ul>
 
                     <ul class="nav navbar-nav navbar-right">
                         <li><a href="/manual">Manual TCs</a></li>
@@ -114,6 +111,26 @@
                                 </div>
                                 <button type="submit" class="btn btn-primary" id="btnAddTestCase">Save</button>
                                 <button type="button" class="btn btn-default" id="btnAddTestCaseCancel" aria-hidden="true">Cancel</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="ModalEditName" tabindex="-1" role="dialog" aria-labelledby="ModalEditName" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4>Edit Name</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form name="formEditName">
+                                <div class="form-group">
+                                    <label for="inputNewName">New Name</label>
+                                    <input type="text" class="form-control" id="inputNewName" placeholder="Project Name">
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="btnEditName">Save</button>
+                                <button type="button" class="btn btn-default" id="btnEditNameCancel" aria-hidden="true">Cancel</button>
                             </form>
                         </div>
                     </div>

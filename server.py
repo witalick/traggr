@@ -104,6 +104,12 @@ def manual_tests_suites(m_project, m_component):
                                    suite=test_data['suite'])
         return jsonify({})
 
+    elif request.method == 'POST':
+        suite_data = json.loads(request.get_data())
+        db.rename_manual_suite(component=m_component,
+                               suite=suite_data['suite'],
+                               suite_new=suite_data['suite_new'])
+        return jsonify({})
 
 @server.route('/manual/<m_project>/sprint', methods=['POST', 'GET'])
 def manual_sprints(m_project):

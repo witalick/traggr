@@ -79,4 +79,37 @@ $(document).ready(function () {
 
     };
 
+    window.editSuiteName = function (event, suite_name) {
+        event = event || window.event;
+        event.preventDefault();
+        event.stopPropagation();
+        $("#ModalEditName").modal();
+        $("#btnEditName").click(function () {
+            var x = document.forms["formEditName"].elements;
+            var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
+            $.ajax({
+                type: "POST",
+                url: '/manual/'+ pageData.project + '/' + pageData.component,
+                data: JSON.stringify({
+                    suite: suite_name,
+                    suite_new: new_name}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            })
+                .success(function () {
+                    $("#ModalEditName").modal('hide');
+                    window.location.reload()
+                })
+                .fail(function (error) {
+                    alert(error.responseText)
+                });
+
+        });
+    };
+
+    $("#btnEditNameCancel").click(function () {
+            $("#ModalEditName").modal('hide');
+        }
+    );
+
 });

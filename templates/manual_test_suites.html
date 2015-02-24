@@ -9,6 +9,7 @@
 {% endblock %}
 
 
+
 {% block menu %}
         <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ project }} <b class="caret"></b></a>
@@ -34,6 +35,11 @@
 
 {% endblock %}
 
+{% block custom_ul_menu %}
+    <ul class="nav navbar-nav navbar-right">
+        <li id="liAdd"><a href="#">Add Test</a></li>
+    </ul>
+{% endblock %}
 
 {% block body %}
 
@@ -50,7 +56,8 @@
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
                         <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ component }}", "{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
-                        </button>&nbsp;
+                        </button>
+                        <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editSuiteName(event, "{{ suite['name'] }}")'>Edit Suite</button>&nbsp;
                           {{ suite['name'] }}
                           <span class="badge pull-right">{{ suite['total'] }}</span>
                         <button type="button" class="btnAdd btn btn-primary btn-xs" onclick='addTestCase(event, "{{ component }}", "{{ suite.name }}")'>Add Test</button>
