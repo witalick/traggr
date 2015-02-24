@@ -126,8 +126,8 @@ def manual_sprints(m_project):
         return jsonify({})
 
 
-@server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET'])
-def manual_sprint_suites(m_project, m_sprint):
+@server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET', 'DELETE'])
+def manual_sprint_components(m_project, m_sprint):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
     projects = db.get_m_projects()
@@ -137,7 +137,7 @@ def manual_sprint_suites(m_project, m_sprint):
     components_data = db.get_sprint_details(sprint_name=m_sprint)
     failed_tests = db.get_sprint_failed(sprint_name=m_sprint)
     if request.method == 'GET':
-        return render_template('manual_sprint_suites.html',
+        return render_template('manual_sprint_components.html',
                                project=m_project,
                                projects=projects,
                                sprints=sprints,
@@ -145,7 +145,11 @@ def manual_sprint_suites(m_project, m_sprint):
                                components=components_data,
                                totals=totals,
                                failed_tests=failed_tests)
-
+    if request.method == 'DELETE':
+        results_data = json.loads(request.get_data())
+        db.remove_manual_results_component(component=results_data['component'],
+                                           sprint_name=m_sprint)
+        return jsonify({})
 
 @server.route('/manual/<m_project>/sprint/<m_sprint>/<m_component>', methods=['POST', 'GET'])
 def manual_sprint_component_details(m_project, m_sprint, m_component):
@@ -158,7 +162,7 @@ def manual_sprint_component_details(m_project, m_sprint, m_component):
     tests_results = db.get_tests_result(sprint_name=m_sprint, component=m_component)
 
     if request.method == 'GET':
-        return render_template('manual_sprint_component_details.html',
+        return render_template('manual_sprint_suites.html',
                                project=m_project,
                                projects=projects,
                                sprints=sprints,
