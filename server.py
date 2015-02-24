@@ -151,8 +151,8 @@ def manual_sprint_components(m_project, m_sprint):
                                            sprint_name=m_sprint)
         return jsonify({})
 
-@server.route('/manual/<m_project>/sprint/<m_sprint>/<m_component>', methods=['POST', 'GET'])
-def manual_sprint_component_details(m_project, m_sprint, m_component):
+@server.route('/manual/<m_project>/sprint/<m_sprint>/<m_component>', methods=['POST', 'GET', 'DELETE'])
+def manual_sprint_suites(m_project, m_sprint, m_component):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
     projects = db.get_m_projects()
@@ -170,6 +170,13 @@ def manual_sprint_component_details(m_project, m_sprint, m_component):
                                components=m_components,
                                component=m_component,
                                data=tests_results)
+
+    if request.method == 'DELETE':
+        results_data = json.loads(request.get_data())
+        db.remove_manual_results_suite(suite=results_data['suite'],
+                                       component=m_component,
+                                       sprint_name=m_sprint)
+        return jsonify({})
 
 @server.route('/manual/_edit_manual_test/<m_project>', methods=['POST'])
 def manual_edit_test(m_project):

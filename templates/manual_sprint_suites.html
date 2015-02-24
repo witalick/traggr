@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% block customjs %}
+    <script>
+        var pageData = {project: "{{project}}"}
+    </script>
+    <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_sprint_suites.js') }}></script>
+{% endblock %}
+
 {% block menu %}
 
         <li class="dropdown">
@@ -72,7 +79,7 @@
 
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
 
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteResultstWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>&nbsp;
 
