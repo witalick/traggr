@@ -199,7 +199,7 @@ class AggregationDB(MyMongoClient):
         db_result = self._db[sprint_collection_name].find(
             {'result': 'failed'},
             {'test_id': 1, 'steps': 1, 'title': 1, 'component': 1,
-             'suite': 1, 'expected_results': 1, 'result': 1})
+             'suite': 1, 'expected_results': 1, 'result': 1, 'attributes': 1, 'error': 1})
 
         return list(db_result)
 
@@ -286,13 +286,22 @@ class AggregationDB(MyMongoClient):
         sprint_collection_name = self._cn_results % sprint_name
         self._db[sprint_collection_name].remove({'component': component})
 
-    def set_manual_result(self, sprint, component, suite, test_id, result, **result_attributes):
+    def set_manual_result(self, sprint, component, suite, test_id, result, error=None, **result_attributes):
         assert result in ['passed', 'failed']
         sprint_collection_name = self._cn_results % sprint
-        result_attributes.update({'result': result})
+        if result_attributes:
+            result_attributes = {"attributes": map(list, result_attributes.items())}
         query = {'test_id': test_id, 'suite': suite, 'component': component}
+        result_dict = {'result': result}
+        if not result_attributes:
+            result_attributes['attributes'] = []
+        if not error:
+            error = ""
+        result_dict.update({'error': error})
+        result_dict.update({"attributes": result_attributes['attributes']})
+
         self._db[sprint_collection_name].update(query,
-            {'$set': result_attributes}, upsert=True)
+                                                {'$set': result_dict}, upsert=True)
 
     def edit_manual_test(self, test_id, title, steps, expected_results):
         self._db[self._cn_tests].update(

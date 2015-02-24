@@ -27,7 +27,7 @@ $(document).ready(function () {
 
     };
 
-    window.setTestCaseResult = function (suite, test_id, result, result_attributes) {
+    window.setTestCaseResult = function (suite, test_id, result, error, result_attributes) {
         if (result == 'passed'){
             $("#tc" + test_id).attr('class','success');
         }
@@ -57,16 +57,17 @@ $(document).ready(function () {
             var is_bug_for = x['inputSetFailedBug'].value.replace(/\s{2,}/g, ' ').trim();
             var fail_reason = x['inputSetFailedReason'].value;
             var result_attributes = {};
+            var error = '';
 
             if (is_bug_for){
                 result_attributes['is_bug_for'] = is_bug_for
             }
             if (fail_reason){
-                result_attributes['error'] = fail_reason
+                error = fail_reason
             }
 
             $('#ModalSetFailed').modal('hide');
-            setTestCaseResult(suite, test_id, "failed", result_attributes);
+            setTestCaseResult(suite, test_id, "failed", error, result_attributes);
 
         });
         $('#ModalSetFailed').modal();
