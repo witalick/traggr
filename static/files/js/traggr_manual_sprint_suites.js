@@ -27,7 +27,10 @@ $(document).ready(function () {
 
     };
 
-    window.setTestCaseResult = function (suite, test_id, result, error, result_attributes) {
+    window.setTestCaseResult = function (event, suite, test_id, result, error, result_attributes) {
+        event = event || window.event;
+        event.preventDefault();
+        event.stopPropagation();
         if (result == 'passed'){
             $("#tc" + test_id).attr('class','success');
         }
@@ -51,7 +54,10 @@ $(document).ready(function () {
             .fail(function (error) {alert(error.responseText)});
     };
 
-    window.setTestCaseFailed = function(suite, test_id) {
+    window.setTestCaseFailed = function(event, suite, test_id) {
+        event = event || window.event;
+        event.preventDefault();
+        event.stopPropagation();
         $('#btnSetFailed').click(function () {
             var x = document.forms["formSetFailed"].elements;
             var is_bug_for = x['inputSetFailedBug'].value.replace(/\s{2,}/g, ' ').trim();
