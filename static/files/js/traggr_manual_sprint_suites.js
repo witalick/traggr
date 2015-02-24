@@ -13,13 +13,11 @@ $(document).ready(function () {
         ;
     });
 
-    window.removeSuiteResultstWithConfirmation = function (project, sprint, component, suite) {
-
+    window.removeSuiteResultstWithConfirmation = function (suite) {
         $("#btnConfirmDeletion").click(function () {
-
-            $("#li" + component).remove();
+            $("#div" + suite.replace(' ', '-')).remove();
             $.ajax({type: "DELETE",
-                    url: "/manual/" + project + "/" + "sprint/" + sprint + "/" + component,
+                    url: "/manual/" + pageData.project + "/" + "sprint/" + pageData.sprint + "/" + pageData.component,
                     data: JSON.stringify({'suite': suite})
             });
         });
@@ -29,4 +27,26 @@ $(document).ready(function () {
 
     };
 
+    window.setTestCaseResult = function (suite, test_id, result) {
+        if (result == 'passed'){
+            $("#tc" + test_id).attr('class','success');
+        }
+        else if(result == 'failed') {
+            $("#tc" + test_id).attr('class', 'danger');
+        }
+
+        $.ajax({type: "POST",
+                url: "/manual/_edit_manual_test_result/" + pageData.project,
+                data: JSON.stringify({'suite': suite,
+                                      'component': pageData.component,
+                                      'sprint': pageData.sprint,
+                                      'test_id': test_id,
+                                      'result': result})
+        })
+            .success(function () {
+            })
+            .fail(function (error) {
+                alert(error.responseText)
+            });
+    }
 });

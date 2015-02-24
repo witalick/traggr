@@ -2,7 +2,7 @@
 
 {% block customjs %}
     <script>
-        var pageData = {project: "{{project}}"}
+        var pageData = {project: "{{ project }}", component: "{{ component }}", sprint: "{{ sprint }}"}
     </script>
     <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_sprint_suites.js') }}></script>
 {% endblock %}
@@ -79,7 +79,7 @@
 
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
 
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteResultstWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteResultstWithConfirmation("{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>&nbsp;
 
@@ -112,10 +112,12 @@
 
                             {% for result in suite['rows'] %}
 
-                                <tr class={% if result['result'] == 'Pass' %}
+                                <tr id="tc{{ result['test_id'] }}" class={% if result['result'] == 'passed' %}
                                                 "success"
-                                          {% elif result['result'] != 'Pass' %}
+                                          {% elif result['result'] == 'failed' %}
                                                 "danger"
+                                          {% else %}
+                                                "active"
                                           {% endif  %}>
                                     <td>{{ result['test_id'] }}</td>
 
@@ -137,12 +139,8 @@
 
                                         >
                                     {{ result['result'] }}
-                                    <button type="button" style="display: inline-block;">
-                                        <span class="glyphicon glyphicon-remove pull-left"></span>
-                                    </button>
-                                    <button type="button" style="display: inline-block;">
-                                        <span class="glyphicon glyphicon-remove pull-left"></span>
-                                    </button>
+                                    <button type="button" style="display: inline-block;" class="btn btn-success btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "passed")'>Passed</button>
+                                    <button type="button" style="display: inline-block;" class="btn btn-danger btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "failed")'>Failed</button>
                                     </td>
 
                                     {% if 'comment' in result %}

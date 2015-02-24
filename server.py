@@ -201,6 +201,18 @@ def manual_get_test(m_project):
         return jsonify(db.fetch_manual_test(component=test_data['component'],
                              test_id=test_data['test_id']))
 
+@server.route('/manual/_edit_manual_test_result/<m_project>', methods=['POST'])
+def manual_set_test_result(m_project):
+    db_project = 'manual_' + m_project
+    db = get_db(db_project)
+    if request.method == 'POST':
+        test_data = json.loads(request.get_data())
+        db.set_manual_result(sprint=test_data['sprint'],
+                             component=test_data['component'],
+                             suite=test_data['suite'],
+                             test_id=test_data['test_id'],
+                             result=test_data['result'])
+        return jsonify({})
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):

@@ -165,8 +165,8 @@ class AggregationDB(MyMongoClient):
         res = self._db[sprint_collection_name].aggregate([
             {
                 '$group': {'_id': "id",
-                           'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'Pass']}, 1, 0]}},
-                           'failed': {'$sum': {'$cond': [{'$eq': ['$result', 'Fail']}, 1, 0]}},
+                           'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'passed']}, 1, 0]}},
+                           'failed': {'$sum': {'$cond': [{'$eq': ['$result', 'failed']}, 1, 0]}},
                            'total': {'$sum': {"$cond": [{"$ne": ["$result", 'null']}, 1, 0]}}}
 
             }
@@ -177,14 +177,13 @@ class AggregationDB(MyMongoClient):
         else:
             return
 
-
     def get_sprint_details(self, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name
         db_result = self._db[sprint_collection_name].aggregate([
             {
                 '$group': {'_id': "$component",
-                           'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'Pass']}, 1, 0]}},
-                           'failed': {'$sum': {'$cond': [{'$eq': ['$result', 'Fail']}, 1, 0]}},
+                           'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'passed']}, 1, 0]}},
+                           'failed': {'$sum': {'$cond': [{'$eq': ['$result', 'failed']}, 1, 0]}},
                            'total': {'$sum': {"$cond": [{"$ne": ["$result", 'null']}, 1, 0]}}}
             }
         ])
@@ -280,6 +279,13 @@ class AggregationDB(MyMongoClient):
     def remove_manual_results_component(self, component, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name
         self._db[sprint_collection_name].remove({'component': component})
+
+    def set_manual_result(self, sprint, component, suite, test_id, result):
+        assert result in ['passed', 'failed']
+        sprint_collection_name = self._cn_results % sprint
+        query = {'test_id': test_id, 'suite': suite, 'component': component}
+        self._db[sprint_collection_name].update(query,
+            {'$set': {'result': result}}, upsert=True)
 
     def edit_manual_test(self, test_id, title, steps, expected_results):
         self._db[self._cn_tests].update(

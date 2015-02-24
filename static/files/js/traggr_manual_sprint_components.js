@@ -21,6 +21,11 @@ $(document).ready(function () {
             $.ajax({type: "DELETE",
                     url: "/manual/" + project + "/" + "sprint/" + sprint,
                     data: JSON.stringify({'component': component})
+        })
+            .success(function () {
+            })
+            .fail(function (error) {
+                alert(error.responseText)
             });
         });
         $("#divBodyConfirmDeletion").text("Remove " + component + "?");

@@ -43,6 +43,10 @@ $(document).ready(function () {
         }
     );
 
+    $("#btnAddSprintCancel").click(function(){
+        $("#ModalAddSprint").modal('hide');
+    });
+
     window.removeManualComponentWithConfirmation = function (component) {
         $("#btnConfirmDeletion").click(function () {
             $("#li" + component.replace(' ', '-')).remove();
