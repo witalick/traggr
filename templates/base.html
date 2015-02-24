@@ -48,11 +48,8 @@
                     <ul class="nav navbar-nav navbar-right">
                         <li id="liAdmin"><a href="#">Admin</a></li>
                     </ul>
-
-                    <ul onclick="alert('Not ready yet. Sorry.')" class="nav navbar-nav navbar-right">
-                        <li><a href="#">Analyze</a></li>
-                    </ul>
-
+                    {% block custom_ul_menu %}
+                    {% endblock %}
                     <ul class="nav navbar-nav navbar-right">
                         <li id="liAdd"><a href="#">Add</a></li>
                     </ul>

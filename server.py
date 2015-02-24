@@ -105,22 +105,25 @@ def manual_tests_suites(m_project, m_component):
         return jsonify({})
 
 
-@server.route('/manual/<m_project>/sprint/', methods=['POST', 'GET'])
+@server.route('/manual/<m_project>/sprint', methods=['POST', 'GET'])
 def manual_sprints(m_project):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
-    totals = [db.get_sprint_totals(sprint=m_sprint) for m_sprint in sprints]
+    totals = [db.get_sprint_totals(sprint_name=m_sprint) for m_sprint in sprints]
     data = dict()
     for i, v in zip(sprints, totals):
-        data[i]= v
-    # db.create_sprint('sprint_1_7')
+        data[i] = v
     if request.method == 'GET':
         return render_template('manual_sprints.html',
                                project=m_project,
                                projects=projects,
                                sprints=data)
+    if request.method == 'POST':
+        data = json.loads(request.get_data())
+        db.create_sprint(data['sprint_name'])
+        return jsonify({})
 
 
 @server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET'])
@@ -130,9 +133,9 @@ def manual_sprint_suites(m_project, m_sprint):
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
     sprints.remove(m_sprint)
-    totals = db.get_sprint_totals(sprint=m_sprint)
-    components_data = db.get_sprint_details(sprint=m_sprint)
-    failed_tests = db.get_sprint_failed(sprint=m_sprint)
+    totals = db.get_sprint_totals(sprint_name=m_sprint)
+    components_data = db.get_sprint_details(sprint_name=m_sprint)
+    failed_tests = db.get_sprint_failed(sprint_name=m_sprint)
     if request.method == 'GET':
         return render_template('manual_sprint_suites.html',
                                project=m_project,
@@ -151,8 +154,8 @@ def manual_sprint_component_details(m_project, m_sprint, m_component):
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
     sprints.remove(m_sprint)
-    m_components = db.get_manual_sprint_component(sprint=m_sprint)
-    tests_results = db.get_tests_result(sprint=m_sprint, component=m_component)
+    m_components = db.get_manual_sprint_component(sprint_name=m_sprint)
+    tests_results = db.get_tests_result(sprint_name=m_sprint, component=m_component)
 
     if request.method == 'GET':
         return render_template('manual_sprint_component_details.html',

@@ -15,7 +15,7 @@ $(document).ready(function () {
     });
 
     $("#btnAddProject").click(function () {
-            var x = document.forms["formProjectAdd"].elements;
+            var x = document.forms["formAddProject"].elements;
             var project = x['inputProject'].value;
             if (confirm("Do You Really Want To Create New Project - " + project + "?")) {
                 $.ajax({

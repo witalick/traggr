@@ -35,6 +35,13 @@
     </li>
 {% endblock %}
 
+
+{% block custom_ul_menu %}
+    <ul class="nav navbar-nav navbar-right">
+        <li id="liAddSprint"><a href="#">Add Sprint</a></li>
+    </ul>
+{% endblock %}
+
 {% block body %}
 
     <ul class="list-group">
@@ -48,5 +55,25 @@
         </li>
         {% endfor %}
     </ul>
+
+    <div class="modal fade" id="ModalAddSprint" tabindex="-1" role="dialog" aria-labelledby="ModalAddSprint" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Add New Sprint</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formAddSprint">
+                        <div class="form-group">
+                            <label for="inputSprint">Sprint Name</label>
+                            <input type="text" class="form-control" id="inputSprint" placeholder="Sprint Name">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnAddSprint">Save</button>
+                        <button type="button" class="btn btn-default" id="btnAddSprintCancel" aria-hidden="true">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

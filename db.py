@@ -158,10 +158,11 @@ class AggregationDB(MyMongoClient):
         return test_id
 
     def get_manual_sprints(self):
-        return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('sprint_')]
+        return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('results_')]
 
-    def get_sprint_totals(self, sprint):
-        res = self._db['sprint_'+sprint].aggregate([
+    def get_sprint_totals(self, sprint_name):
+        sprint_collection_name = self._cn_results % sprint_name
+        res = self._db[sprint_collection_name].aggregate([
             {
                 '$group': {'_id': "id",
                            'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'Pass']}, 1, 0]}},
@@ -173,8 +174,9 @@ class AggregationDB(MyMongoClient):
 
         return res['result'][0]
 
-    def get_sprint_details(self, sprint):
-        db_result = self._db['sprint_'+sprint].aggregate([
+    def get_sprint_details(self, sprint_name):
+        sprint_collection_name = self._cn_results % sprint_name
+        db_result = self._db[sprint_collection_name].aggregate([
             {
                 '$group': {'_id': "$component",
                            'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'Pass']}, 1, 0]}},
@@ -189,16 +191,18 @@ class AggregationDB(MyMongoClient):
 
         return result
 
-    def get_sprint_failed(self, sprint):
-        db_result = self._db['sprint_'+sprint].find(
+    def get_sprint_failed(self, sprint_name):
+        sprint_collection_name = self._cn_results % sprint_name
+        db_result = self._db[sprint_collection_name].find(
             {'result': 'Fail'},
             {'test_id': 1, 'steps': 1, 'title': 1, 'component': 1,
              'suite': 1, 'expected_results': 1, 'result': 1})
 
         return list(db_result)
 
-    def get_tests_result(self, sprint, component):
-        db_result = self._db['sprint_'+sprint].aggregate([
+    def get_tests_result(self, sprint_name, component):
+        sprint_collection_name = self._cn_results % sprint_name
+        db_result = self._db[sprint_collection_name].aggregate([
             {
                 '$match': {'component': component}
             },
@@ -230,8 +234,9 @@ class AggregationDB(MyMongoClient):
 
         return result
 
-    def get_manual_sprint_component(self, sprint):
-        res = self._db['sprint_'+sprint].aggregate([
+    def get_manual_sprint_component(self, sprint_name):
+        sprint_collection_name = self._cn_results % sprint_name
+        res = self._db[sprint_collection_name].aggregate([
             {
                 '$group': {'_id': "$component",
                            'total': {'$sum': 1}}
@@ -242,8 +247,8 @@ class AggregationDB(MyMongoClient):
                 for row in res['result']]
 
     def create_sprint(self, sprint_name):
-
-        self._db.eval('db.tests.copyTo("{0}")'.format(sprint_name))
+        sprint_collection_name = self._cn_results % sprint_name
+        self._db.eval('db.tests.copyTo("{0}")'.format(sprint_collection_name))
         self._db[sprint_name].update({}, {'$set': {"result": ''}},
                                      upsert=False, multi=False)
         return
