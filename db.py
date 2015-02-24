@@ -197,7 +197,7 @@ class AggregationDB(MyMongoClient):
     def get_sprint_failed(self, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name
         db_result = self._db[sprint_collection_name].find(
-            {'result': 'Fail'},
+            {'result': 'failed'},
             {'test_id': 1, 'steps': 1, 'title': 1, 'component': 1,
              'suite': 1, 'expected_results': 1, 'result': 1})
 
