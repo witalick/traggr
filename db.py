@@ -221,10 +221,11 @@ class AggregationDB(MyMongoClient):
                                        'suite': '$component',
                                        'expected_results': '$expected_results',
                                        'result': '$result',
-                                       'error': '$error'
-                                        }
+                                       'error': '$error'}
                              },
-                    'total': {'$sum': 1}
+                    'total': {'$sum': 1},
+                    'passed': {'$sum': {'$cond': [{'$eq': ['$result', 'passed']}, 1, 0]}},
+                    'failed': {'$sum': {'$cond': [{'$eq': ['$result', 'failed']}, 1, 0]}},
                 }
             },
             {'$sort': {'_id': 1}}
