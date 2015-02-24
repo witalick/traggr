@@ -39,7 +39,7 @@ def manual_base():
     m_projects = db.get_m_projects()
 
     if request.method == 'GET':
-        return render_template('manual_base.html', projects=m_projects)
+        return render_template('manual_projects.html', projects=m_projects)
     elif request.method == 'POST':
         project_data = json.loads(request.get_data())
         db = get_db('manual_' + project_data['project_name'])
