@@ -84,7 +84,7 @@ $(document).ready(function () {
                 dataType: "json"
             })
                 .success(function () {
-                    $("#ModalOneAddTest").modal('hide');
+                    $("#ModalAddTestCase").modal('hide');
                     window.location.reload()
                 })
                 .fail(function (error) {
