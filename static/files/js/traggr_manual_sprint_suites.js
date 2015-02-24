@@ -73,7 +73,7 @@ $(document).ready(function () {
             }
 
             $('#ModalSetFailed').modal('hide');
-            setTestCaseResult(suite, test_id, "failed", error, result_attributes);
+            setTestCaseResult(event, suite, test_id, "failed", error, result_attributes);
 
         });
         $('#ModalSetFailed').modal();
