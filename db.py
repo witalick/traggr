@@ -303,11 +303,11 @@ class AggregationDB(MyMongoClient):
 
     def rename_manual_suite(self, component, suite, suite_new):
         self._db[self._cn_tests].update({'component': component, 'suite': suite},
-            {'$set': {'suite': suite_new}}, False, True)
+            {'$set': {'suite': suite_new}}, upsert=False, multi=True)
 
     def rename_manual_component(self, component, component_new):
         self._db[self._cn_tests].update({'component': component},
-            {'$set': {'component': component_new}}, False, True)
+            {'$set': {'component': component_new}}, upsert=False, multi=True)
 
 if __name__ == '__main__':
 
