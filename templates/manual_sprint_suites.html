@@ -142,8 +142,8 @@
 
                                         >
                                     {{ result['result'] }}
-                                    <button type="button" style="display: inline-block;" class="btn btn-success btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "passed")'>Passed</button>
-                                    <button type="button" style="display: inline-block;" class="btn btn-danger btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "failed")'>Failed</button>
+                                    <button type="button" style="display: none;" class="btnSet btn btn-success btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "passed")'>Passed</button>
+                                    <button type="button" style="display: none;" class="btnSet btn btn-danger btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "failed")'>Failed</button>
                                     </td>
 
                                     {% if 'comment' in result %}

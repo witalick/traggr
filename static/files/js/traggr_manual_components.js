@@ -70,5 +70,33 @@ $(document).ready(function () {
         $("#ModalConfirmDeletion").modal();
 
     };
+    window.editComponentName = function (component_name) {
+        $("#ModalEditName").modal();
+        $("#btnEditName").click(function () {
+            var x = document.forms["formEditName"].elements;
+            var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
+            $.ajax({
+                type: "POST",
+                url: '/manual/_edit_manual_component/'+ pageData.project,
+                data: JSON.stringify({
+                    component: component_name,
+                    component_new: new_name}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            })
+                .success(function () {
+                    $("#ModalEditName").modal('hide');
+                    window.location.reload()
+                })
+                .fail(function (error) {
+                    alert(error.responseText)
+                });
 
+        });
+    };
+
+    $("#btnEditNameCancel").click(function () {
+            $("#ModalEditName").modal('hide');
+        }
+    );
 });

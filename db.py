@@ -305,6 +305,10 @@ class AggregationDB(MyMongoClient):
         self._db[self._cn_tests].update({'component': component, 'suite': suite},
             {'$set': {'suite': suite_new}}, False, True)
 
+    def rename_manual_component(self, component, component_new):
+        self._db[self._cn_tests].update({'component': component},
+            {'$set': {'component': component_new}}, False, True)
+
 if __name__ == '__main__':
 
     project = 'proj'

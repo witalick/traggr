@@ -57,7 +57,8 @@
                         <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ component }}", "{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>
-                        <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editSuiteName(event, "{{ suite['name'] }}")'>Edit Suite</button>&nbsp;
+                        <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editSuiteName(event, "{{ suite['name'] }}")'>Edit Suite</button>
+                        &nbsp;
                           {{ suite['name'] }}
                           <span class="badge pull-right">{{ suite['total'] }}</span>
                         <button type="button" class="btnAdd btn btn-primary btn-xs" onclick='addTestCase(event, "{{ component }}", "{{ suite.name }}")'>Add Test</button>

@@ -121,11 +121,13 @@ def manual_sprints(m_project):
     data = dict()
     for i, v in zip(sprints, totals):
         data[i] = v
+
     if request.method == 'GET':
         return render_template('manual_sprints.html',
                                project=m_project,
                                projects=projects,
                                sprints=data)
+
     if request.method == 'POST':
         data = json.loads(request.get_data())
         db.create_sprint(data['sprint_name'])
@@ -142,7 +144,7 @@ def manual_sprint_components(m_project, m_sprint):
     totals = db.get_sprint_totals(sprint_name=m_sprint)
     components_data = db.get_sprint_details(sprint_name=m_sprint)
     failed_tests = db.get_sprint_failed(sprint_name=m_sprint)
-    print failed_tests
+
     if request.method == 'GET':
         return render_template('manual_sprint_components.html',
                                project=m_project,
@@ -152,6 +154,7 @@ def manual_sprint_components(m_project, m_sprint):
                                components=components_data,
                                totals=totals,
                                failed_tests=failed_tests)
+
     if request.method == 'DELETE':
         results_data = json.loads(request.get_data())
         db.remove_manual_results_component(component=results_data['component'],
@@ -219,6 +222,16 @@ def manual_set_test_result(m_project):
                              suite=test_data['suite'],
                              test_id=test_data['test_id'],
                              result=test_data['result'])
+        return jsonify({})
+
+@server.route('/manual/_edit_manual_component/<m_project>', methods=['POST'])
+def manual_edit_component_name(m_project):
+    db_project = 'manual_' + m_project
+    db = get_db(db_project)
+    if request.method == 'POST':
+        suite_data = json.loads(request.get_data())
+        db.rename_manual_component(component=suite_data['component'],
+                               component_new=suite_data['component_new'])
         return jsonify({})
 
 @server.route('/<project>/<sprint>')

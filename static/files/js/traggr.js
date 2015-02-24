@@ -10,11 +10,13 @@ $(document).ready(function () {
             $(".btnRemove").hide();
             $(".btnRename").hide();
             $(".btnEdit").hide();
+            $(".btnSet").hide();
         } else {
             $("#liAdmin").addClass("active");
             $(".btnRemove").show();
             $(".btnRename").show();
             $(".btnEdit").show();
+            $(".btnSet").show();
         }
         ;
     });
