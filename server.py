@@ -228,6 +228,14 @@ def manual_set_test_result(m_project):
                              **result_attributes)
         return jsonify({})
 
+@server.route('/manual/_sync_sprint/<m_project>/<m_sprint>', methods=['POST'])
+def manual_sync_sprint_data(m_project, m_sprint):
+    db_project = 'manual_' + m_project
+    db = get_db(db_project)
+    if request.method == 'POST':
+        db.sync_sprint(m_sprint)
+        return '', 200
+
 @server.route('/manual/_edit_manual_component/<m_project>', methods=['POST'])
 def manual_edit_component_name(m_project):
     db_project = 'manual_' + m_project

@@ -31,4 +31,19 @@ $(document).ready(function () {
 
     };
 
+    $("#liSyncSprint").click(function(){
+        $("#btnConfirmDeletion").click(function() {
+            $.ajax({
+                type: "POST",
+                url: "/manual/_sync_sprint/" + pageData.project + "/" + pageData.sprint
+            })
+            .success(function () {$("#ModalConfirmDeletion").modal('hide');
+                window.location.reload()})
+            .fail(function (error) {alert(error.responseText)});
+        });
+
+        $("#divBodyConfirmDeletion").text('Do You really what to Sync This Sprint with Test Cases ?');
+        $("#ModalConfirmDeletion").modal();
+    });
+
 });

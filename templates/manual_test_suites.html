@@ -73,7 +73,7 @@
                                 <th>Title</th>
                             </tr>
                             {% for test in suite['rows'] %}
-                                <tr class=success id="td{{ test['test_id'] }}">
+                                <tr class=warning id="td{{ test['test_id'] }}">
                                     <td>
                                         <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ component }}", "{{ suite.name }}", "{{ test['test_id'] }}")'>
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
