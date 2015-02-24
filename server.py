@@ -167,7 +167,6 @@ def manual_sprint_suites(m_project, m_sprint, m_component):
     db = get_db(db_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
-    sprints.remove(m_sprint)
     m_components = db.get_manual_sprint_component(sprint_name=m_sprint)
     tests_results = db.get_tests_result(sprint_name=m_sprint, component=m_component)
 
@@ -220,11 +219,16 @@ def manual_set_test_result(m_project):
             result_attributes = test_data['result_attributes']
         else:
             result_attributes = {}
+        if 'error' in test_data:
+            error = test_data['error']
+        else:
+            error = None
         db.set_manual_result(sprint=test_data['sprint'],
                              component=test_data['component'],
                              suite=test_data['suite'],
                              test_id=test_data['test_id'],
                              result=test_data['result'],
+                             error=error,
                              **result_attributes)
         return jsonify({})
 

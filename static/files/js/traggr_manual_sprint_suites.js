@@ -45,6 +45,10 @@ $(document).ready(function () {
         if (result_attributes){
             data['result_attributes'] = result_attributes
             }
+        if (error){
+            data['error'] = error
+        }
+
 
         $.ajax({type: "POST",
                 url: "/manual/_edit_manual_test_result/" + pageData.project,
@@ -60,13 +64,13 @@ $(document).ready(function () {
         event.stopPropagation();
         $('#btnSetFailed').click(function () {
             var x = document.forms["formSetFailed"].elements;
-            var is_bug_for = x['inputSetFailedBug'].value.replace(/\s{2,}/g, ' ').trim();
+            var bugs = x['inputSetFailedBug'].value.replace(/\s{2,}/g, ' ').trim();
             var fail_reason = x['inputSetFailedReason'].value;
             var result_attributes = {};
             var error = '';
 
-            if (is_bug_for){
-                result_attributes['is_bug_for'] = is_bug_for
+            if (bugs){
+                result_attributes['bugs'] = bugs
             }
             if (fail_reason){
                 error = fail_reason
