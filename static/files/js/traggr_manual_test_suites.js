@@ -37,12 +37,8 @@ $(document).ready(function () {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json"
             })
-                .success(function () {
-//                            window.location.reload()
-                })
-                .fail(function (error) {
-                    alert(error.responseText)
-                });
+            .success(function () {})
+            .fail(function (error) {alert(error.responseText)});
         });
         if (test_id){
             $("#divBodyConfirmDeletion").text("Remove " + test_id + "?");

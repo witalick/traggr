@@ -142,8 +142,8 @@
 
                                         >
                                     {{ result['result'] }}
-                                    <button type="button" style="display: none;" class="btnSet btn btn-success btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "passed")'>Passed</button>
-                                    <button type="button" style="display: none;" class="btnSet btn btn-danger btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "failed")'>Failed</button>
+                                    <button type="button" style="display: none;" id='btnPassed' class="btnSet btn btn-success btn-xs" onclick='setTestCaseResult("{{ suite['name'] }}", "{{ result['test_id'] }}", "passed")'>Passed</button>
+                                    <button type="button" style="display: none;" id='btnFailed' class="btnSet btn btn-danger btn-xs" onclick='setTestCaseFailed("{{ suite['name'] }}", "{{ result['test_id'] }}")'>Failed</button>
                                     </td>
 
                                     {% if 'comment' in result %}
@@ -196,5 +196,28 @@
 
     </div>
 
+    <div class="modal fade" id="ModalSetFailed" tabindex="-1" role="dialog" aria-labelledby="ModalSetFailed" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Set Failed Reason</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formSetFailed">
+                        <div class="form-group">
+                            <label for="inputSetFailedBug">Related Bug</label>
+                            <input type="text" class="form-control" id="inputSetFailedBug" placeholder="BUG !!!">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputSetFailedReason">Reason or Error Message</label>
+                            <textarea class="form-control" id="inputSetFailedReason" placeholder="Reason ..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnSetFailed">Save</button>
+                        <button type="button" class="btn btn-default" id="btnSetFailedCancel" aria-hidden="true">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

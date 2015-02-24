@@ -27,26 +27,53 @@ $(document).ready(function () {
 
     };
 
-    window.setTestCaseResult = function (suite, test_id, result) {
+    window.setTestCaseResult = function (suite, test_id, result, result_attributes) {
         if (result == 'passed'){
             $("#tc" + test_id).attr('class','success');
         }
         else if(result == 'failed') {
             $("#tc" + test_id).attr('class', 'danger');
         }
+        var data = {'suite': suite,
+                    'component': pageData.component,
+                    'sprint': pageData.sprint,
+                    'test_id': test_id,
+                    'result': result};
+        if (result_attributes){
+            data['result_attributes'] = result_attributes
+            }
 
         $.ajax({type: "POST",
                 url: "/manual/_edit_manual_test_result/" + pageData.project,
-                data: JSON.stringify({'suite': suite,
-                                      'component': pageData.component,
-                                      'sprint': pageData.sprint,
-                                      'test_id': test_id,
-                                      'result': result})
+                data: JSON.stringify(data)
         })
-            .success(function () {
-            })
-            .fail(function (error) {
-                alert(error.responseText)
-            });
-    }
+            .success(function () {})
+            .fail(function (error) {alert(error.responseText)});
+    };
+
+    window.setTestCaseFailed = function(suite, test_id) {
+        $('#btnSetFailed').click(function () {
+            var x = document.forms["formSetFailed"].elements;
+            var is_bug_for = x['inputSetFailedBug'].value.replace(/\s{2,}/g, ' ').trim();
+            var fail_reason = x['inputSetFailedReason'].value;
+            var result_attributes = {};
+
+            if (is_bug_for){
+                result_attributes['is_bug_for'] = is_bug_for
+            }
+            if (fail_reason){
+                result_attributes['error'] = fail_reason
+            }
+
+            $('#ModalSetFailed').modal('hide');
+            setTestCaseResult(suite, test_id, "failed", result_attributes);
+
+        });
+        $('#ModalSetFailed').modal();
+    };
+
+    $('#btnSetFailedCancel').click(function(){
+        $('#ModalSetFailed').modal('hide')
+    });
+
 });

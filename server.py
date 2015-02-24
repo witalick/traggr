@@ -216,11 +216,16 @@ def manual_set_test_result(m_project):
     db = get_db(db_project)
     if request.method == 'POST':
         test_data = json.loads(request.get_data())
+        if 'result_attributes' in test_data:
+            result_attributes = test_data['result_attributes']
+        else:
+            result_attributes = {}
         db.set_manual_result(sprint=test_data['sprint'],
                              component=test_data['component'],
                              suite=test_data['suite'],
                              test_id=test_data['test_id'],
-                             result=test_data['result'])
+                             result=test_data['result'],
+                             **result_attributes)
         return jsonify({})
 
 @server.route('/manual/_edit_manual_component/<m_project>', methods=['POST'])
