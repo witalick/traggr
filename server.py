@@ -86,7 +86,7 @@ def manual_tests_suites(m_project, m_component):
         return 'I don\'t have tests for this component... Sorry... :/', 404
 
     if request.method == 'GET':
-        return render_template('manual_tests_suites.html',
+        return render_template('manual_test_suites.html',
                                data=tests,
                                project=m_project,
                                projects=projects,
@@ -171,9 +171,9 @@ def manual_edit_test(m_project):
     if request.method == 'POST':
         test_data = json.loads(request.get_data())
         db.edit_manual_test(test_id=test_data['test_id'],
-                            title=test_data['title'],
-                            steps=test_data['steps'],
-                            expected_results=test_data['expected_results'])
+                            title=test_data['other_attributes']['title'],
+                            steps=test_data['other_attributes']['steps'],
+                            expected_results=test_data['other_attributes']['expected_results'])
         return jsonify({})
 
 
