@@ -4,6 +4,9 @@
 
 $(document).ready(function () {
 
+    var modal_confirm_delete = $("#ModalConfirmDeletion");
+    var modal_edit_name = $("#ModalEditName");
+
     $("#liAdd").click(function () {
         if ($("#liAdd").hasClass("active")) {
             $("#liAdd").removeClass("active");
@@ -47,56 +50,62 @@ $(document).ready(function () {
         $("#ModalAddSprint").modal('hide');
     });
 
-    window.removeManualComponentWithConfirmation = function (component) {
-        $("#btnConfirmDeletion").click(function () {
-            $("#li" + component.replace(' ', '-')).remove();
-            var url = "/manual/" + pageData.project;
-            $.ajax({
-                type: "DELETE",
-                url: url,
-                data: JSON.stringify({'component': component}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
+    $("#btnConfirmDeletion").click(function () {
+        var component = modal_confirm_delete.attr('component');
+        $("#li" + component.replace(' ', '-')).remove();
+        var url = "/manual/" + pageData.project;
+        $.ajax({
+            type: "DELETE",
+            url: url,
+            data: JSON.stringify({'component': component}),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        })
+            .success(function () {
+                modal_confirm_delete.removeAttr('component');
             })
-                .success(function () {
-//                            window.location.reload()
-                })
-                .fail(function (error) {
-                    alert(error.responseText)
-                });
-        });
+            .fail(function (error) {
+                alert(error.responseText)
+            });
+    });
 
+    window.removeManualComponentWithConfirmation = function (component) {
+        modal_confirm_delete.attr('component', component);
         $("#divBodyConfirmDeletion").text("Remove " + component + "?");
-        $("#ModalConfirmDeletion").modal();
+        modal_confirm_delete.modal();
 
     };
-    window.editComponentName = function (component_name) {
-        $("#ModalEditName").modal();
-        $("#btnEditName").click(function () {
-            var x = document.forms["formEditName"].elements;
-            var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
-            $.ajax({
-                type: "POST",
-                url: '/manual/_edit_manual_component/'+ pageData.project,
-                data: JSON.stringify({
-                    component: component_name,
-                    component_new: new_name}),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json"
-            })
-                .success(function () {
-                    $("#ModalEditName").modal('hide');
-                    window.location.reload()
-                })
-                .fail(function (error) {
-                    alert(error.responseText)
-                });
 
-        });
+    $("#btnEditName").click(function () {
+        var x = document.forms["formEditName"].elements;
+        var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
+        var component_name = modal_edit_name.attr('component_name');
+        $.ajax({
+            type: "POST",
+            url: '/manual/_edit_manual_component/'+ pageData.project,
+            data: JSON.stringify({
+                component: component_name,
+                component_new: new_name}),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        })
+            .success(function () {
+                modal_edit_name.removeAttr('component_name');
+                modal_edit_name.modal('hide');
+                window.location.reload()
+            })
+            .fail(function (error) {
+                alert(error.responseText)
+            });
+    });
+
+    window.editComponentName = function (component_name) {
+        modal_edit_name.attr('component_name', component_name);
+        modal_edit_name.modal();
     };
 
     $("#btnEditNameCancel").click(function () {
-            $("#ModalEditName").modal('hide');
+            modal_edit_name.modal('hide');
         }
     );
 });

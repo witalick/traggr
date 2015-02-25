@@ -3,7 +3,7 @@
 {% block customjs %}
 
 <script>
-    var pageData = {project: "{{project}}", component: "{{ component }}", sprint: "{{ sprint }}"}
+    var pageData = {project: "{{project}}", sprint: "{{ sprint }}"}
 </script>
 <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_sprint_components.js') }}></script>
 {% endblock %}
@@ -66,9 +66,9 @@
 
                 {% for component in components %}
 
-                <li id="li{{ component.name }}" class="list-group-item">
+                <li id="li{{ component.name.replace(' ', '-') }}" class="list-group-item">
 
-                    <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentResultstWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component.name }}")'>
+                    <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentResultstWithConfirmation("{{ component.name }}")'>
                         <span class="glyphicon glyphicon-remove pull-left"></span>
                     </button>&nbsp;
 
@@ -156,5 +156,17 @@
         </div>
 
         {% endif %}
+        <div class="modal fade" id="ModalConfirmSysnc" tabindex="-1" role="dialog" aria-labelledby="ModalConfirmSysnc" aria-hidden="true">
+            <div class="modal-confirmation">
+                <div class="modal-content">
 
+                    <div id="divBodyConfirmSync" class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnConfirmSync" type="button" class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Yes</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" aria-hidden="true">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 {% endblock %}

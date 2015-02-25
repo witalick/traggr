@@ -3,14 +3,16 @@
  */
 $(document).ready(function () {
 
+    var modal_add_project = $("#ModalAddProject")
+
     $("#liAdd").click(function () {
         if ($("#liAdd").hasClass("active")) {
             $("#liAdd").removeClass("active");
-            $("#ModalAddProject").hide();
+            modal_add_project.hide();
         }
         else {
             $("#liAdd").addClass("active");
-            $("#ModalAddProject").modal();
+            modal_add_project.modal();
         }
     });
 
@@ -26,7 +28,7 @@ $(document).ready(function () {
                     dataType: "json"
                 })
                     .success(function () {
-                        $("#ModalAddProject").modal('hide');
+                        modal_add_project.modal('hide');
                         window.location.reload()
                     })
                     .fail(function (error) {
@@ -34,14 +36,14 @@ $(document).ready(function () {
                     });
             }
             else {
-                $("#ModalAddProject").modal('hide');
+                modal_add_project.modal('hide');
                 $("#liAdd").removeClass("active")
             }
         }
     );
 
     $("#btnAddProjectCancel").click(function () {
-            $("#ModalAddProject").modal('hide');
+            modal_add_project.modal('hide');
             $("#liAdd").removeClass("active")
         }
     );

@@ -3,47 +3,52 @@
  */
 $(document).ready(function () {
 
-    $("#spanContextFailed").click(function () {
+    var modal_confirm_delete = $("#ModalConfirmDeletion");
+    var modal_confirm_sync = $("#ModalConfirmSysnc");
 
+    $("#spanContextFailed").click(function () {
         if ($("#failedTestsList").is(":visible")) {
             $("#failedTestsList").hide();
         } else {
             $("#failedTestsList").show();
         }
-        ;
     });
 
-    window.removeComponentResultstWithConfirmation = function (project, sprint, component) {
-
-        $("#btnConfirmDeletion").click(function () {
-
-            $("#li" + component).remove();
-            $.ajax({type: "DELETE",
-                    url: "/manual/" + project + "/" + "sprint/" + sprint,
-                    data: JSON.stringify({'component': component})
+    $("#btnConfirmDeletion").click(function () {
+        var component = modal_confirm_delete.attr('component');
+        $("#li" + component.replace(' ', '-')).remove();
+        $.ajax({type: "DELETE",
+            url: "/manual/" + pageData.project + "/" + "sprint/" + pageData.sprint,
+            data: JSON.stringify({'component': component})
         })
-            .success(function () {})
+            .success(function () {
+                modal_confirm_delete.removeAttr('component');
+                modal_confirm_delete.modal('hide')
+            })
             .fail(function (error) {alert(error.responseText)});
-        });
-        $("#divBodyConfirmDeletion").text("Remove " + component + "?");
+    });
 
-        $("#ModalConfirmDeletion").modal();
+    window.removeComponentResultstWithConfirmation = function (component) {
+        modal_confirm_delete.attr('component', component);
+        $("#divBodyConfirmDeletion").text("Remove " + component + "?");
+        modal_confirm_delete.modal();
 
     };
 
-    $("#liSyncSprint").click(function(){
-        $("#btnConfirmDeletion").click(function() {
-            $.ajax({
-                type: "POST",
-                url: "/manual/_sync_sprint/" + pageData.project + "/" + pageData.sprint
-            })
-            .success(function () {$("#ModalConfirmDeletion").modal('hide');
+    $("#btnConfirmSync").click(function() {
+        $.ajax({
+            type: "POST",
+            url: "/manual/_sync_sprint/" + pageData.project + "/" + pageData.sprint
+        })
+            .success(function () {
+                modal_confirm_sync.modal('hide');
                 window.location.reload()})
             .fail(function (error) {alert(error.responseText)});
-        });
+    });
 
-        $("#divBodyConfirmDeletion").text('Do You really what to Sync This Sprint with Test Cases ?');
-        $("#ModalConfirmDeletion").modal();
+    $("#liSyncSprint").click(function(){
+        $("#divBodyConfirmSync").text('Do You really what to Sync This Sprint with Test Cases ?');
+        modal_confirm_sync.modal();
     });
 
 });

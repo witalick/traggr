@@ -54,7 +54,7 @@
             <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ component }}", "{{ suite.name }}")'>
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>
                         <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editSuiteName(event, "{{ suite['name'] }}")'>Edit Suite</button>
@@ -75,7 +75,7 @@
                             {% for test in suite['rows'] %}
                                 <tr class=warning id="td{{ test['test_id'] }}">
                                     <td>
-                                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ component }}", "{{ suite.name }}", "{{ test['test_id'] }}")'>
+                                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ suite.name }}", "{{ test['test_id'] }}")'>
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
                                         <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editManualTest(event, "{{ test['test_id'] }}")'>Edit Test</button>
