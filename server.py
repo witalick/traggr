@@ -169,7 +169,6 @@ def manual_sprint_suites(m_project, m_sprint, m_component):
     sprints = db.get_manual_sprints()
     m_components = db.get_manual_sprint_component(sprint_name=m_sprint)
     tests_results = db.get_tests_result(sprint_name=m_sprint, component=m_component)
-
     if request.method == 'GET':
         return render_template('manual_sprint_suites.html',
                                project=m_project,

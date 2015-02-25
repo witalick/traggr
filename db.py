@@ -144,16 +144,11 @@ class AggregationDB(MyMongoClient):
                 for row in res['result']]
 
     def get_new_test_id(self):
-        res = self._db[self._cn_tests].aggregate([
-            {
-                '$group': {'_id': "id",
-                           'test_id': {'$max': '$test_id'}}
-            }
-        ])
-        if not res['result']:
+        res = self._db[self._cn_tests].find_one(sort=[('_id', -1)])
+        if not res:
             test_id = self._db.name.split('_')[-1].upper() + '-1'
         else:
-            test_id = res['result'][0]['test_id']
+            test_id = res['test_id']
             test_id = '-'.join([test_id.split('-')[0], str(int(test_id.split('-')[1]) + 1)])
         return test_id
 
