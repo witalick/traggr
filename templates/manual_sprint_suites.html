@@ -100,7 +100,7 @@
 
                             {% for result in suite['rows'] %}
 
-                                <tr id="tc{{ result['test_id'] }}" class={% if result['result'] == 'passed' %}
+                                <tr id="trTc{{ result['test_id'] }}" class={% if result['result'] == 'passed' %}
                                                 "success"
                                           {% elif result['result'] == 'failed' %}
                                                 "danger"
@@ -122,11 +122,11 @@
                                     <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
                                     <td
                                         {% if 'error' in result %}
-                                            data-toggle="modal" data-target="#ModalError{{ suite['name'] }}{{ result['test_id'] }}"
+                                            data-toggle="modal" data-target="#ModalError{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}"
                                         {% endif %}
 
                                         >
-                                    {{ result['result'] }}
+                                    <span id="spTc{{ result['test_id'] }}">{{ result['result'] }}</span>
                                     <button type="button" style="display: none;" id='btnPassed' class="btnSet btn btn-success btn-xs" onclick='setTestCaseResult(event, "{{ suite['name'] }}", "{{ result['test_id'] }}", "passed")'>Passed</button>
                                     <button type="button" style="display: none;" id='btnFailed' class="btnSet btn btn-danger btn-xs" onclick='setTestCaseFailed(event, "{{ suite['name'] }}", "{{ result['test_id'] }}")'>Failed</button>
                                     </td>
@@ -144,7 +144,7 @@
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                                <h4 class="modal-title" id="myModalErrorLabel">Error: {{result['test_id']}}: {{result['title']}}</h4>
+                                                <h4 class="modal-title" id="myModalErrorLabel">Error Description: {{result['test_id']}}: {{result['title']}}</h4>
                                             </div>
                                             <div class="modal-body">
                                                 <pre>{{result['error']}}</pre>

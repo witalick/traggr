@@ -26,7 +26,6 @@ def get_db(project=None):
 
 @server.route('/')
 def root():
-
     db = get_db()
     projects = db.get_project_names()
     latest_sprints = dict((project, db.get_latest_sprint_name(project)) for project in projects)
@@ -348,7 +347,8 @@ def results_suites(project, sprint, component):
 
 @server.route('/<project>')
 def project_sprints(project):
-
+    if 'favicon' in project:
+        return '', 200
     db = get_db(project)
     projects = db.get_project_names()
     sprints = db.get_sprint_names()

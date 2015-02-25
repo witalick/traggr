@@ -47,10 +47,12 @@ $(document).ready(function () {
             event.stopPropagation();
         }
         if (result == 'passed'){
-            $("#tc" + test_id).attr('class','success');
+            $("#trTc" + test_id).attr('class','success');
+            $("#spTc" + test_id).text('passed');
         }
         else if(result == 'failed') {
-            $("#tc" + test_id).attr('class', 'danger');
+            $("#trTc" + test_id).attr('class', 'danger');
+            $("#spTc" + test_id).text('failed');
         }
         var data = {'suite': suite,
                     'component': pageData.component,
