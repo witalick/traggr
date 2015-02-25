@@ -4,75 +4,60 @@
     <script>
         var pageData = {project: "{{ project }}", component: "{{ component }}", sprint: "{{ sprint }}"}
     </script>
+
     <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_sprint_suites.js') }}></script>
 {% endblock %}
 
 {% block menu %}
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {{ project }} <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            {% for p in projects%}
+            <li><a href="/manual/{{ p }}">{{ p }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
 
-        <li class="dropdown">
+    <li class="dropdown">
+        {% if sprints %}
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                {{ project }} <b class="caret"></b>
+                {{ sprint }} <b class="caret"></b>
             </a>
-
             <ul class="dropdown-menu">
-
-                {% for p in projects%}
-
-                <li><a href="/manual/{{ p }}">{{ p }}</a></li>
-
+                <li><a href="/manual/{{ project }}/sprint">All Sprints</a></li>
+                {% for s in sprints%}
+                    <li><a id="a{{ s }}" href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
                 {% endfor %}
-
             </ul>
-        </li>
+        {% else %}
+            <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }} </a>
+        {% endif %}
+    </li>
 
-        <li class="dropdown">
-            {% if sprints %}
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    {{ sprint }} <b class="caret"></b>
-                </a>
-
-                <ul class="dropdown-menu">
-                    <li><a href="/manual/{{ project }}/sprint">All Sprints</a></li>
-                    {% for s in sprints%}
-                        <li><a id="a{{ s }}" href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
-                    {% endfor %}
-
-                </ul>
-            {% else %}
-                <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }} </a>
-            {% endif %}
-        </li>
-
-        <li class="dropdown">
-
-            {% if components %}
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    {{ component }} <b class="caret"></b>
-                </a>
-
-                <ul class="dropdown-menu">
-
-                    {% for c in components%}
-                    <li><a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ c.name }}">{{ c.name }}</a></li>
-                    {% endfor %}
-
-                </ul>
-            {% else %}
-                <a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ component }}">{{ component }} </a>
-            {% endif %}
-
-        </li>
-
+    <li class="dropdown">
+        {% if components %}
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ component }} <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                {% for c in components%}
+                <li><a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ c.name }}">{{ c.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ component }}">{{ component }} </a>
+        {% endif %}
+    </li>
 {% endblock %}
 
 
 {% block body %}
-
     <!--<div class="alert alert-info">
         <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
         <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a description.
     </div>-->
-
     <div class="panel-group" id="accordion">
 
         {% for suite in data %}
