@@ -1,4 +1,4 @@
-tra
-===
+traggr
+======
 
-Test Results Aggregation
+This is very light Test Management System and Automation Test Results Aggregation.
