@@ -103,6 +103,7 @@ $(document).ready(function () {
 
     window.editComponentName = function (component_name) {
         modal_edit_name.attr('component_name', component_name);
+        $("#inputNewName").val('');
         modal_edit_name.modal();
     };
 

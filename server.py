@@ -259,6 +259,16 @@ def manual_edit_component_name(m_project):
                                component_new=suite_data['component_new'])
         return jsonify({})
 
+@server.route('/manual/_edit_manual_sprint/<m_project>', methods=['POST'])
+def manual_edit_sprint_name(m_project):
+    db_project = 'manual_' + m_project
+    db = get_db(db_project)
+    if request.method == 'POST':
+        sprint_data = json.loads(request.get_data())
+        db.rename_manual_sprint(sprint_name=sprint_data['sprint'],
+                                sprint_name_new=sprint_data['sprint_new'])
+        return jsonify({})
+
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
 

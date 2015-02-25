@@ -119,6 +119,7 @@ $(document).ready(function () {
         event.preventDefault();
         event.stopPropagation();
         modal_edit_name.attr('suite_name', suite_name);
+        $("#inputNewName").val('');
         modal_edit_name.modal();
     };
 

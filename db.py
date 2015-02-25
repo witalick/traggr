@@ -326,6 +326,11 @@ class AggregationDB(MyMongoClient):
         self._db[self._cn_tests].update({'component': component},
             {'$set': {'component': component_new}}, upsert=False, multi=True)
 
+    def rename_manual_sprint(self, sprint_name, sprint_name_new):
+        sprint_collection_name = self._cn_results % sprint_name
+        sprint_collection_name_new = self._cn_results % sprint_name_new
+        self._db[sprint_collection_name].rename(sprint_collection_name_new)
+
 if __name__ == '__main__':
 
     project = 'proj'

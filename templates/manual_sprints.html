@@ -40,6 +40,7 @@
                     <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSprintResultstWithConfirmation("{{ sprint }}")'>
                         <span class="glyphicon glyphicon-remove pull-left"></span>
                     </button>
+                    <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editSprintName("{{ sprint }}")'>Edit Sprint</button>
                     <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }}</a>
                     <span class="badge pull-right">{{ sprints[sprint]['total'] }}</span>
                     <span class="badge alert-success pull-right">{{ sprints[sprint]['passed'] }}</span>

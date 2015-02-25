@@ -4,6 +4,7 @@
 $(document).ready(function () {
 
     var modal_confirm_delete = $("#ModalConfirmDeletion");
+    var modal_edit_name = $("#ModalEditName");
 
     $("#btnConfirmDeletion").click(function () {
         var sprint_name = modal_confirm_delete.attr('sprint_name');
@@ -25,5 +26,41 @@ $(document).ready(function () {
         modal_confirm_delete.modal();
 
     };
+
+    $("#formEditName").submit(function (event) {
+        event.preventDefault();
+        var x = document.forms["formEditName"].elements;
+        var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
+        var sprint_name = modal_edit_name.attr('sprint_name');
+        $.ajax({
+            type: "POST",
+            url: '/manual/_edit_manual_sprint/'+ pageData.project,
+            data: JSON.stringify({
+                sprint: sprint_name,
+                sprint_new: new_name}),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        })
+            .success(function () {
+                modal_edit_name.removeAttr('sprint_name');
+                modal_edit_name.modal('hide');
+                window.location.reload()
+            })
+            .fail(function (error) {
+                alert(error.responseText)
+            });
+    });
+
+    window.editSprintName = function (sprint_name) {
+        modal_edit_name.attr('sprint_name', sprint_name);
+        $("#inputNewName").val('');
+
+        modal_edit_name.modal();
+    };
+
+    $("#btnEditNameCancel").click(function () {
+            modal_edit_name.modal('hide');
+        }
+    );
 
 });
