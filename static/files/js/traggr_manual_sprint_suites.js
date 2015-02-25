@@ -15,27 +15,46 @@ $(document).ready(function () {
     });
 
     $("#btnConfirmDeletion").click(function () {
-        var suite = modal_confirm_delete.attr('suite');
-        $("#div" + suite.replace(' ', '-')).remove();
-        $.ajax({
-            type: "DELETE",
-            url: "/manual/" + pageData.project + "/" + "sprint/" + pageData.sprint + "/" + pageData.component,
-            data: JSON.stringify({'suite': suite})
-        })
-            .success(function () {
-                modal_confirm_delete.removeAttr('suite');
-                modal_confirm_delete.modal('hide');
-                window.location.reload()
-            })
-            .fail(function (error) {
-                alert(error.responseText)
-        });
+        var suite = modal_confirm_delete.attr('suite'),
+            test_id = modal_confirm_delete.attr('test_id');
+        if (test_id || suite){
+            if (test_id){
+                $("#trTc" + test_id).remove();
+            }
+            else{
+                $("#div" + suite.replace(' ', '-')).remove();
+            }
 
+            var data = {'suite': suite};
+            if (test_id){
+                data['test_id'] = test_id
+            }
+
+            $.ajax({
+                type: "DELETE",
+                url: "/manual/" + pageData.project + "/" + "sprint/" + pageData.sprint + "/" + pageData.component,
+                data: JSON.stringify(data)
+            })
+                .success(function () {
+                    modal_confirm_delete.removeAttr('test_id');
+                    modal_confirm_delete.removeAttr('suite');
+                    modal_confirm_delete.modal('hide');
+                })
+                .fail(function (error) {
+                    alert(error.responseText)
+            });
+        }
     });
 
-    window.removeSuiteResultstWithConfirmation = function (suite) {
+    window.removeSuiteOrTestResultstWithConfirmation = function (suite, test_id) {
         modal_confirm_delete.attr('suite', suite);
-        $("#divBodyConfirmDeletion").text("Remove " + suite + "?");
+        modal_confirm_delete.attr('test_id', test_id);
+        if (test_id){
+            $("#divBodyConfirmDeletion").text("Remove " + test_id + "?");
+        }
+        else{
+            $("#divBodyConfirmDeletion").text("Remove " + suite + "?");
+        }
         modal_confirm_delete.modal();
 
     };

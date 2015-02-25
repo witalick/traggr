@@ -95,11 +95,11 @@ def manual_tests_suites(m_project, m_component):
     elif request.method == 'DELETE':
         test_data = json.loads(request.get_data())
         if 'test_id' in test_data:
-            db.remove_manual_test(component=test_data['component'],
+            db.remove_manual_test(component=m_component,
                                   suite=test_data['suite'],
                                   test_id=test_data['test_id'])
         else:
-            db.remove_manual_suite(component=test_data['component'],
+            db.remove_manual_suite(component=m_component,
                                    suite=test_data['suite'])
         return jsonify({})
 
@@ -185,9 +185,15 @@ def manual_sprint_suites(m_project, m_sprint, m_component):
 
     if request.method == 'DELETE':
         results_data = json.loads(request.get_data())
-        db.remove_manual_results_suite(suite=results_data['suite'],
-                                       component=m_component,
-                                       sprint_name=m_sprint)
+        if 'test_id' in results_data:
+            db.remove_manual_results_test(suite=results_data['suite'],
+                                          component=m_component,
+                                          sprint_name=m_sprint,
+                                          test_id=results_data['test_id'])
+        else:
+            db.remove_manual_results_suite(suite=results_data['suite'],
+                                           component=m_component,
+                                           sprint_name=m_sprint)
         return jsonify({})
 
 @server.route('/manual/_edit_manual_test/<m_project>', methods=['POST'])

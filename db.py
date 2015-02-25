@@ -284,6 +284,10 @@ class AggregationDB(MyMongoClient):
         sprint_collection_name = self._cn_results % sprint_name
         self._db.drop_collection(sprint_collection_name)
 
+    def remove_manual_results_test(self, component, suite, test_id, sprint_name):
+        sprint_collection_name = self._cn_results % sprint_name
+        self._db[sprint_collection_name].remove({'component': component, 'suite': suite, 'test_id': test_id})
+
     def set_manual_result(self, sprint, component, suite, test_id, result, error=None, **result_attributes):
         assert result in ['passed', 'failed']
         sprint_collection_name = self._cn_results % sprint

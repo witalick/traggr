@@ -67,7 +67,7 @@
 
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
 
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteResultstWithConfirmation("{{ suite.name }}")'>
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteOrTestResultstWithConfirmation("{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>&nbsp;
 
@@ -107,7 +107,10 @@
                                           {% else %}
                                                 "active"
                                           {% endif  %}>
-                                    <td>{{ result['test_id'] }}</td>
+                                    <td><button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteOrTestResultstWithConfirmation("{{ suite.name }}", "{{ result['test_id'] }}")'>
+                                        <span class="glyphicon glyphicon-remove pull-left"></span>
+                                        </button>
+                                        {{ result['test_id'] }}</td>
 
                                     {% if 'attributes' in result %}
                                         <td>

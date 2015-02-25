@@ -31,8 +31,7 @@ $(document).ready(function () {
             else{$("#div" + suite.replace(' ', '-')).remove();}
 
             var url = "/manual/" + pageData.project + "/" + pageData.component;
-            var data = {'component': pageData.component,
-                        'suite': suite};
+            var data = {'suite': suite};
             if (test_id){
                 data['test_id'] = test_id
             }
@@ -46,7 +45,6 @@ $(document).ready(function () {
             .success(function () {
                     modal_confirm_delete.removeAttr('test_id');
                     modal_confirm_delete.removeAttr('suite');
-
                 })
             .fail(function (error) {alert(error.responseText)});
         }
