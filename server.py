@@ -110,7 +110,7 @@ def manual_tests_suites(m_project, m_component):
                                suite_new=suite_data['suite_new'])
         return jsonify({})
 
-@server.route('/manual/<m_project>/sprint', methods=['POST', 'GET'])
+@server.route('/manual/<m_project>/sprint', methods=['POST', 'GET', 'DELETE'])
 def manual_sprints(m_project):
     db_project = 'manual_' + m_project
     db = get_db(db_project)
@@ -130,6 +130,11 @@ def manual_sprints(m_project):
     if request.method == 'POST':
         data = json.loads(request.get_data())
         db.create_sprint(data['sprint_name'])
+        return jsonify({})
+
+    if request.method == 'DELETE':
+        data = json.loads(request.get_data())
+        db.remove_manual_results(data['sprint_name'])
         return jsonify({})
 
 
