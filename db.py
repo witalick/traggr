@@ -1,4 +1,4 @@
-__author__ = 'vyakoviv'
+__author__ = 'vyakoviv, vhomchak, rmaksymiv'
 
 
 import time
@@ -255,7 +255,6 @@ class AggregationDB(MyMongoClient):
     def sync_sprint(self, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name
         new_tc = self._db[self._cn_tests].find()
-        # print list(new_tc)
         for tc in new_tc:
             tc_id = tc.pop('_id')
             print tc_id, tc

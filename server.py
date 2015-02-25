@@ -1,4 +1,4 @@
-__author__ = 'vyakoviv'
+__author__ = 'vyakoviv, vhomchak, rmaksymiv'
 
 
 import re
