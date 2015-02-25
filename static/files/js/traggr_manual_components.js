@@ -21,7 +21,8 @@ $(document).ready(function () {
         $("#ModalAddSprint").modal()
     });
 
-    $("#btnAddSprint").click(function () {
+    $("#formAddSprint").submit(function (event) {
+            event.preventDefault();
             var x = document.forms["formAddSprint"].elements;
             var sprint = x['inputSprint'].value;
             if (confirm("Do You Really Want To Create New Sprint - " + sprint + "?")) {
@@ -76,7 +77,8 @@ $(document).ready(function () {
 
     };
 
-    $("#btnEditName").click(function () {
+    $("#formEditName").submit(function (event) {
+        event.preventDefault();
         var x = document.forms["formEditName"].elements;
         var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
         var component_name = modal_edit_name.attr('component_name');

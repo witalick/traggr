@@ -91,7 +91,8 @@ $(document).ready(function () {
 
     };
 
-    $("#btnEditName").click(function () {
+    $("#formEditName").submit(function (event) {
+        event.preventDefault();
         var x = document.forms["formEditName"].elements;
         var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
         var suite_name = modal_edit_name.attr('suite_name');

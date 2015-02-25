@@ -27,15 +27,18 @@ $(document).ready(function () {
              var el = $('#' + id);
             if (show) {
                 el.hide();
+                el.find('input').removeAttr('required');
             } else {
                  el.show();
+                 el.find('input').attr('required', 'required');
             }
          }
         showHide('inputTestComponent-group', component);
         showHide('inputTestSuite-group', suite)
     };
 
-    $("#btnAddTestCase").click(function () {
+    $("#formAddTestCase").submit(function (event) {
+        event.preventDefault();
         var component = modal_add_test_case.attr('component'),
             suite = modal_add_test_case.attr('suite'),
             test_id = modal_add_test_case.attr('test_id');

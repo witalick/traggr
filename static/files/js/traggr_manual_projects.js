@@ -3,7 +3,7 @@
  */
 $(document).ready(function () {
 
-    var modal_add_project = $("#ModalAddProject")
+    var modal_add_project = $("#ModalAddProject");
 
     $("#liAdd").click(function () {
         if ($("#liAdd").hasClass("active")) {
@@ -16,7 +16,8 @@ $(document).ready(function () {
         }
     });
 
-    $("#btnAddProject").click(function () {
+    $("#formAddProject").submit(function (event) {
+            event.preventDefault();
             var x = document.forms["formAddProject"].elements;
             var project = x['inputProject'].value;
             if (confirm("Do You Really Want To Create New Project - " + project + "?")) {
