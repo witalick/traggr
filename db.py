@@ -204,7 +204,7 @@ class AggregationDB(MyMongoClient):
             {
                 '$match': {'component': component}
             },
-            {'$sort': {'test_id': 1}},
+            {'$sort': {'_id': 1}},
             {
 
                 '$group': {
