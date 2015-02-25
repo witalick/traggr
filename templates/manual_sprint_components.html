@@ -21,19 +21,15 @@
     </li>
 
     <li class="dropdown">
-        {% if sprints %}
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                {{ sprint }} <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-                <li><a href="/manual/{{ project }}/sprint">All Sprints</a></li>
-                {% for s in sprints%}
-                <li><a href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }} </a>
-        {% endif %}
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {{ sprint }} <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a href="/manual/{{ project }}/sprint">All Sprints</a></li>
+            {% for s in sprints%}
+            <li><a href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
+            {% endfor %}
+        </ul>
     </li>
 {% endblock %}
 
