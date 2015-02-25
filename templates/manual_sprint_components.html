@@ -120,7 +120,7 @@
                     </td>
 
                     <td>{{ result.title }}</td>
-                    <td data-toggle="modal" data-target="#ModalError{{ result.component_modified }}{{ result.suite }}{{ result.test_id }}">{{ result.result }}</td>
+                    <td data-toggle="modal" data-target="#ModalError{{ result.component_modified }}{{ result.suite.replace(' ', '-') }}{{ result.test_id }}">{{ result.result }}</td>
 
                 </tr>
 
