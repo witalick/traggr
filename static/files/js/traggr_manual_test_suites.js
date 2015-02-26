@@ -117,8 +117,7 @@ $(document).ready(function () {
 
 
     $(document).on('test_case_edited', function(event, test_id, suite, title){
-        var table = $("#table" + suite.replace(" ", "-"));
-        var second_td = table.find('td[data-target]');
+        var second_td = $("#tr" + test_id + ' td[data-target]');
         second_td.text(title);
     });
 
