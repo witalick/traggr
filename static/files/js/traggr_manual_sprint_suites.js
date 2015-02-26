@@ -94,7 +94,7 @@ $(document).ready(function () {
             .fail(function (error) {alert(error.responseText)});
     };
 
-    $('#btnSetFailed').click(function () {
+    $('#formSetFailed').submit(function () {
         var suite = modal_set_failed.attr('suite'),
             test_id = modal_set_failed.attr('test_id');
         var x = document.forms["formSetFailed"].elements;
