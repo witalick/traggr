@@ -52,32 +52,32 @@
             <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ suite.name }}")'>
+                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}">
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>
-                        <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editSuiteName(event, "{{ suite['name'] }}")'>Edit Suite</button>
+                        <button style="display:none" type="button" class="btnEditSuiteName btnEdit btn btn-primary btn-xs" data-test-suite="{{ suite.name }}">Edit Suite</button>
                         &nbsp;
                           {{ suite['name'] }}
                           <span class="badge pull-right">{{ suite['total'] }}</span>
-                        <button type="button" class="btnAdd btn btn-primary btn-xs" onclick='addTestCase(event, "{{ component }}", "{{ suite.name }}")'>Add Test</button>
+                        <button type="button" class="btnAddOneTestCase btnAdd btn btn-primary btn-xs" data-test-component="{{ component }}" data-test-suite="{{ suite.name }}">Add Test</button>
                      </h4>
                 </div>
 
                 <div id="collapse{{ suite['name'].replace(' ', '-') }}" class="panel-collapse collapse">
                     <div class="panel-body">
-                        <table class="table">
+                        <table class="table table-test-cases" id="table{{ suite['name'].replace(' ', '-') }}">
                             <tr>
                                 <th>Test ID</th>
                                 <th>Title</th>
                             </tr>
                             {% for test in suite['rows'] %}
-                                <tr class=warning id="td{{ test['test_id'] }}">
+                                <tr class="warning" id="tr{{ test['test_id'] }}">
                                     <td>
-                                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualTestOrSuiteWithConfirmation("{{ suite.name }}", "{{ test['test_id'] }}")'>
+                                        <button style="display:none" type="button" class="btnRemoveManualTestCaseOrSuite btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ test['test_id'] }}" >
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
-                                        <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editManualTest(event, "{{ test['test_id'] }}")'>Edit Test</button>
-                                        {{ test['test_id'] }}
+                                        <button style="display:none" type="button" class="btnEditManualTestCase btnEdit btn btn-primary btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ test['test_id'] }}">Edit Test</button>
+                                        <span class="spTest_id">{{ test['test_id'] }}</span>
                                     </td>
                                     <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}">{{ test['title'] }}</td>
                                 </tr>

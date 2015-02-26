@@ -22,12 +22,12 @@ $(document).ready(function () {
         }
     });
 
-    $("#btnConfirmDeletion").click(function () {
+    $("#btnConfirmDeletion").on("click", function () {
         var test_id = modal_confirm_delete.attr('test_id'),
             suite = modal_confirm_delete.attr('suite');
 
         if (test_id || suite) {
-            if (test_id){$("#td" + test_id).remove();}
+            if (test_id){$("#tr" + test_id).remove();}
             else{$("#div" + suite.replace(' ', '-')).remove();}
 
             var url = "/manual/" + pageData.project + "/" + pageData.component;
@@ -51,7 +51,10 @@ $(document).ready(function () {
 
     });
 
-    window.removeManualTestOrSuiteWithConfirmation = function (suite, test_id) {
+    $(".table-test-cases").on('click', ".btnRemoveManualTestCaseOrSuite", function () {
+        var el = $(this);
+        var suite = el.attr('data-test-suite'),
+            test_id = el.attr('data-test-test_id');
         modal_confirm_delete.attr('suite', suite);
         modal_confirm_delete.attr('test_id', test_id);
 
@@ -62,9 +65,11 @@ $(document).ready(function () {
             $("#divBodyConfirmDeletion").text("Remove " + suite + "?");
         }
         modal_confirm_delete.modal();
-    };
+    });
 
-    window.editManualTest = function (event, test_id) {
+    $(".table-test-cases").on('click', ".btnEditManualTestCase", function (event) {
+        var test_id = $(this).attr('data-test-test_id'),
+            suite = $(this).attr('data-test-suite');
         var test_data = {
             'component': pageData.component,
             'test_id': test_id
@@ -81,13 +86,41 @@ $(document).ready(function () {
                 $("#inputTestSteps").val(data.steps);
                 $("#inputTestExpectedResults").val(data.expected_results);
                 $("#modalAddTestCaseText").text("Edit Test Case");
-                addTestCase(event, true, true, test_id);
+                addTestCase(event, true, suite, test_id, true);
             })
             .fail(function (error) {
                 alert(error.responseText)
             });
 
-    };
+    });
+
+    $(".btnAddOneTestCase").on('click', function(event){
+        var el = $(this);
+        var suite = el.attr('data-test-suite'),
+            component = el.attr('data-test-component');
+        addTestCase(event, component, suite, false, true);
+
+    });
+
+    $(document).on('new_test_case_added', function(event, test_id, suite, title){
+        var last_tr = $("#table" + suite.replace(" ", "-") + " tr:last-child");
+        var new_tr = last_tr.clone();
+        new_tr.attr('id', 'tr' + test_id);
+        new_tr.find('button[data-test-test_id]').attr('data-test-test_id', test_id);
+        new_tr.find('button[data-test-suite]').attr('data-test-suite', suite);
+        var second_td = new_tr.find('td[data-target]');
+        second_td.attr('data-target', '#Modal' + suite.replace(" ", "-") + test_id);
+        second_td.text(title);
+        new_tr.find('.spTest_id').text(test_id);
+        new_tr.insertAfter(last_tr)
+    });
+
+
+    $(document).on('test_case_edited', function(event, test_id, suite, title){
+        var table = $("#table" + suite.replace(" ", "-"));
+        var second_td = table.find('td[data-target]');
+        second_td.text(title);
+    });
 
     $("#formEditName").submit(function (event) {
         event.preventDefault();
@@ -114,14 +147,15 @@ $(document).ready(function () {
 
     });
 
-    window.editSuiteName = function (event, suite_name) {
+    $(".btnEditSuiteName").click(function (event) {
         event = event || window.event;
         event.preventDefault();
         event.stopPropagation();
-        modal_edit_name.attr('suite_name', suite_name);
+        var suite = $(this).attr('data-test-suite');
+        modal_edit_name.attr('suite_name', suite);
         $("#inputNewName").val('');
         modal_edit_name.modal();
-    };
+    });
 
     $("#btnEditNameCancel").click(function () {
             modal_edit_name.modal('hide');

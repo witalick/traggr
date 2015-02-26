@@ -41,7 +41,8 @@ $(document).ready(function () {
         event.preventDefault();
         var component = modal_add_test_case.attr('component'),
             suite = modal_add_test_case.attr('suite'),
-            test_id = modal_add_test_case.attr('test_id');
+            test_id = modal_add_test_case.attr('test_id'),
+            dont_reload = modal_add_test_case.attr('dont_reload');
         var x = document.forms["formAddTestCase"].elements;
         var title = x['inputTestTitle'].value.replace(/\s{2,}/g, ' ').trim();
         var steps = x['inputTestSteps'].value;
@@ -75,19 +76,28 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json"
         })
-            .success(function () {
+            .success(function (data) {
                 modal_add_test_case.removeAttr('component');
                 modal_add_test_case.removeAttr('suite');
                 modal_add_test_case.removeAttr('test_id');
                 modal_add_test_case.modal('hide');
-                window.location.reload()
+                if (dont_reload && data['test_id']) {
+                    $(document).trigger('new_test_case_added', [data['test_id'], suite, title]);
+                }
+                else if(dont_reload && test_id){
+                    $(document).trigger('test_case_edited', [test_id, suite, title]);
+                }
+                else{
+                    window.location.reload()
+                }
+
             })
             .fail(function (error) {
                 alert(error.responseText)
             });
     });
 
-    window.addTestCase = function (event, component, suite, test_id) {
+    window.addTestCase = function (event, component, suite, test_id, dont_reload) {
         if (event) {
             event = event || window.event;
             event.preventDefault();
@@ -104,6 +114,9 @@ $(document).ready(function () {
         modal_add_test_case.attr('suite', suite);
         if (test_id){
             modal_add_test_case.attr('test_id', test_id)
+        }
+        if (dont_reload){
+            modal_add_test_case.attr('dont_reload', dont_reload)
         }
         modal_add_test_case.modal();
     };
