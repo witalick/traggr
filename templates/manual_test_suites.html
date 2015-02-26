@@ -51,7 +51,7 @@
         {% for suite in data %}
             <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
                 <div class="panel-heading">
-                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
+                    <div class="panel-title" data-toggle="collapse" data-parent="#accordion" data-target="#collapse{{ suite['name'].replace(' ', '-') }}">
                         <button style="display:none" type="button" class="btnRemoveManualTestSuite btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}">
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>
@@ -60,7 +60,7 @@
                           {{ suite['name'] }}
                           <span class="badge pull-right">{{ suite['total'] }}</span>
                         <button type="button" class="btnAddOneTestCase btnAdd btn btn-primary btn-xs" data-test-component="{{ component }}" data-test-suite="{{ suite.name }}">Add Test</button>
-                     </h4>
+                     </div>
                 </div>
 
                 <div id="collapse{{ suite['name'].replace(' ', '-') }}" class="panel-collapse collapse">
@@ -82,7 +82,7 @@
                                     <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}">{{ test['title'] }}</td>
                                 </tr>
 
-                                <div class="modal fade" id="Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', 'a') }}{{ test['test_id'] }}" aria-hidden="true">
+                                <div class="modal fade" id="Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}" aria-hidden="true">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">

@@ -112,7 +112,7 @@
             <div id="div{{ suite['name'] }}" class="panel panel-default">
                 <div class="panel-heading">
 
-                    <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'] }}">
+                    <div class="panel-title" data-toggle="collapse" data-parent="#accordion" data-target=#collapse{{ suite['name'] }}">
 
                         <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeSuiteWithConfirmation("{{ project }}", "{{ sprint }}", "{{ component }}", "{{ suite.name }}")'>
                             <span class="glyphicon glyphicon-remove pull-left"></span>
@@ -127,7 +127,7 @@
                           {% if suite['failed'] != 0 %}
                               <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
                           {% endif %}
-                     </h4>
+                     </div>
                 </div>
 
                 <div id="collapse{{ suite['name'] }}" class="panel-collapse collapse">
