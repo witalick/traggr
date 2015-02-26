@@ -65,6 +65,8 @@ $(document).ready(function () {
         if (!suite){
             suite = x['inputTestSuite'].value;
         }
+        component = component.replace(/\s{2,}/g, ' ').trim();
+        suite = suite.replace(/\s{2,}/g, ' ').trim();
         test_data['component'] = component;
         test_data['suite'] = suite;
         var url = "/manual/" + pageData.project;

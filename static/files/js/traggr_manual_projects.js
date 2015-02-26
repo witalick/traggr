@@ -19,7 +19,7 @@ $(document).ready(function () {
     $("#formAddProject").submit(function (event) {
             eventStopPropagation(event);
             var x = document.forms["formAddProject"].elements;
-            var project = x['inputProject'].value;
+            var project = x['inputProject'].value.replace(/\s{2,}/g, ' ').trim().replace(' ', '_');
             if (confirm("Do You Really Want To Create New Project - " + project + "?")) {
                 $.ajax({
                     type: "POST",

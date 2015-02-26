@@ -29,7 +29,7 @@ $(document).ready(function () {
     });
 
     $(".btnRemoveSprintComponent").click(function () {
-        var component = modal_confirm_delete.attr('component');
+        var component = $(this).attr("data-test-component");
         modal_confirm_delete.attr('component', component);
         $("#divBodyConfirmDeletion").text("Remove " + component + "?");
         modal_confirm_delete.modal();
