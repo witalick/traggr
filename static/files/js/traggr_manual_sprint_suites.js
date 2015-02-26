@@ -133,6 +133,8 @@ $(document).ready(function () {
             test_id = el.attr('data-test-test_id');
         modal_set_failed.attr('suite', suite);
         modal_set_failed.attr('test_id', test_id);
+        $("#inputSetFailedBug").val('');
+        $("#inputSetFailedReason").val('');
         modal_set_failed.modal();
     });
 
