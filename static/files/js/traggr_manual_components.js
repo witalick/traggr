@@ -22,7 +22,7 @@ $(document).ready(function () {
     });
 
     $("#formAddSprint").submit(function (event) {
-            event.preventDefault();
+            eventStopPropagation(event);
             var x = document.forms["formAddSprint"].elements;
             var sprint = x['inputSprint'].value;
             if (confirm("Do You Really Want To Create New Sprint - " + sprint + "?")) {
@@ -70,15 +70,15 @@ $(document).ready(function () {
             });
     });
 
-    window.removeManualComponentWithConfirmation = function (component) {
+    $(".btnRemoveManualComponent").click(function () {
+        var component = $(this).attr("data-test-component");
         modal_confirm_delete.attr('component', component);
         $("#divBodyConfirmDeletion").text("Remove " + component + "?");
         modal_confirm_delete.modal();
-
-    };
+    });
 
     $("#formEditName").submit(function (event) {
-        event.preventDefault();
+        eventStopPropagation(event);
         var x = document.forms["formEditName"].elements;
         var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
         var component_name = modal_edit_name.attr('component_name');
@@ -101,11 +101,12 @@ $(document).ready(function () {
             });
     });
 
-    window.editComponentName = function (component_name) {
-        modal_edit_name.attr('component_name', component_name);
+    $(".btnEditManualComponent").click(function () {
+        var component = $(this).attr("data-test-component");
+        modal_edit_name.attr('component_name', component);
         $("#inputNewName").val('');
         modal_edit_name.modal();
-    };
+    });
 
     $("#btnEditNameCancel").click(function () {
             modal_edit_name.modal('hide');

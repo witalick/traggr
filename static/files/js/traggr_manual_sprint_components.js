@@ -28,12 +28,12 @@ $(document).ready(function () {
             .fail(function (error) {alert(error.responseText)});
     });
 
-    window.removeComponentResultstWithConfirmation = function (component) {
+    $(".btnRemoveSprintComponent").click(function () {
+        var component = modal_confirm_delete.attr('component');
         modal_confirm_delete.attr('component', component);
         $("#divBodyConfirmDeletion").text("Remove " + component + "?");
         modal_confirm_delete.modal();
-
-    };
+    });
 
     $("#btnConfirmSync").click(function() {
         $.ajax({

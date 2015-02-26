@@ -46,7 +46,11 @@ $(document).ready(function () {
         }
     });
 
-    window.removeSuiteOrTestResultstWithConfirmation = function (suite, test_id) {
+    $(".btnRemoveSprintTestSuiteOrTest").click(function (event) {
+        eventStopPropagation(event);
+        var el = $(this);
+        var suite = el.attr('data-test-suite'),
+            test_id = el.attr('data-test-test_id');
         modal_confirm_delete.attr('suite', suite);
         modal_confirm_delete.attr('test_id', test_id);
         if (test_id){
@@ -57,13 +61,11 @@ $(document).ready(function () {
         }
         modal_confirm_delete.modal();
 
-    };
+    });
 
     window.setTestCaseResult = function (event, suite, test_id, result, error, result_attributes) {
         if(event){
-            event = event || window.event;
-            event.preventDefault();
-            event.stopPropagation();
+            eventStopPropagation(event);
         }
         if (result == 'passed'){
             $("#trTc" + test_id).attr('class','success');
@@ -94,7 +96,8 @@ $(document).ready(function () {
             .fail(function (error) {alert(error.responseText)});
     };
 
-    $('#formSetFailed').submit(function () {
+    $('#formSetFailed').submit(function (event) {
+        eventStopPropagation(event);
         var suite = modal_set_failed.attr('suite'),
             test_id = modal_set_failed.attr('test_id');
         var x = document.forms["formSetFailed"].elements;
@@ -115,14 +118,23 @@ $(document).ready(function () {
 
     });
 
-    window.setTestCaseFailed = function(event, suite, test_id) {
-        event = event || window.event;
-        event.preventDefault();
-        event.stopPropagation();
+    $(".btnSetTestCaseResultPassed").click(function(event) {
+        eventStopPropagation(event);
+        var el = $(this);
+        var suite = el.attr('data-test-suite'),
+            test_id = el.attr('data-test_test_id');
+        setTestCaseResult(false, suite, test_id, "passed")
+    });
+
+    $(".btnSetTestCaseResultFailed").click(function(event) {
+        eventStopPropagation(event);
+        var el = $(this);
+        var suite = el.attr('data-test-suite'),
+            test_id = el.attr('data-test_test_id');
         modal_set_failed.attr('suite', suite);
         modal_set_failed.attr('test_id', test_id);
         modal_set_failed.modal();
-    };
+    });
 
     $('#btnSetFailedCancel').click(function(){
         modal_set_failed.modal('hide')

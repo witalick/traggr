@@ -21,6 +21,11 @@ $(document).ready(function () {
             $(".btnSet").show();
         }
     });
+    window.eventStopPropagation = function(event){
+        event = event || window.event;
+        event.preventDefault();
+        event.stopPropagation();
+    };
 
     window.composeTestAddForm = function (component, suite){
          function showHide(id, show) {
@@ -38,7 +43,7 @@ $(document).ready(function () {
     };
 
     $("#formAddTestCase").submit(function (event) {
-        event.preventDefault();
+        eventStopPropagation(event);
         var component = modal_add_test_case.attr('component'),
             suite = modal_add_test_case.attr('suite'),
             test_id = modal_add_test_case.attr('test_id'),
@@ -99,9 +104,7 @@ $(document).ready(function () {
 
     window.addTestCase = function (event, component, suite, test_id, dont_reload) {
         if (event) {
-            event = event || window.event;
-            event.preventDefault();
-            event.stopPropagation();
+            eventStopPropagation(event);
         }
         composeTestAddForm(component, suite);
         if (!test_id){

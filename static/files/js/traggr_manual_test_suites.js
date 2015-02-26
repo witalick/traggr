@@ -124,7 +124,7 @@ $(document).ready(function () {
     });
 
     $("#formEditName").submit(function (event) {
-        event.preventDefault();
+        eventStopPropagation(event);
         var x = document.forms["formEditName"].elements;
         var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
         var suite_name = modal_edit_name.attr('suite_name');
@@ -149,9 +149,7 @@ $(document).ready(function () {
     });
 
     $(".btnEditSuiteName").click(function (event) {
-        event = event || window.event;
-        event.preventDefault();
-        event.stopPropagation();
+        eventStopPropagation(event);
         var suite = $(this).attr('data-test-suite');
         modal_edit_name.attr('suite_name', suite);
         $("#inputNewName").val('');

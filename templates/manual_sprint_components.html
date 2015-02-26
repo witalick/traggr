@@ -52,7 +52,7 @@
 
             <li id="li{{ component.name.replace(' ', '-') }}" class="list-group-item">
 
-                <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeComponentResultstWithConfirmation("{{ component.name }}")'>
+                <button style="display:none" type="button" class="btnRemoveSprintComponent btnRemove btn btn-danger btn-xs" data-test-component="{{ component.name }}">
                     <span class="glyphicon glyphicon-remove pull-left"></span>
                 </button>&nbsp;
 

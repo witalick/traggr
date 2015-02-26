@@ -20,15 +20,15 @@ $(document).ready(function () {
             .fail(function (error) {alert(error.responseText)});
     });
 
-    window.removeSprintResultstWithConfirmation = function (sprint_name) {
+    $(".btnRemoveSprint").click(function () {
+        var sprint_name = $(this).attr("data-test-sprint");
         modal_confirm_delete.attr('sprint_name', sprint_name);
         $("#divBodyConfirmDeletion").text("Remove " + sprint_name + "?");
         modal_confirm_delete.modal();
-
-    };
+    });
 
     $("#formEditName").submit(function (event) {
-        event.preventDefault();
+        eventStopPropagation(event);
         var x = document.forms["formEditName"].elements;
         var new_name = x['inputNewName'].value.replace(/\s{2,}/g, ' ').trim();
         var sprint_name = modal_edit_name.attr('sprint_name');
@@ -51,12 +51,12 @@ $(document).ready(function () {
             });
     });
 
-    window.editSprintName = function (sprint_name) {
+    $(".btnEditSprint").click(function () {
+        var sprint_name = $(this).attr("data-test-sprint");
         modal_edit_name.attr('sprint_name', sprint_name);
         $("#inputNewName").val('');
-
         modal_edit_name.modal();
-    };
+    });
 
     $("#btnEditNameCancel").click(function () {
             modal_edit_name.modal('hide');

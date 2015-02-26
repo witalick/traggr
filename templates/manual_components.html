@@ -48,10 +48,10 @@
     <ul class="list-group">
         {% for component in components %}
         <li id="li{{ component.name.replace(' ', '-') }}" class="list-group-item">
-            <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" onclick='removeManualComponentWithConfirmation("{{ component.name }}")'>
+            <button style="display:none" type="button" class="btnRemoveManualComponent btnRemove btn btn-danger btn-xs" data-test-component="{{ component.name }}">
                 <span class="glyphicon glyphicon-remove pull-left"></span>
             </button>
-            <button style="display:none" type="button" class="btnEdit btn btn-primary btn-xs" onclick='editComponentName("{{ component.name }}")'>Edit Component</button>
+            <button style="display:none" type="button" class="btnEditManualComponent btnEdit btn btn-primary btn-xs" data-test-component="{{ component.name }}">Edit Component</button>
             &nbsp;
             <a href="/manual/{{ project }}/{{ component.name }}">{{ component.name }}</a>
             <span class="badge pull-right">{{ component.total }}</span>

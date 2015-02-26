@@ -17,7 +17,7 @@ $(document).ready(function () {
     });
 
     $("#formAddProject").submit(function (event) {
-            event.preventDefault();
+            eventStopPropagation(event);
             var x = document.forms["formAddProject"].elements;
             var project = x['inputProject'].value;
             if (confirm("Do You Really Want To Create New Project - " + project + "?")) {
