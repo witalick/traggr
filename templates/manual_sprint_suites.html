@@ -107,7 +107,7 @@
                                           {% else %}
                                                 "active"
                                           {% endif  %}>
-                                    <td><button style="display:none" type="button" class="btnRemoveSprintTestSuiteOrTest btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test_test_id="{{ result['test_id'] }}">
+                                    <td><button style="display:none" type="button" class="btnRemoveSprintTestSuiteOrTest btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
                                         {{ result['test_id'] }}</td>
@@ -130,8 +130,8 @@
 
                                         >
                                     <span id="spTc{{ result['test_id'] }}">{{ result['result'] }}</span>
-                                    <button type="button" style="display: none;" id='btnPassed' class="btnSetTestCaseResultPassed btnSet btn btn-success btn-xs"  data-test-suite="{{ suite.name }}" data-test_test_id="{{ result['test_id'] }}">Passed</button>
-                                    <button type="button" style="display: none;" id='btnFailed' class="btnSetTestCaseResultFailed btnSet btn btn-danger btn-xs"  data-test-suite="{{ suite.name }}" data-test_test_id="{{ result['test_id'] }}">Failed</button>
+                                    <button type="button" style="display: none;" id='btnPassed' class="btnSetTestCaseResultPassed btnSet btn btn-success btn-xs"  data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">Passed</button>
+                                    <button type="button" style="display: none;" id='btnFailed' class="btnSetTestCaseResultFailed btnSet btn btn-danger btn-xs"  data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">Failed</button>
                                     </td>
 
                                     {% if 'comment' in result %}

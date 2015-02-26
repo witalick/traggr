@@ -122,7 +122,7 @@ $(document).ready(function () {
         eventStopPropagation(event);
         var el = $(this);
         var suite = el.attr('data-test-suite'),
-            test_id = el.attr('data-test_test_id');
+            test_id = el.attr('data-test-test_id');
         setTestCaseResult(false, suite, test_id, "passed")
     });
 
@@ -130,7 +130,7 @@ $(document).ready(function () {
         eventStopPropagation(event);
         var el = $(this);
         var suite = el.attr('data-test-suite'),
-            test_id = el.attr('data-test_test_id');
+            test_id = el.attr('data-test-test_id');
         modal_set_failed.attr('suite', suite);
         modal_set_failed.attr('test_id', test_id);
         modal_set_failed.modal();
