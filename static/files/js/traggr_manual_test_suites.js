@@ -51,19 +51,21 @@ $(document).ready(function () {
 
     });
 
-    $(".table-test-cases").on('click', ".btnRemoveManualTestCaseOrSuite", function () {
+    $(".btnRemoveManualTestSuite").on('click', function () {
+        var el = $(this);
+        var suite = el.attr('data-test-suite');
+        modal_confirm_delete.attr('suite', suite);
+        $("#divBodyConfirmDeletion").text("Remove " + suite + "?");
+        modal_confirm_delete.modal();
+    });
+
+    $(".table-test-cases").on('click', ".btnRemoveManualTestCase", function () {
         var el = $(this);
         var suite = el.attr('data-test-suite'),
             test_id = el.attr('data-test-test_id');
         modal_confirm_delete.attr('suite', suite);
         modal_confirm_delete.attr('test_id', test_id);
-
-        if (test_id){
-            $("#divBodyConfirmDeletion").text("Remove " + test_id + "?");
-        }
-        else {
-            $("#divBodyConfirmDeletion").text("Remove " + suite + "?");
-        }
+        $("#divBodyConfirmDeletion").text("Remove " + test_id + "?");
         modal_confirm_delete.modal();
     });
 

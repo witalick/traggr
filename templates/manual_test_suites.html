@@ -52,7 +52,7 @@
             <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
-                        <button style="display:none" type="button" class="btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}">
+                        <button style="display:none" type="button" class="btnRemoveManualTestSuite btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}">
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>
                         <button style="display:none" type="button" class="btnEditSuiteName btnEdit btn btn-primary btn-xs" data-test-suite="{{ suite.name }}">Edit Suite</button>
@@ -73,7 +73,7 @@
                             {% for test in suite['rows'] %}
                                 <tr class="warning" id="tr{{ test['test_id'] }}">
                                     <td>
-                                        <button style="display:none" type="button" class="btnRemoveManualTestCaseOrSuite btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ test['test_id'] }}" >
+                                        <button style="display:none" type="button" class="btnRemoveManualTestCase btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ test['test_id'] }}" >
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
                                         <button style="display:none" type="button" class="btnEditManualTestCase btnEdit btn btn-primary btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ test['test_id'] }}">Edit Test</button>
