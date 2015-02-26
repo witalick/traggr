@@ -16,7 +16,7 @@ $(document).ready(function () {
 
     $("#btnConfirmDeletion").click(function () {
         var component = modal_confirm_delete.attr('component');
-        $("#li" + component.replace(' ', '-')).remove();
+        $("#li" + component.replace(/\s/g, '-')).remove();
         $.ajax({type: "DELETE",
             url: "/manual/" + pageData.project + "/" + "sprint/" + pageData.sprint,
             data: JSON.stringify({'component': component})

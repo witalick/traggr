@@ -22,7 +22,7 @@ $(document).ready(function () {
                 $("#trTc" + test_id).remove();
             }
             else{
-                $("#div" + suite.replace(' ', '-')).remove();
+                $("#div" + suite.replace(/\s/g, '-')).remove();
             }
 
             var data = {'suite': suite};

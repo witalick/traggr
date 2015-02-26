@@ -53,7 +53,7 @@ $(document).ready(function () {
 
     $("#btnConfirmDeletion").click(function () {
         var component = modal_confirm_delete.attr('component');
-        $("#li" + component.replace(' ', '-')).remove();
+        $("#li" + component.replace(/\s/g, '-')).remove();
         var url = "/manual/" + pageData.project;
         $.ajax({
             type: "DELETE",
@@ -104,7 +104,7 @@ $(document).ready(function () {
     $(".btnEditManualComponent").click(function () {
         var component = $(this).attr("data-test-component");
         modal_edit_name.attr('component_name', component);
-        $("#inputNewName").val('');
+        $("#inputNewName").val(component);
         modal_edit_name.modal();
     });
 

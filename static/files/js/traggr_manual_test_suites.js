@@ -28,7 +28,7 @@ $(document).ready(function () {
 
         if (test_id || suite) {
             if (test_id){$("#tr" + test_id).remove();}
-            else{$("#div" + suite.replace(' ', '-')).remove();}
+            else{$("#div" + suite.replace(/\s/g, '-')).remove();}
 
             var url = "/manual/" + pageData.project + "/" + pageData.component;
             var data = {'suite': suite};
@@ -105,13 +105,13 @@ $(document).ready(function () {
     });
 
     $(document).on('new_test_case_added', function(event, test_id, suite, title){
-        var last_tr = $("#table" + suite.replace(" ", "-") + " tr:last-child");
+        var last_tr = $("#table" + suite.replace(/\s/g, "-") + " tr:last-child");
         var new_tr = last_tr.clone();
         new_tr.attr('id', 'tr' + test_id);
         new_tr.find('button[data-test-test_id]').attr('data-test-test_id', test_id);
         new_tr.find('button[data-test-suite]').attr('data-test-suite', suite);
         var second_td = new_tr.find('td[data-target]');
-        second_td.attr('data-target', '#Modal' + suite.replace(" ", "-") + test_id);
+        second_td.attr('data-target', '#Modal' + suite.replace(/\s/g, "-") + test_id);
         second_td.text(title);
         new_tr.find('.spTest_id').text(test_id);
         new_tr.insertAfter(last_tr)
@@ -140,7 +140,7 @@ $(document).ready(function () {
             .success(function () {
                 modal_edit_name.removeAttr('suite_name');
                 modal_edit_name.modal('hide');
-                window.location.reload()
+                window.location.reload();
             })
             .fail(function (error) {
                 alert(error.responseText)
@@ -152,7 +152,7 @@ $(document).ready(function () {
         eventStopPropagation(event);
         var suite = $(this).attr('data-test-suite');
         modal_edit_name.attr('suite_name', suite);
-        $("#inputNewName").val('');
+        $("#inputNewName").val(suite);
         modal_edit_name.modal();
     });
 

@@ -8,7 +8,7 @@ $(document).ready(function () {
 
     $("#btnConfirmDeletion").click(function () {
         var sprint_name = modal_confirm_delete.attr('sprint_name');
-        $("#li" + sprint_name).remove();
+        $("#li" + sprint_name.replace(/\s/g, '-')).remove();
         $.ajax({type: "DELETE",
             url: "/manual/" + pageData.project + "/" + "sprint",
             data: JSON.stringify({'sprint_name': sprint_name})
@@ -54,7 +54,7 @@ $(document).ready(function () {
     $(".btnEditSprint").click(function () {
         var sprint_name = $(this).attr("data-test-sprint");
         modal_edit_name.attr('sprint_name', sprint_name);
-        $("#inputNewName").val('');
+        $("#inputNewName").val(sprint_name);
         modal_edit_name.modal();
     });
 
