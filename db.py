@@ -153,7 +153,7 @@ class AggregationDB(MyMongoClient):
         return test_id
 
     def get_manual_sprints(self):
-        return [cn.split('_', 1)[1] for cn in self._db.collection_names() if cn.startswith('results_')]
+        return [cn.split('_', 1)[-1] for cn in self._db.collection_names() if cn.startswith('results_')]
 
     def get_sprint_totals(self, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name
