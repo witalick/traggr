@@ -51,7 +51,8 @@ $(document).ready(function () {
 
     });
 
-    $(".btnRemoveManualTestSuite").on('click', function () {
+    $(".btnRemoveManualTestSuite").on('click', function (event) {
+        eventStopPropagation(event);
         var el = $(this);
         var suite = el.attr('data-test-suite');
         modal_confirm_delete.attr('suite', suite);
