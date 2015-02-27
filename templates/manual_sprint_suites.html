@@ -89,10 +89,6 @@
                         <table class="table">
                             <tr>
                                 <th>Test ID</th>
-                                {% if suite['has_attributes'] %}
-                                    <th>Attributes</th>
-                                {% endif %}
-
                                 <th>Title</th>
                                 <th>Result</th>
 
@@ -107,23 +103,13 @@
                                           {% else %}
                                                 "active"
                                           {% endif  %}>
-                                    <td><button style="display:none" type="button" class="btnRemoveSprintTestSuiteOrTest btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">
+                                    <td class="col-md-1"><button style="display:none" type="button" class="btnRemoveSprintTestSuiteOrTest btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
                                         {{ result['test_id'] }}</td>
 
-                                    {% if 'attributes' in result %}
-                                        <td>
-                                            {% for key, value in result['attributes'] %}
-                                                <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
-                                            {% endfor %}
-                                        </td>
-                                    {% elif suite['has_attributes'] %}
-                                        <td></td>
-                                    {% endif %}
-
-                                    <td data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
-                                    <td
+                                    <td class="col-md-4" data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
+                                    <td class="col-md-2"
                                         {% if 'error' in result %}
                                             data-toggle="modal" data-target="#ModalError{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}"
                                         {% endif %}
