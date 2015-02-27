@@ -51,7 +51,7 @@
         {% for suite in data %}
             <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
                 <div class="panel-heading">
-                    <div class="panel-title" data-toggle="collapse" data-parent="#accordion" data-target="#collapse{{ suite['name'].replace(' ', '-') }}">
+                    <a class="panel-title my-accordion-a" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
                         <button style="display:none" type="button" class="btnRemoveManualTestSuite btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}">
                             <span class="glyphicon glyphicon-remove pull-left"></span>
                         </button>
@@ -60,7 +60,7 @@
                           {{ suite['name'] }}
                           <span class="badge pull-right">{{ suite['total'] }}</span>
                         <button type="button" class="btnAddOneTestCase btnAdd btn btn-primary btn-xs" data-test-component="{{ component }}" data-test-suite="{{ suite.name }}">Add Test</button>
-                     </div>
+                     </a>
                 </div>
 
                 <div id="collapse{{ suite['name'].replace(' ', '-') }}" class="panel-collapse collapse">
