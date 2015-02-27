@@ -24,7 +24,7 @@ $(document).ready(function () {
     $("#formAddSprint").submit(function (event) {
             eventStopPropagation(event);
             var x = document.forms["formAddSprint"].elements;
-            var sprint = x['inputSprint'].value.replace(/\s{2,}/g, ' ').trim().replace(' ', '_');
+            var sprint = x['inputSprint'].value.replace(/\s{2,}/g, ' ').trim().replace(/\s/g, '_');
             if (confirm("Do You Really Want To Create New Sprint - " + sprint + "?")) {
                 $.ajax({
                     type: "POST",
