@@ -146,7 +146,7 @@ class AggregationDB(MyMongoClient):
     def get_new_test_id(self):
         res = self._db[self._cn_tests].find_one(sort=[('_id', -1)])
         if not res:
-            test_id = self._db.name.split('_')[-1].upper() + '-1'
+            test_id = self._db.name.split('project_manual_', 1)[-1].upper() + '-1'
         else:
             test_id = res['test_id']
             test_id = '-'.join([test_id.rsplit('-', 1)[0], str(int(test_id.rsplit('-', 1)[-1]) + 1)])
