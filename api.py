@@ -53,10 +53,9 @@ def add_manual_tests(project):
     tests = json.loads(request.get_data())
 
     for test in tests:
-        db.upsert_test(component=test['component'],
-                       suite=test['suite'],
-                       test_id=test['test_id'],
-                       **test['other_attributes'])
+        db.create_manual_test_case(component=test['component'],
+                                   suite=test['suite'],
+                                   **test['other_attributes'])
 
     return make_response('', 200)
 

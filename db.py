@@ -305,6 +305,14 @@ class AggregationDB(MyMongoClient):
         self._db[sprint_collection_name].update(query,
                                                 {'$set': result_dict}, upsert=True)
 
+    def create_manual_test_case(self, component, suite, **other_attributes):
+        test_id = self.get_new_test_id()
+        self.upsert_test(component=component,
+                       suite=suite,
+                       test_id=test_id,
+                       **other_attributes)
+        return test_id
+
     def edit_manual_test(self, test_id, title, steps, expected_results):
         self._db[self._cn_tests].update(
             {'test_id': test_id},

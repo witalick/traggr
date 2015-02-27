@@ -230,11 +230,9 @@ def manual_components(m_project):
 
     elif request.method == 'POST':
         test_data = json.loads(request.get_data())
-        test_id = db.get_new_test_id()
-        db.upsert_test(component=test_data['component'],
-                       suite=test_data['suite'],
-                       test_id=test_id,
-                       **test_data['other_attributes'])
+        test_id = db.create_manual_test_case(component=test_data['component'],
+                                             suite=test_data['suite'],
+                                             **test_data['other_attributes'])
         return jsonify({'test_id': test_id})
 
     elif request.method == 'DELETE':
