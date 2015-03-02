@@ -169,8 +169,6 @@ class AggregationDB(MyMongoClient):
 
         if res['result']:
             return res['result'][0]
-        else:
-            return
 
     def get_sprint_details(self, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name
@@ -250,7 +248,6 @@ class AggregationDB(MyMongoClient):
         self._db.eval('db.tests.copyTo("{0}")'.format(sprint_collection_name))
         self._db[sprint_name].update({}, {'$set': {"result": ''}},
                                      upsert=False, multi=False)
-        return
 
     def sync_sprint(self, sprint_name):
         sprint_collection_name = self._cn_results % sprint_name
@@ -261,7 +258,6 @@ class AggregationDB(MyMongoClient):
             self._db[sprint_collection_name].update({'_id': tc_id},
                                                     {'$set': tc},
                                                     upsert=True, multi=False)
-        return
 
     def remove_manual_test(self, component, suite, test_id):
         self._db[self._cn_tests].remove({'component': component, 'suite': suite, 'test_id': test_id})
