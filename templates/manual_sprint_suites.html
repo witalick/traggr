@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block customjs %}
+    <script>
+        var pageData = {project: "{{ project }}", component: "{{ component }}", sprint: "{{ sprint }}"}
+    </script>
+
+    <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_sprint_suites.js') }}></script>
+{% endblock %}
+
+{% block menu %}
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {{ project }} <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            {% for p in projects%}
+            <li><a href="/manual/{{ p }}">{{ p }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+
+    <li class="dropdown">
+        {% if sprints %}
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ sprint }} <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/manual/{{ project }}/sprint">All Sprints</a></li>
+                {% for s in sprints%}
+                    <li><a id="a{{ s }}" href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }} </a>
+        {% endif %}
+    </li>
+
+    <li class="dropdown">
+        {% if components %}
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ component }} <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                {% for c in components%}
+                <li><a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ c.name }}">{{ c.name }}</a></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <a href="/manual/{{ project }}/sprint/{{ sprint }}/{{ component }}">{{ component }} </a>
+        {% endif %}
+    </li>
+{% endblock %}
+
+
+{% block body %}
+    <!--<div class="alert alert-info">
+        <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
+        <strong>Note:</strong> Click a suite name to see a list of tests. Click a test title to see a description.
+    </div>-->
+    <div class="panel-group" id="accordion">
+
+        {% for suite in data %}
+
+            <div id="div{{ suite['name'].replace(' ', '-') }}" class="panel panel-default">
+                <div class="panel-heading">
+
+                    <a class="panel-title my-accordion-a" data-toggle="collapse" data-parent="#accordion" href="#collapse{{ suite['name'].replace(' ', '-') }}">
+
+                        <button style="display:none" type="button" class="btnRemoveSprintTestSuiteOrTest btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}">
+                            <span class="glyphicon glyphicon-remove pull-left"></span>
+                        </button>&nbsp;
+
+                          {{ suite['name'] }}
+
+                          <span class="badge pull-right">{{ suite['total'] }}</span>
+                          {% if suite['passed'] != 0 %}
+                              <span class="badge alert-success pull-right">{{ suite['passed'] }}</span>
+                          {% endif %}
+                          {% if suite['failed'] != 0 %}
+                              <span class="badge alert-danger pull-right">{{ suite['failed'] }}</span>
+                          {% endif %}
+                     </a>
+                </div>
+
+                <div id="collapse{{ suite['name'].replace(' ', '-') }}" class="panel-collapse collapse">
+                    <div class="panel-body">
+
+                        <table class="table">
+                            <tr>
+                                <th>Test ID</th>
+                                <th>Title</th>
+                                <th>Result</th>
+
+                            </tr>
+
+                            {% for result in suite['rows'] %}
+
+                                <tr id="trTc{{ result['test_id'] }}" class={% if result['result'] == 'passed' %}
+                                                "success"
+                                          {% elif result['result'] == 'failed' %}
+                                                "danger"
+                                          {% else %}
+                                                "active"
+                                          {% endif  %}>
+                                    <td class="col-md-1"><button style="display:none" type="button" class="btnRemoveSprintTestSuiteOrTest btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">
+                                        <span class="glyphicon glyphicon-remove pull-left"></span>
+                                        </button>
+                                        {{ result['test_id'] }}</td>
+
+                                    <td class="col-md-4" data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
+                                    <td class="col-md-2"
+                                        {% if 'error' in result %}
+                                            data-toggle="modal" data-target="#ModalError{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}"
+                                        {% endif %}
+
+                                        >
+                                    <span id="spTc{{ result['test_id'] }}">{{ result['result'] }}</span>
+                                    <button type="button" style="display: none;" id='btnPassed' class="btnSetTestCaseResultPassed btnSet btn btn-success btn-xs"  data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">Passed</button>
+                                    <button type="button" style="display: none;" id='btnFailed' class="btnSetTestCaseResultFailed btnSet btn btn-danger btn-xs"  data-test-suite="{{ suite.name }}" data-test-test_id="{{ result['test_id'] }}">Failed</button>
+                                    </td>
+
+                                    {% if 'comment' in result %}
+                                        <td>{{ result['comment'] }}</td>
+                                    {% elif suite['has_comments'] %}
+                                        <td></td>
+                                    {% endif %}
+
+                                </tr>
+
+                                <div class="modal fade" id="ModalError{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalErrorLabel">Error Description: {{result['test_id']}}: {{result['title']}}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>{{result['error']}}</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" id="Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                <h4 class="modal-title" id="myModalLabel">{{result['test_id']}}: {{result['title']}}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>{{result['steps']}}</pre>
+                                            </div>
+                                            <div class="modal-body">
+                                                <pre>{{result['expected_results']}}</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="modal fade" id="ModalSetFailed" tabindex="-1" role="dialog" aria-labelledby="ModalSetFailed" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Set Failed Reason</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formSetFailed" id="formSetFailed">
+                        <div class="form-group">
+                            <label for="inputSetFailedBug">Related Bug</label>
+                            <input type="text" class="form-control" id="inputSetFailedBug" placeholder="BUG !!!">
+                        </div>
+                        <div class="form-group">
+                            <label for="inputSetFailedReason">Reason or Error Message</label>
+                            <textarea class="form-control" id="inputSetFailedReason" placeholder="Reason ..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnSetFailed">Save</button>
+                        <button type="button" class="btn btn-default" id="btnSetFailedCancel" aria-hidden="true">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

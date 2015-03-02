@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block customjs %}
+    <script>
+        var pageData = {project: "{{project}}"}
+    </script>
+
+    <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_sprints.js') }}></script>
+{% endblock %}
+{% block menu %}
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {{ project }} <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+
+            {% for p in projects%}
+                <li><a href="/manual/{{ p }}">{{ p }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            Sprints <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+            {% for s in sprints%}
+                <li><a id="a{{ s }}" href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+{% endblock %}
+
+{% block body %}
+    <div class="col-md-6">
+        <ul class="list-group">
+            {% for sprint in sprints %}
+                <li id="li{{ sprint }}" class="list-group-item">
+                    <button style="display:none" type="button" class="btnRemoveSprint btnRemove btn btn-danger btn-xs" data-test-sprint="{{ sprint }}">
+                        <span class="glyphicon glyphicon-remove pull-left"></span>
+                    </button>
+                    <button style="display:none" type="button" class="btnEditSprint btnEdit btn btn-primary btn-xs" data-test-sprint="{{ sprint }}">Edit Sprint</button>
+                    <a href="/manual/{{ project }}/sprint/{{ sprint }}">{{ sprint }}</a>
+                    <span class="badge pull-right">{{ sprints[sprint]['total'] }}</span>
+                    <span class="badge alert-success pull-right">{{ sprints[sprint]['passed'] }}</span>
+                    <span class="badge alert-danger pull-right">{{ sprints[sprint]['failed'] }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

@@ -1,10 +1,11 @@
-__author__ = 'vyakoviv'
+__author__ = 'vyakoviv, vhomchak, rmaksymiv'
 
 
 import re
 import json
+import threading
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 
 from db import AggregationDB, MyMongoClient
 from config import config
@@ -24,14 +25,22 @@ def get_db(project=None):
                          port=server.config['db_port'])
 
 
+def get_manual_db(project=None):
+
+    if project:
+        return AggregationDB(hostname=server.config['db_hostname'],
+                             port=server.config['db_port'],
+                             project='manual_' + project)
+    return MyMongoClient(hostname=server.config['db_hostname'],
+                         port=server.config['db_port'])
+
+
 @server.route('/')
 def root():
-
     db = get_db()
     projects = db.get_project_names()
     latest_sprints = dict((project, db.get_latest_sprint_name(project)) for project in projects)
     return render_template('base.html', projects=projects, latest_sprints=latest_sprints)
-
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
@@ -71,7 +80,6 @@ def results(project, sprint):
     regex = re.compile('[\'\"\(\)\[\]\.,\+\s\*@#\$%\^&\?]')
     for failed_test in failed_tests:
         failed_test['component_modified'] = re.sub(regex, '-', failed_test['component'])
-
     return render_template('results.html',
                            components=components_data,
                            totals=totals,
@@ -133,7 +141,8 @@ def results_suites(project, sprint, component):
 
 @server.route('/<project>')
 def project_sprints(project):
-
+    if 'favicon' in project:
+        return '', 200
     db = get_db(project)
     projects = db.get_project_names()
     sprints = db.get_sprint_names()
@@ -199,6 +208,241 @@ def get_results_names(project):
 
     return json.dumps(results_names), 200
 
+# Manual Tests Related Methods
+
+
+@server.route('/manual', methods=['POST', 'GET'])
+def manual_base():
+    db = get_manual_db()
+    m_projects = db.get_m_projects()
+
+    if request.method == 'GET':
+        return render_template('manual_projects.html', projects=m_projects)
+    elif request.method == 'POST':
+        project_data = json.loads(request.get_data())
+        db = get_manual_db(project_data['project_name'])
+        db.get_manual_component_names()
+        return jsonify({})
+
+
+@server.route('/manual/<m_project>', methods=['POST', 'GET', 'DELETE'])
+def manual_components(m_project):
+    db = get_manual_db(m_project)
+    m_projects = db.get_m_projects()
+    components = db.get_manual_component_names()
+    m_sprints = db.get_manual_sprints()
+    if request.method == 'GET':
+        return render_template('manual_components.html',
+                               projects=m_projects,
+                               project=m_project,
+                               sprints=m_sprints,
+                               components=components)
+
+    elif request.method == 'POST':
+        test_data = json.loads(request.get_data())
+        lock = threading.Lock()
+        with lock:
+            test_id = db.create_manual_test_case(component=test_data['component'],
+                                                 suite=test_data['suite'],
+                                                 **test_data['other_attributes'])
+        return jsonify({'test_id': test_id})
+
+    elif request.method == 'DELETE':
+        test_data = json.loads(request.get_data())
+        db.remove_manual_component(component=test_data['component'])
+        return jsonify({})
+
+
+@server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET', 'DELETE'])
+def manual_tests_suites(m_project, m_component):
+    db = get_manual_db(m_project)
+    projects = db.get_m_projects()
+    m_components = db.get_manual_component_names()
+    tests = db.get_manual_tests(component=m_component)
+    if not tests:
+        return 'I don\'t have tests for this component... Sorry... :/', 404
+
+    if request.method == 'GET':
+        return render_template('manual_test_suites.html',
+                               data=tests,
+                               project=m_project,
+                               projects=projects,
+                               component=m_component,
+                               components=m_components)
+
+    elif request.method == 'DELETE':
+        test_data = json.loads(request.get_data())
+        if 'test_id' in test_data:
+            db.remove_manual_test(component=m_component,
+                                  suite=test_data['suite'],
+                                  test_id=test_data['test_id'])
+        else:
+            db.remove_manual_suite(component=m_component,
+                                   suite=test_data['suite'])
+        return jsonify({})
+
+    elif request.method == 'POST':
+        suite_data = json.loads(request.get_data())
+        db.rename_manual_suite(component=m_component,
+                               suite=suite_data['suite'],
+                               suite_new=suite_data['suite_new'])
+        return jsonify({})
+
+
+@server.route('/manual/<m_project>/sprint', methods=['POST', 'GET', 'DELETE'])
+def manual_sprints(m_project):
+    db = get_manual_db(m_project)
+    projects = db.get_m_projects()
+    sprints = db.get_manual_sprints()
+    totals = [db.get_sprint_totals(sprint_name=m_sprint) for m_sprint in sprints]
+    data = dict()
+    for i, v in zip(sprints, totals):
+        data[i] = v
+
+    if request.method == 'GET':
+        return render_template('manual_sprints.html',
+                               project=m_project,
+                               projects=projects,
+                               sprints=data)
+
+    if request.method == 'POST':
+        data = json.loads(request.get_data())
+        db.create_sprint(data['sprint_name'])
+        return jsonify({})
+
+    if request.method == 'DELETE':
+        data = json.loads(request.get_data())
+        db.remove_manual_results(data['sprint_name'])
+        return jsonify({})
+
+
+@server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET', 'DELETE'])
+def manual_sprint_components(m_project, m_sprint):
+    db = get_manual_db(m_project)
+    projects = db.get_m_projects()
+    sprints = db.get_manual_sprints()
+    sprints.remove(m_sprint)
+    totals = db.get_sprint_totals(sprint_name=m_sprint)
+    components_data = db.get_sprint_details(sprint_name=m_sprint)
+    failed_tests = db.get_sprint_failed(sprint_name=m_sprint)
+    # db.sync_sprint(m_sprint)
+    if request.method == 'GET':
+        return render_template('manual_sprint_components.html',
+                               project=m_project,
+                               projects=projects,
+                               sprints=sprints,
+                               sprint=m_sprint,
+                               components=components_data,
+                               totals=totals,
+                               failed_tests=failed_tests)
+
+    if request.method == 'DELETE':
+        results_data = json.loads(request.get_data())
+        db.remove_manual_results_component(component=results_data['component'],
+                                           sprint_name=m_sprint)
+        return jsonify({})
+
+
+@server.route('/manual/<m_project>/sprint/<m_sprint>/<m_component>', methods=['POST', 'GET', 'DELETE'])
+def manual_sprint_suites(m_project, m_sprint, m_component):
+    db = get_manual_db(m_project)
+    projects = db.get_m_projects()
+    sprints = db.get_manual_sprints()
+    m_components = db.get_manual_sprint_component(sprint_name=m_sprint)
+    tests_results = db.get_tests_result(sprint_name=m_sprint, component=m_component)
+    if request.method == 'GET':
+        return render_template('manual_sprint_suites.html',
+                               project=m_project,
+                               projects=projects,
+                               sprints=sprints,
+                               sprint=m_sprint,
+                               components=m_components,
+                               component=m_component,
+                               data=tests_results)
+
+    if request.method == 'DELETE':
+        results_data = json.loads(request.get_data())
+        if 'test_id' in results_data:
+            db.remove_manual_results_test(suite=results_data['suite'],
+                                          component=m_component,
+                                          sprint_name=m_sprint,
+                                          test_id=results_data['test_id'])
+        else:
+            db.remove_manual_results_suite(suite=results_data['suite'],
+                                           component=m_component,
+                                           sprint_name=m_sprint)
+        return jsonify({})
+
+
+@server.route('/manual/_edit_manual_test/<m_project>', methods=['POST'])
+def manual_edit_test(m_project):
+    db = get_manual_db(m_project)
+    if request.method == 'POST':
+        test_data = json.loads(request.get_data())
+        db.edit_manual_test(test_id=test_data['test_id'],
+                            title=test_data['other_attributes']['title'],
+                            steps=test_data['other_attributes']['steps'],
+                            expected_results=test_data['other_attributes']['expected_results'])
+        return jsonify({})
+
+
+@server.route('/manual/_get_manual_test/<m_project>', methods=['POST'])
+def manual_get_test(m_project):
+    db = get_manual_db(m_project)
+    if request.method == 'POST':
+        test_data = json.loads(request.get_data())
+        return jsonify(db.fetch_manual_test(component=test_data['component'],
+                             test_id=test_data['test_id']))
+
+
+@server.route('/manual/_edit_manual_test_result/<m_project>', methods=['POST'])
+def manual_set_test_result(m_project):
+    db = get_manual_db(m_project)
+    if request.method == 'POST':
+        test_data = json.loads(request.get_data())
+        if 'result_attributes' in test_data:
+            result_attributes = test_data['result_attributes']
+        else:
+            result_attributes = {}
+        if 'error' in test_data:
+            error = test_data['error']
+        else:
+            error = None
+        db.set_manual_result(sprint=test_data['sprint'],
+                             component=test_data['component'],
+                             suite=test_data['suite'],
+                             test_id=test_data['test_id'],
+                             result=test_data['result'],
+                             error=error,
+                             **result_attributes)
+        return jsonify({})
+
+@server.route('/manual/_sync_sprint/<m_project>/<m_sprint>', methods=['POST'])
+def manual_sync_sprint_data(m_project, m_sprint):
+    db = get_manual_db(m_project)
+    if request.method == 'POST':
+        db.sync_sprint(m_sprint)
+        return '', 200
+
+
+@server.route('/manual/_edit_manual_component/<m_project>', methods=['POST'])
+def manual_edit_component_name(m_project):
+    db = get_manual_db(m_project)
+    if request.method == 'POST':
+        suite_data = json.loads(request.get_data())
+        db.rename_manual_component(component=suite_data['component'],
+                               component_new=suite_data['component_new'])
+        return jsonify({})
+
+
+@server.route('/manual/_edit_manual_sprint/<m_project>', methods=['POST'])
+def manual_edit_sprint_name(m_project):
+    db = get_manual_db(m_project)
+    if request.method == 'POST':
+        sprint_data = json.loads(request.get_data())
+        db.rename_manual_sprint(sprint_name=sprint_data['sprint'],
+                                sprint_name_new=sprint_data['sprint_new'])
+        return jsonify({})
 
 if __name__ == '__main__':
 

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block customjs %}
+    <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_projects.js') }}></script>
+{% endblock %}
+
+{% block menu %}
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            {% for p in projects%}
+                <li><a href="/manual/{{ p }}">{{ p }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+{% endblock %}
+
+{% block custom_ul_menu %}
+    <ul class="nav navbar-nav navbar-right">
+        <li id="liAdd"><a href="#">Add Project</a></li>
+    </ul>
+{% endblock %}
+
+{% block body %}
+        <div class="col-md-6">
+            <ul class="list-group">
+                {% for project in projects %}
+                    <li id="li{{ project }}" class="list-group-item">
+                        <a href="/manual/{{ project }}">{{ project }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="modal fade" id="ModalAddProject" tabindex="-1" role="dialog" aria-labelledby="ModalAddProject" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Add New Project</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form name="formAddProject" id="formAddProject">
+                            <div class="form-group">
+                                <label for="inputProject">Project Name</label>
+                                <input type="text" class="form-control" id="inputProject" placeholder="Project Name" required pattern="[A-Za-z0-9_-\s]+[A-Za-z0-9]$" title="Only ASCI Char, Number, Space, `_` or `-`.Also should end with ASCI Char or Number">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="btnAddProject">Save</button>
+                            <button type="button" class="btn btn-default" id="btnAddProjectCancel" aria-hidden="true">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

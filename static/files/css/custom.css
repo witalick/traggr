@@ -14,3 +14,21 @@
     margin-top: 10%;
 
 }
+
+.alert-info.my-alert {
+  text-align: center;
+}
+
+.my-accordion-a {
+    display: block;
+    text-decoration: none;
+    outline: none;
+}
+
+.my-accordion-a:hover,
+.my-accordion-a:focus
+{
+    text-decoration: none;
+    outline: none;
+    color: #333;
+}

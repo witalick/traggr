@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block customjs %}
+    <script>
+        var pageData = {project: "{{project}}"}
+    </script>
+
+    <script type="text/javascript" src={{ url_for('static', filename='files/js/traggr_manual_components.js') }}></script>
+{% endblock %}
+
+
+{% block menu %}
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ project }} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            {% for p in projects%}
+                <li><a href="/manual/{{ p }}">{{ p }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+
+    <li class="dropdown">
+            {% if sprints %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sprints <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/manual/{{ project }}/sprint">All Sprints</a></li>
+                    {% for s in sprints%}
+                    <li><a href="/manual/{{ project }}/sprint/{{ s }}">{{ s }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">No Sprint Data <b class="caret"></b></a>
+            {% endif %}
+    </li>
+{% endblock %}
+
+
+{% block custom_ul_menu %}
+    <ul class="nav navbar-nav navbar-right">
+        <li id="liAddSprint"><a href="#">Add Sprint</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li id="liAdd"><a href="#">Add Test</a></li>
+    </ul>
+{% endblock %}
+
+{% block body %}
+    <ul class="list-group">
+        {% for component in components %}
+        <li id="li{{ component.name.replace(' ', '-') }}" class="list-group-item">
+            <button style="display:none" type="button" class="btnRemoveManualComponent btnRemove btn btn-danger btn-xs" data-test-component="{{ component.name }}">
+                <span class="glyphicon glyphicon-remove pull-left"></span>
+            </button>
+            <button style="display:none" type="button" class="btnEditManualComponent btnEdit btn btn-primary btn-xs" data-test-component="{{ component.name }}">Edit Component</button>
+            &nbsp;
+            <a href="/manual/{{ project }}/{{ component.name }}">{{ component.name }}</a>
+            <span class="badge pull-right">{{ component.total }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="modal fade" id="ModalAddSprint" tabindex="-1" role="dialog" aria-labelledby="ModalAddSprint" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Add New Sprint</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="formAddSprint" id="formAddSprint">
+                        <div class="form-group">
+                            <label for="inputSprint">Sprint Name</label>
+                            <input type="text" class="form-control" id="inputSprint" placeholder="Sprint Name" required pattern="[A-Za-z0-9_-\s]+[A-Za-z0-9]$" title="Only ASCI Char, Number, Space, `_` or `-`.Also should end with ASCI Char or Number">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btnAddSprint">Save</button>
+                        <button type="button" class="btn btn-default" id="btnAddSprintCancel" aria-hidden="true">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
