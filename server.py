@@ -25,6 +25,16 @@ def get_db(project=None):
                          port=server.config['db_port'])
 
 
+def get_manual_db(project=None):
+
+    if project:
+        return AggregationDB(hostname=server.config['db_hostname'],
+                             port=server.config['db_port'],
+                             project='manual_' + project)
+    return MyMongoClient(hostname=server.config['db_hostname'],
+                         port=server.config['db_port'])
+
+
 @server.route('/')
 def root():
     db = get_db()
@@ -203,22 +213,21 @@ def get_results_names(project):
 
 @server.route('/manual', methods=['POST', 'GET'])
 def manual_base():
-    db = get_db()
+    db = get_manual_db()
     m_projects = db.get_m_projects()
 
     if request.method == 'GET':
         return render_template('manual_projects.html', projects=m_projects)
     elif request.method == 'POST':
         project_data = json.loads(request.get_data())
-        db = get_db('manual_' + project_data['project_name'])
+        db = get_manual_db(project_data['project_name'])
         db.get_manual_component_names()
         return jsonify({})
 
 
 @server.route('/manual/<m_project>', methods=['POST', 'GET', 'DELETE'])
 def manual_components(m_project):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     m_projects = db.get_m_projects()
     components = db.get_manual_component_names()
     m_sprints = db.get_manual_sprints()
@@ -246,8 +255,7 @@ def manual_components(m_project):
 
 @server.route('/manual/<m_project>/<m_component>', methods=['POST', 'GET', 'DELETE'])
 def manual_tests_suites(m_project, m_component):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     projects = db.get_m_projects()
     m_components = db.get_manual_component_names()
     tests = db.get_manual_tests(component=m_component)
@@ -283,8 +291,7 @@ def manual_tests_suites(m_project, m_component):
 
 @server.route('/manual/<m_project>/sprint', methods=['POST', 'GET', 'DELETE'])
 def manual_sprints(m_project):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
     totals = [db.get_sprint_totals(sprint_name=m_sprint) for m_sprint in sprints]
@@ -311,8 +318,7 @@ def manual_sprints(m_project):
 
 @server.route('/manual/<m_project>/sprint/<m_sprint>', methods=['POST', 'GET', 'DELETE'])
 def manual_sprint_components(m_project, m_sprint):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
     sprints.remove(m_sprint)
@@ -339,8 +345,7 @@ def manual_sprint_components(m_project, m_sprint):
 
 @server.route('/manual/<m_project>/sprint/<m_sprint>/<m_component>', methods=['POST', 'GET', 'DELETE'])
 def manual_sprint_suites(m_project, m_sprint, m_component):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     projects = db.get_m_projects()
     sprints = db.get_manual_sprints()
     m_components = db.get_manual_sprint_component(sprint_name=m_sprint)
@@ -371,8 +376,7 @@ def manual_sprint_suites(m_project, m_sprint, m_component):
 
 @server.route('/manual/_edit_manual_test/<m_project>', methods=['POST'])
 def manual_edit_test(m_project):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     if request.method == 'POST':
         test_data = json.loads(request.get_data())
         db.edit_manual_test(test_id=test_data['test_id'],
@@ -384,8 +388,7 @@ def manual_edit_test(m_project):
 
 @server.route('/manual/_get_manual_test/<m_project>', methods=['POST'])
 def manual_get_test(m_project):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     if request.method == 'POST':
         test_data = json.loads(request.get_data())
         return jsonify(db.fetch_manual_test(component=test_data['component'],
@@ -394,8 +397,7 @@ def manual_get_test(m_project):
 
 @server.route('/manual/_edit_manual_test_result/<m_project>', methods=['POST'])
 def manual_set_test_result(m_project):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     if request.method == 'POST':
         test_data = json.loads(request.get_data())
         if 'result_attributes' in test_data:
@@ -417,8 +419,7 @@ def manual_set_test_result(m_project):
 
 @server.route('/manual/_sync_sprint/<m_project>/<m_sprint>', methods=['POST'])
 def manual_sync_sprint_data(m_project, m_sprint):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     if request.method == 'POST':
         db.sync_sprint(m_sprint)
         return '', 200
@@ -426,8 +427,7 @@ def manual_sync_sprint_data(m_project, m_sprint):
 
 @server.route('/manual/_edit_manual_component/<m_project>', methods=['POST'])
 def manual_edit_component_name(m_project):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     if request.method == 'POST':
         suite_data = json.loads(request.get_data())
         db.rename_manual_component(component=suite_data['component'],
@@ -437,8 +437,7 @@ def manual_edit_component_name(m_project):
 
 @server.route('/manual/_edit_manual_sprint/<m_project>', methods=['POST'])
 def manual_edit_sprint_name(m_project):
-    db_project = 'manual_' + m_project
-    db = get_db(db_project)
+    db = get_manual_db(m_project)
     if request.method == 'POST':
         sprint_data = json.loads(request.get_data())
         db.rename_manual_sprint(sprint_name=sprint_data['sprint'],

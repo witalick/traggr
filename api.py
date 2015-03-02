@@ -19,6 +19,12 @@ def get_db(project):
                          project=project)
 
 
+def get_manual_db(project):
+    return AggregationDB(hostname=api.config['db_hostname'],
+                         port=api.config['db_port'],
+                         project='manual_' + project)
+
+
 @api.route('/ping')
 def ping():
     return make_response('pong', 200)
@@ -45,7 +51,7 @@ def add_results(project, sprint):
 
 @api.route('/manual/<project>', methods=['POST'])
 def add_manual_tests(project):
-    db = get_db(project)
+    db = get_manual_db(project)
     tests = json.loads(request.get_data())
     for test in tests:
         lock = threading.Lock()
@@ -58,7 +64,7 @@ def add_manual_tests(project):
 
 @api.route('/manual/results/<project>/<sprint>', methods=['POST'])
 def add_manual_results(project, sprint):
-    db = get_db(project)
+    db = get_manual_db(project)
     results = json.loads(request.get_data())
     for result in results:
         db.upsert_test_result(sprint=sprint,
