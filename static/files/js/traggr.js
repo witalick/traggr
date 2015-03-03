@@ -87,12 +87,13 @@ $(document).ready(function () {
                 modal_add_test_case.removeAttr('component');
                 modal_add_test_case.removeAttr('suite');
                 modal_add_test_case.removeAttr('test_id');
+                modal_add_test_case.removeAttr('dont_reload');
                 modal_add_test_case.modal('hide');
                 if (dont_reload && data['test_id']) {
                     $(document).trigger('new_test_case_added', [data['test_id'], suite, title]);
                 }
                 else if(dont_reload && test_id){
-                    $(document).trigger('test_case_edited', [test_id, suite, title]);
+                    $(document).trigger('test_case_edited', [test_id, suite, title, steps, expected_results]);
                 }
                 else{
                     window.location.reload()

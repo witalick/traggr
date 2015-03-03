@@ -72,7 +72,7 @@
                             </tr>
                             {% for test in suite['rows'] %}
                                 <tr class="warning" id="tr{{ test['test_id'] }}">
-                                    <td class="col-md-1">
+                                    <td class="col-md-2">
                                         <button style="display:none" type="button" class="btnRemoveManualTestCase btnRemove btn btn-danger btn-xs" data-test-suite="{{ suite.name }}" data-test-test_id="{{ test['test_id'] }}" >
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
@@ -83,15 +83,15 @@
                                 </tr>
 
                                 <div class="modal fade" id="Modal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModal{{ suite['name'].replace(' ', '-') }}{{ test['test_id'] }}" aria-hidden="true">
-                                    <div class="modal-dialog">
+                                    <div class="modal-dialog modal-lg">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                                                 <h4 class="modal-title" id="myModalLabel">{{test['test_id']}}: {{test['title']}}</h4>
                                             </div>
                                             <div class="modal-body">
-                                                <pre>{{test['steps']}}</pre>
-                                                <pre>{{test['expected_results']}}</pre>
+                                                <pre id="preTestModalSteps{{ test['test_id'] }}">{{test['steps']}}</pre>
+                                                <pre id="preTestModalExpected{{ test['test_id'] }}">{{test['expected_results']}}</pre>
                                             </div>
                                         </div>
                                     </div>

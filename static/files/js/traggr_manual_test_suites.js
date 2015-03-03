@@ -119,9 +119,12 @@ $(document).ready(function () {
     });
 
 
-    $(document).on('test_case_edited', function(event, test_id, suite, title){
+    $(document).on('test_case_edited', function(event, test_id, suite, title, steps, expected_results){
         var second_td = $("#tr" + test_id + ' td[data-target]');
         second_td.text(title);
+        var test_modal = $('#Modal' + suite.replace(/\s/g, "-") + test_id);
+        test_modal.find('#preTestModalSteps' + test_id).text(steps);
+        test_modal.find('#preTestModalExpected' + test_id).text(expected_results)
     });
 
     $("#formEditName").submit(function (event) {
