@@ -92,23 +92,23 @@
                             <form name="formAddTestCase" id="formAddTestCase">
                                 <div class="form-group" id="inputTestComponent-group">
                                     <label for="inputTestComponent">Component</label>
-                                    <input type="text" class="form-control" id="inputTestComponent" placeholder="Component" required pattern="[A-Za-z0-9_-\s]+" title="Only ASCI Char, Number, Space, `_` or `-`">
+                                    <input type="text" class="form-control" id="inputTestComponent" spellcheck="true" lang="en" placeholder="Component" required pattern="[A-Za-z0-9_-\s]+" title="Only ASCI Char, Number, Space, `_` or `-`">
                                 </div>
                                 <div class="form-group" id="inputTestSuite-group">
                                     <label for="inputTestSuite">Test Suite</label>
-                                    <input type="text" class="form-control" id="inputTestSuite" placeholder="Test Suite" required pattern="[A-Za-z0-9_-\s]+" title="Only ASCI Char, Number, Space, `_` or `-`">
+                                    <input type="text" class="form-control" id="inputTestSuite" spellcheck="true" lang="en" placeholder="Test Suite" required pattern="[A-Za-z0-9_-\s]+" title="Only ASCI Char, Number, Space, `_` or `-`">
                                 </div>
                                 <div class="form-group">
                                     <label for="inputTestTitle">Test Title</label>
-                                    <input type="text" class="form-control" id="inputTestTitle" placeholder="Title" required>
+                                    <input type="text" class="form-control" id="inputTestTitle" spellcheck="true" lang="en" placeholder="Title" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="inputTestSteps">Test Steps</label>
-                                    <textarea class="form-control" id="inputTestSteps" rows="10" placeholder="Steps"></textarea>
+                                    <textarea class="form-control" id="inputTestSteps" rows="10" spellcheck="true" lang="en" placeholder="Steps"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="inputTestExpectedResults">Test Expected Results</label>
-                                    <textarea class="form-control" id="inputTestExpectedResults" rows="8"  placeholder="Results ..."></textarea>
+                                    <textarea class="form-control" id="inputTestExpectedResults" rows="8" spellcheck="true" lang="en" placeholder="Results ..."></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary" id="btnAddTestCase">Save</button>
                                 <button type="button" class="btn btn-default" id="btnAddTestCaseCancel" aria-hidden="true">Cancel</button>
@@ -128,7 +128,7 @@
                             <form name="formEditName" id="formEditName">
                                 <div class="form-group">
                                     <label for="inputNewName">New Name</label>
-                                    <input type="text" class="form-control" id="inputNewName" placeholder="New Name" required>
+                                    <input type="text" class="form-control" id="inputNewName" spellcheck="true" lang="en" placeholder="New Name" required>
                                 </div>
                                 <button type="submit" class="btn btn-primary" id="btnEditName">Save</button>
                                 <button type="button" class="btn btn-default" id="btnEditNameCancel" aria-hidden="true">Cancel</button>
