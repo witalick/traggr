@@ -42,6 +42,7 @@ def root():
     latest_sprints = dict((project, db.get_latest_sprint_name(project)) for project in projects)
     return render_template('base.html', projects=projects, latest_sprints=latest_sprints)
 
+
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
 
@@ -156,6 +157,7 @@ def project_sprints(project):
                            projects=projects,
                            sprints=sprints)
 
+
 @server.route('/_delete_suite/<project>/<sprint>/<component>/<suite>', methods=['DELETE'])
 def delete_suite(project, sprint, component, suite):
 
@@ -163,6 +165,7 @@ def delete_suite(project, sprint, component, suite):
     db.remove_suite(sprint, component, suite)
 
     return '', 200
+
 
 @server.route('/_delete_component/<project>/<sprint>/<component>', methods=['DELETE'])
 def delete_component(project, sprint, component):
@@ -172,6 +175,7 @@ def delete_component(project, sprint, component):
 
     return '', 200
 
+
 @server.route('/_delete_results/<project>/<sprint>', methods=['DELETE'])
 def delete_results(project, sprint):
 
@@ -180,6 +184,7 @@ def delete_results(project, sprint):
 
     return '', 200
 
+
 @server.route('/_rename_results/<project>/<results>/<new_results>', methods=['PUT'])
 def rename_results(project, results, new_results):
 
@@ -187,6 +192,7 @@ def rename_results(project, results, new_results):
     db.rename_results(results, new_results)
 
     return '', 200
+
 
 @server.route('/_get_sprint_totals/<project>/<sprint>', methods=['GET'])
 def get_sprint_totals(project, sprint):
@@ -199,6 +205,7 @@ def get_sprint_totals(project, sprint):
     totals['failed'] = len([t for t in test_results if t['result'] != 'passed'])
 
     return json.dumps(totals), 200
+
 
 @server.route('/_get_results_names/<project>', methods=['GET'])
 def get_results_names(project):
@@ -350,6 +357,8 @@ def manual_sprint_suites(m_project, m_sprint, m_component):
     sprints = db.get_manual_sprints()
     m_components = db.get_manual_sprint_component(sprint_name=m_sprint)
     tests_results = db.get_tests_result(sprint_name=m_sprint, component=m_component)
+    for ts in tests_results:
+        ts['has_attributes'] = any(row['attributes'] for row in ts["rows"] if 'attributes' in row)
     if request.method == 'GET':
         return render_template('manual_sprint_suites.html',
                                project=m_project,
@@ -395,6 +404,16 @@ def manual_get_test(m_project):
                              test_id=test_data['test_id']))
 
 
+@server.route('/manual/_get_manual_result/<m_project>', methods=['POST'])
+def manual_get_result(m_project):
+    db = get_manual_db(m_project)
+    if request.method == 'POST':
+        test_data = json.loads(request.get_data())
+        return jsonify(db.fetch_manual_result(component=test_data['component'],
+                                              test_id=test_data['test_id'],
+                                              sprint=test_data['sprint']))
+
+
 @server.route('/manual/_edit_manual_test_result/<m_project>', methods=['POST'])
 def manual_set_test_result(m_project):
     db = get_manual_db(m_project)
@@ -416,6 +435,7 @@ def manual_set_test_result(m_project):
                              error=error,
                              **result_attributes)
         return jsonify({})
+
 
 @server.route('/manual/_sync_sprint/<m_project>/<m_sprint>', methods=['POST'])
 def manual_sync_sprint_data(m_project, m_sprint):

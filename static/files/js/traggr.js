@@ -21,6 +21,7 @@ $(document).ready(function () {
             $(".btnSet").show();
         }
     });
+
     window.eventStopPropagation = function(event){
         event = event || window.event;
         event.preventDefault();
@@ -132,5 +133,35 @@ $(document).ready(function () {
             $("#liAdd").removeClass("active");
         }
     );
+
+    $("#formAddSprint").submit(function (event) {
+            eventStopPropagation(event);
+            var x = document.forms["formAddSprint"].elements;
+            var sprint = x['inputSprint'].value.replace(/\s{2,}/g, ' ').trim().replace(/\s/g, '_');
+            if (confirm("Do You Really Want To Create New Sprint - " + sprint + "?")) {
+                $.ajax({
+                    type: "POST",
+                    url: "/manual/" + pageData.project + "/" + "sprint",
+                    data: JSON.stringify({'sprint_name': sprint}),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json"
+                })
+                    .success(function () {
+                        $("#ModalAddSprint").modal('hide');
+                        window.location.reload()
+                    })
+                    .fail(function (error) {
+                        alert(error.responseText)
+                    });
+            }
+            else {
+                $("#ModalAddSprint").modal('hide');
+            }
+        }
+    );
+
+    $("#btnAddSprintCancel").click(function(){
+        $("#ModalAddSprint").modal('hide');
+    });
 
 });

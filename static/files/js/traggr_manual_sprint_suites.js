@@ -133,12 +133,48 @@ $(document).ready(function () {
             test_id = el.attr('data-test-test_id');
         modal_set_failed.attr('suite', suite);
         modal_set_failed.attr('test_id', test_id);
-        $("#inputSetFailedBug").val('');
-        $("#inputSetFailedReason").val('');
-        modal_set_failed.modal();
+        var test_data = {
+            'component': pageData.component,
+            'sprint': pageData.sprint,
+            'test_id': test_id
+        };
+        $.ajax({
+            type: "POST",
+            url: "/manual/_get_manual_result/" + pageData.project,
+            data: JSON.stringify(test_data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json"
+        })
+            .success(function (data) {
+                if (data['attributes'] != null && data['attributes'] != undefined){
+                    //Support for old test results with empty attributes
+                    if (data['attributes'][0] != null && data['attributes'][0] != undefined) {
+                        $("#inputSetFailedBug").val(data['attributes'][0][1])
+                    }
+                    else{
+                        $("#inputSetFailedBug").val('')
+                    }
+                }
+                else{
+                    $("#inputSetFailedBug").val('')
+                }
+
+                if (data['error'] != null && data['error'] != undefined) {
+                    $("#inputSetFailedReason").val(data['error'])
+                }
+                else{
+                    $("#inputSetFailedReason").val('')
+                }
+
+                modal_set_failed.modal();
+            })
+            .fail(function (error) {
+                alert(error.responseText)
+            });
     });
 
     $('#btnSetFailedCancel').click(function(){
+
         modal_set_failed.modal('hide')
     });
 

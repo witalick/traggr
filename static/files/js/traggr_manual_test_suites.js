@@ -13,13 +13,7 @@ $(document).ready(function () {
     var modal_edit_name = $("#ModalEditName");
 
     $("#liAdd").click(function () {
-        if ($("#liAdd").hasClass("active")) {
-            $("#liAdd").removeClass("active");
-        }
-        else {
-            $("#liAdd").addClass("active");
-            addTestCase(false, pageData.component)
-        }
+        addTestCase(false, pageData.component)
     });
 
     $("#btnConfirmDeletion").on("click", function () {

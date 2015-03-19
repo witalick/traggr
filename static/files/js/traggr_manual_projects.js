@@ -6,14 +6,7 @@ $(document).ready(function () {
     var modal_add_project = $("#ModalAddProject");
 
     $("#liAdd").click(function () {
-        if ($("#liAdd").hasClass("active")) {
-            $("#liAdd").removeClass("active");
-            modal_add_project.hide();
-        }
-        else {
-            $("#liAdd").addClass("active");
-            modal_add_project.modal();
-        }
+        modal_add_project.modal();
     });
 
     $("#formAddProject").submit(function (event) {
