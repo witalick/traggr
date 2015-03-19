@@ -8,47 +8,12 @@ $(document).ready(function () {
     var modal_edit_name = $("#ModalEditName");
 
     $("#liAdd").click(function () {
-        if ($("#liAdd").hasClass("active")) {
-            $("#liAdd").removeClass("active");
-        }
-        else {
-            $("#liAdd").addClass("active");
-            addTestCase();
-        }
+        addTestCase();
     });
 
     $("#liAddSprint").click(function(){
+        $("#inputSprint").val('');
         $("#ModalAddSprint").modal()
-    });
-
-    $("#formAddSprint").submit(function (event) {
-            eventStopPropagation(event);
-            var x = document.forms["formAddSprint"].elements;
-            var sprint = x['inputSprint'].value.replace(/\s{2,}/g, ' ').trim().replace(/\s/g, '_');
-            if (confirm("Do You Really Want To Create New Sprint - " + sprint + "?")) {
-                $.ajax({
-                    type: "POST",
-                    url: "/manual/" + pageData.project + "/" + "sprint",
-                    data: JSON.stringify({'sprint_name': sprint}),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json"
-                })
-                    .success(function () {
-                        $("#ModalAddSprint").modal('hide');
-                        window.location.reload()
-                    })
-                    .fail(function (error) {
-                        alert(error.responseText)
-                    });
-            }
-            else {
-                $("#ModalAddSprint").modal('hide');
-            }
-        }
-    );
-
-    $("#btnAddSprintCancel").click(function(){
-        $("#ModalAddSprint").modal('hide');
     });
 
     $("#btnConfirmDeletion").click(function () {

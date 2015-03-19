@@ -89,6 +89,9 @@
                         <table class="table">
                             <tr>
                                 <th>Test ID</th>
+                                {% if suite['has_attributes'] %}
+                                    <th>Attributes</th>
+                                {% endif %}
                                 <th>Title</th>
                                 <th>Result</th>
 
@@ -107,6 +110,16 @@
                                         <span class="glyphicon glyphicon-remove pull-left"></span>
                                         </button>
                                         {{ result['test_id'] }}</td>
+
+                                    {% if suite['has_attributes'] and result['attributes'] %}
+                                        <td class="col-md-1">
+                                            {% for key, value in result['attributes'] %}
+                                                <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
+                                            {% endfor %}
+                                        </td>
+                                    {% elif suite['has_attributes'] %}
+                                        <td></td>
+                                    {% endif %}
 
                                     <td class="col-md-4" data-toggle="modal" data-target="#Modal{{ suite['name'].replace(' ', '-') }}{{ result['test_id'] }}">{{ result['title'] }}</td>
                                     <td class="col-md-2"

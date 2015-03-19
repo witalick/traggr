@@ -212,6 +212,7 @@ class AggregationDB(MyMongoClient):
                                        'title': "$title",
                                        'component': '$component',
                                        'suite': '$component',
+                                       'attributes': '$attributes',
                                        'expected_results': '$expected_results',
                                        'result': '$result',
                                        'error': '$error'}
@@ -287,26 +288,27 @@ class AggregationDB(MyMongoClient):
     def set_manual_result(self, sprint, component, suite, test_id, result, error=None, **result_attributes):
         assert result in ['passed', 'failed']
         sprint_collection_name = self._cn_results % sprint
-        if result_attributes:
-            result_attributes = {"attributes": map(list, result_attributes.items())}
-        query = {'test_id': test_id, 'suite': suite, 'component': component}
-        result_dict = {'result': result}
-        if not result_attributes:
-            result_attributes['attributes'] = []
-        if not error:
-            error = ""
-        result_dict.update({'error': error})
-        result_dict.update({"attributes": result_attributes['attributes']})
 
-        self._db[sprint_collection_name].update(query,
-                                                {'$set': result_dict}, upsert=True)
+        result_dict = {'result': result}
+        query = {'test_id': test_id, 'suite': suite, 'component': component}
+
+        if result_attributes and result == 'failed':
+            result_dict.update({"attributes": map(list, result_attributes.items())})
+        elif not result_attributes and result == 'failed':
+            result_dict.update({"attributes": []})
+        if error:
+            result_dict.update({'error': error})
+        elif not error and result == 'failed':
+            result_dict.update({'error': ""})
+
+        self._db[sprint_collection_name].update(query, {'$set': result_dict}, upsert=True)
 
     def create_manual_test_case(self, component, suite, **other_attributes):
         test_id = self.get_new_test_id()
         self.upsert_test(component=component,
-                       suite=suite,
-                       test_id=test_id,
-                       **other_attributes)
+                         suite=suite,
+                         test_id=test_id,
+                         **other_attributes)
         return test_id
 
     def edit_manual_test(self, test_id, title, steps, expected_results):
@@ -321,6 +323,15 @@ class AggregationDB(MyMongoClient):
         else:
             test = test[0]
         return test
+
+    def fetch_manual_result(self, component, test_id, sprint):
+        sprint_collection_name = self._cn_results % sprint
+        test_result = list(self._db[sprint_collection_name].find({'test_id': test_id, 'component': component}, {'_id': 0}))
+        if not test_result:
+            test_result = {}
+        else:
+            test_result = test_result[0]
+        return test_result
 
     def rename_manual_suite(self, component, suite, suite_new):
         self._db[self._cn_tests].update({'component': component, 'suite': suite},

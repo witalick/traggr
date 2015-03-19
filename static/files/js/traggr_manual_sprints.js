@@ -6,6 +6,15 @@ $(document).ready(function () {
     var modal_confirm_delete = $("#ModalConfirmDeletion");
     var modal_edit_name = $("#ModalEditName");
 
+    $("#liAdd").click(function () {
+            addTestCase();
+    });
+
+    $("#liAddSprint").click(function(){
+        $("#inputSprint").val('');
+        $("#ModalAddSprint").modal()
+    });
+
     $("#btnConfirmDeletion").click(function () {
         var sprint_name = modal_confirm_delete.attr('sprint_name');
         $("#li" + sprint_name.replace(/\s/g, '-')).remove();
