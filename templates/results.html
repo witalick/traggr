@@ -1,10 +1,56 @@
 {% extends "base.html" %}
-
+{% from "macros.html" import render_test_results %}
 {% block customjs %}
 
 <script type="text/javascript">
 
     $(document).ready(function() {
+
+        var toggleCompareRow = function(tr) {
+            var cb = tr.find('input');
+            if (cb.is(':checked')) {
+                tr.addClass('list-group-item-success');
+            } else {
+                tr.removeClass('list-group-item-success');
+            }
+        };
+
+        var countComparisonRows = function() {
+            var x = $('.cmprow input:checked');
+            if (!x.length) {
+                $('#compareSubmit').attr('disabled', 'disabled');
+                $('#comparisonCounter').hide();
+                $('#comparisonCounter').html('no sprint selected');
+            } else if (x.length == 1) {
+                $('#compareSubmit').attr('disabled', null);
+                $('#comparisonCounter').show();
+                $('#comparisonCounter').html('one sprint selected');
+            } else {
+                $('#compareSubmit').attr('disabled', null);
+                $('#comparisonCounter').show();
+                $('#comparisonCounter').html(x.length.toString()+' sprints selected');
+            }
+        }
+
+        $('.cmprow').each(function(){ toggleCompareRow($(this)); });
+        countComparisonRows();
+
+        $('#cmpSprintsToggle').click(function(){
+           $('#compareSprints').toggle();
+        });
+
+        $('.cmprow').click(function(){
+            var cb = $(this).find('input');
+            cb.trigger('click');
+        });
+
+        $('.cmprow input').click(function(event){
+            event.stopPropagation();
+            var cb = $(this);
+            var tr = cb.closest('a');
+            toggleCompareRow(tr);
+            countComparisonRows();
+        });
 
         $("#spanContextFailed").click(function() {
 
@@ -130,61 +176,33 @@
         </ul>
 
         {% if failed_tests %}
+        <form action="/compare/{{ project }}/{{ sprint }}" method="GET">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Compare Sprints
+                    <button type="button" class="btn btn-info btn-sm" data-toggle="collapse" role="button" data-target="#compareSprints">toggle</button>
+                    <button type="submit" id="compareSubmit" class="btn btn-sm btn-success">Go <i class="glyphicon glyphicon-chevron-right"></i></button>
+                    <span class="badge" id="comparisonCounter"></span>
+                </div>
+                <div class="collapse list-group" id="compareSprints">
+                    {% for s in sprints %}
+                        {% if s != sprint %}
+                            <a class="cmprow list-group-item container">
+                                <span class="col-sm-1"><input type="checkbox" name="sprint" value="{{ s }}"></span>
+                                <span class="col">{{ s }}</span>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+
+
 
         <br>
 
         <div style="display:none" id="failedTestsList">
-            <table class="table">
-
-                <tr>
-                    <th>Component</th>
-                    <th>Suite</th>
-                    <th>Test ID</th>
-                    <th>Attributes</th>
-                    <th>Title</th>
-                    <th>Result</th>
-                </tr>
-
-                {% for result in failed_tests %}
-
-                    <tr class="danger">
-
-                        <td>{{ result.component }}</td>
-                        <td>{{ result.suite }}</td>
-                        <td>{{ result.test_id }}</td>
-
-                        <td>
-                            {% if 'attributes' in result %}
-                                {% for key, value in result.attributes %}
-                                    <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
-                                {% endfor %}
-                            {% endif %}
-                        </td>
-
-                        <td>{{ result.title }}</td>
-                        <td data-toggle="modal" data-target="#ModalError{{ result.component_modified }}{{ result.suite }}{{ result.test_id }}">{{ result.result }}</td>
-
-                    </tr>
-
-                    <div class="modal fade" id="ModalError{{ result.component_modified }}{{ result.suite }}{{ result.test_id }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ result.component_modified }}{{ result.suite }}{{ result.test_id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                    <h4 class="modal-title" id="myModalErrorLabel">Error: {{ result.component }}: {{ result.suite }}: {{ result.test_id }}</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <pre>
-{{ result.error }}
-                                    </pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                {% endfor %}
-
-            </table>
+            {{ render_test_results(failed_tests) }}
         </div>
 
         {% endif %}

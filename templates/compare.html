@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import render_test_results %}
+{% block menu %}
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ project }} <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for p in projects%}
+
+                <li><a href="/{{ p }}">{{ p }}</a></li>
+
+                {% endfor %}
+
+            </ul>
+        </li>
+
+        <li class="dropdown">
+
+            {% if sprints %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    {{ sprint }} <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    {% for s in sprints%}
+                    <li><a href="/{{ project }}/{{ s }}">{{ s }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                <a href="/{{ project }}/{{ sprint }}">{{ sprint }} </a>
+            {% endif %}
+
+        </li>
+
+{% endblock %}
+
+
+{% block body %}
+    {% if compared_sprints|length == 1 %}
+        <h2>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a>
+            with
+            <a href="/{{ project }}/{{ compared_sprints[0] }}">{{ compared_sprints[0] }}</a>
+        </h2>
+    {% else %}
+    <h2>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a> with
+            {% for s in compared_sprints %}
+                <a href="/{{ project }}/{{ s }}">{{ s }}</a>{% if loop.index < compared_sprints|length %},{% endif %}
+            {% endfor %}
+    </h2>
+    {% endif %}
+    {% if common_results %}
+        <div class="panel panel-default">
+        <div class="panel-heading"><h4>{{ common_results }} failures common to these sprints
+            <button class="btn btn-info btn-sm" data-toggle="collapse" data-target="#commonFailures" role="button" type="button">toggle</button>
+        </h4></div>
+        <div class="panel-body collapse" id="commonFailures">
+            {{ render_test_results(grouped_common_results) }}
+        </div>
+        </div>
+    {% else %}
+        <div class="well well-lg">There are no results common to these sprints.</div>
+    {% endif %}
+    {% if not comparison_length %}
+        <div class="well well-lg">There are no failures unique to sprints being compared.</div>
+    {% else %}
+        {% for spr in comparison %}
+            <div class="panel panel-default">
+                <div class="panel-heading"><h4>
+                    {{ comparison_sizes[spr] }} Failures unique to <a href="/{{ project }}/{{ spr }}">{{ spr }}</a>
+                    <button class="btn btn-info btn-sm" data-toggle="collapse" data-target="#uniques_{{ loop.index }}" role="button" type="button">toggle</button>
+                </h4></div>
+                <div class="panel-body collapse in" id="uniques_{{ loop.index }}">
+                    {{ render_test_results(comparison[spr]) }}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% macro testresult(result) %}
+    <a class="list-group-item
+        {% if result.result in ('failed', 'error') %}
+            list-group-item-danger
+        {% elif result.result == 'success' %}
+            list-group-item-success
+        {% endif %}
+    " data-toggle="modal" data-target="#ModalError{{ result.sprint_normalized }}{{ result.component_normalized }}{{ result.suite }}{{ result.test_id }}">
+            <h4 class="list-group-item-heading">
+                <small><span class="label
+                    {% if result.result in ('failed', 'error') %}
+                    label-danger
+                    {% elif result.result == 'success' %}
+                    label-success
+                    {% else %}
+                    label-default
+                    {% endif %}">{{ result.result }}</span></small>
+                {{ result.test_id }}
+            </h4>
+            <p class="list-group-item-text">{{ result.title }}</p>
+            {% if result.attributes %}
+                <p class="list-group-item-text text-right">
+                {% for key, value in result.attributes %}
+                    <small><span class="label label-default">{{ key }}: {{ value }}</span></small>
+                {% endfor %}
+                </p>
+            {% endif %}
+    </a>
+
+    <div class="modal fade" id="ModalError{{ result.sprint_normalized }}{{ result.component_normalized }}{{ result.suite }}{{ result.test_id }}" tabindex="-1" role="dialog" aria-labelledby="ModalLabelModalError{{ result.component_modified }}{{ result.suite }}{{ result.test_id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalErrorLabel">Error: {{ result.component }}: {{ result.suite }}: {{ result.test_id }}</h4>
+                </div>
+                <div class="modal-body">
+                    <pre>
+{{ result.error }}
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}
+
+{% macro render_test_results(results) %}
+    {% for component in results|sort %}
+        <h3 class="head-component">{{ component }}</h3>
+        {% for suite in results[component]|sort %}
+            <div class="panel panel-default">
+            <div class="panel-heading"><h4>{{ suite }}</h4></div>
+            <div class="list-group">
+            {% for result in results[component][suite] %}
+                {{ testresult(result) }}
+            {% endfor %}
+            </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endmacro %}
