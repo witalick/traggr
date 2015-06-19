@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, jsonify
 
 from db import AggregationDB, MyMongoClient
 from config import config
+from model import TestResult, regroup_results, compare_sprints, common_results
 
 
 server = Flask(__name__)
@@ -34,6 +35,14 @@ def get_manual_db(project=None):
     return MyMongoClient(hostname=server.config['db_hostname'],
                          port=server.config['db_port'])
 
+def group_results(tests):
+    result = {}
+    grouped = regroup_results(tests, 'component', 'suite')
+    for keytuple, resultset in grouped:
+        if result.get(keytuple[0]) is None:
+            result[keytuple[0]] = {}
+        result[keytuple[0]][keytuple[1]] = list(resultset)
+    return result
 
 @server.route('/')
 def root():
@@ -42,6 +51,45 @@ def root():
     latest_sprints = dict((project, db.get_latest_sprint_name(project)) for project in projects)
     return render_template('base.html', projects=projects, latest_sprints=latest_sprints)
 
+
+@server.route('/compare/<project>/<sprint>')
+def compare_sprints_action(project, sprint):
+    db = get_db(project)
+
+    projects = db.get_project_names()
+    if project not in projects:
+        return 'I don\'t have results for this project... Sorry... :/', 404
+
+    sprints = db.get_sprint_names()
+    if sprint not in sprints:
+        return 'I don\'t have results for this sprint... Sorry... :/', 404
+    sprints.remove(sprint)
+
+    mysprints = request.args.getlist('sprint')
+    common = common_results(db, sprint,
+                            *mysprints, result={ '$in': ('failed', 'error') })
+    grouped_common_results = group_results(common)
+    common_size = len(common)
+    comparison = compare_sprints(db, sprint, *mysprints, result={ '$in': ('failed', 'error') })
+    comparison_length = sum([len(x) for x in comparison.itervalues()])
+    comparison_sizes = {}
+    for s in comparison.iterkeys():
+        comparison_sizes[s] = len(comparison[s])
+        comparison[s] = group_results(comparison[s])
+
+    return render_template(
+        'compare.html',
+        project=project,
+        projects=projects,
+        sprints=sprints,
+        sprint=sprint,
+        compared_sprints=mysprints,
+        comparison_length=comparison_length,
+        comparison_sizes=comparison_sizes,
+        common_results=common_size,
+        grouped_common_results=grouped_common_results,
+        comparison=comparison
+    )
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
@@ -77,10 +125,10 @@ def results(project, sprint):
     totals['failed'] = len([t for t in test_results if t['result'] != 'passed'])
 
     # Failed tests.
-    failed_tests = [tr for tr in test_results if tr['result'] != 'passed']
-    regex = re.compile('[\'\"\(\)\[\]\.,\+\s\*@#\$%\^&\?]')
-    for failed_test in failed_tests:
-        failed_test['component_modified'] = re.sub(regex, '-', failed_test['component'])
+    failed_tests = [TestResult(**tr) for tr in test_results if tr['result'] != 'passed']
+
+    grouped_failed_tests = group_results(failed_tests)
+
     return render_template('results.html',
                            components=components_data,
                            totals=totals,
@@ -88,7 +136,7 @@ def results(project, sprint):
                            projects=projects,
                            sprint=sprint,
                            sprints=sprints,
-                           failed_tests=failed_tests)
+                           failed_tests=grouped_failed_tests)
 
 
 @server.route('/<project>/<sprint>/<component>')
