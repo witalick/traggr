@@ -111,14 +111,31 @@ def sidebyside_sprints_action(project, sprint):
     comparison_length = sum([len(x) for x in comparison.itervalues()])
     comparison_sizes = {}
     suites = set()
-    for s in comparison.iterkeys():
+    component_classes = {}
+    components_by_suites = {}
+    components = {}
+    sprint_ctr = 0
+    component_ctr = 0
+    for s in comparison.iterkeys(): # s = sprint
         comparison_sizes[s] = len(comparison[s])
         grouped = regroup_results(comparison[s], 'suite')
         groupedres = {}
-        for k, v in grouped:
+        for k, v in grouped: # k = (suite)
             groupedres[k[0]] = list(v)
             suites.add(k[0])
+            # Build CSS classes for (sprint, component)
+            for i in groupedres[k[0]]:
+                if component_classes.get(i.sprint) is None: component_classes[i.sprint] = {}
+                curr_component = components.get(i.component)
+                if curr_component is None:
+                    component_ctr += 1
+                    components[i.component] = component_ctr
+                    curr_component = component_ctr
+                component_classes[s][i.component] = 's_{0}_c_{1}'.format(sprint_ctr, curr_component)
+                if components_by_suites.get(i.suite) is None: components_by_suites[i.suite] = {}
+                components_by_suites[i.suite][i.sprint] = 's_{0}_c_{1}'.format(sprint_ctr, curr_component)
         comparison[s] = groupedres
+        sprint_ctr += 1
 
     return render_template(
         'sidebyside.html',
@@ -131,7 +148,10 @@ def sidebyside_sprints_action(project, sprint):
         comparison_length=comparison_length,
         comparison_sizes=comparison_sizes,
         common_results=common_size,
-        comparison=comparison
+        comparison=comparison,
+        component_classes=component_classes,
+        components_by_suites=components_by_suites,
+        component_classes_json=json.dumps(component_classes)
     )
 
 @server.route('/<project>/<sprint>')
