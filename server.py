@@ -27,7 +27,6 @@ def get_db(project=None):
 
 
 def get_manual_db(project=None):
-
     if project:
         return AggregationDB(hostname=server.config['db_hostname'],
                              port=server.config['db_port'],
@@ -88,6 +87,50 @@ def compare_sprints_action(project, sprint):
         comparison_sizes=comparison_sizes,
         common_results=common_size,
         grouped_common_results=grouped_common_results,
+        comparison=comparison
+    )
+
+@server.route('/side-by-side/<project>/<sprint>')
+def sidebyside_sprints_action(project, sprint):
+    db = get_db(project)
+
+    projects = db.get_project_names()
+    if project not in projects:
+        return 'I don\'t have results for this project... Sorry... :/', 404
+
+    sprints = db.get_sprint_names()
+    if sprint not in sprints:
+        return 'I don\'t have results for this sprint... Sorry... :/', 404
+    sprints.remove(sprint)
+
+    mysprints = request.args.getlist('sprint')
+    mysprints.append(sprint)
+    common = common_results(db, *mysprints, result={'$in': ('failed', 'error')})
+    common_size = len(common)
+    comparison = compare_sprints(db, *mysprints, result={'$in': ('failed', 'error') })
+    comparison_length = sum([len(x) for x in comparison.itervalues()])
+    comparison_sizes = {}
+    suites = set()
+    for s in comparison.iterkeys():
+        comparison_sizes[s] = len(comparison[s])
+        grouped = regroup_results(comparison[s], 'suite')
+        groupedres = {}
+        for k, v in grouped:
+            groupedres[k[0]] = list(v)
+            suites.add(k[0])
+        comparison[s] = groupedres
+
+    return render_template(
+        'sidebyside.html',
+        project=project,
+        projects=projects,
+        sprints=sprints,
+        sprint=sprint,
+        suites=list(suites),
+        compared_sprints=mysprints,
+        comparison_length=comparison_length,
+        comparison_sizes=comparison_sizes,
+        common_results=common_size,
         comparison=comparison
     )
 
