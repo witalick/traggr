@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import render_test_results, render_grouped_test_results %}
+{% block menu %}
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                {{ project }} <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu">
+
+                {% for p in projects%}
+
+                <li><a href="/{{ p }}">{{ p }}</a></li>
+
+                {% endfor %}
+
+            </ul>
+        </li>
+
+        <li class="dropdown">
+
+            {% if sprints %}
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    {{ sprint }} <b class="caret"></b>
+                </a>
+
+                <ul class="dropdown-menu">
+
+                    {% for s in sprints%}
+                    <li><a href="/{{ project }}/{{ s }}">{{ s }}</a></li>
+                    {% endfor %}
+
+                </ul>
+            {% else %}
+                <a href="/{{ project }}/{{ sprint }}">{{ sprint }} </a>
+            {% endif %}
+
+        </li>
+
+{% endblock %}
+
+
+{% block body %}
+
+    {# Heading #}
+    <h4>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a> with
+            {% for s in compared_sprints %}
+                {% if s != sprint %}<a href="/{{ project }}/{{ s }}">{{ s }}</a>{% if loop.index < (compared_sprints|length - 1) %},{% endif %}{% endif %}
+            {% endfor %}
+    </h4>
+
+    {# Component selector #}
+    <div class="panel panel-default">
+        <div class="panel-heading">Select Components
+            <button
+                    type="button"
+                    class="btn btn-info btn-sm" data-toggle="collapse"
+                    data-target="#componentSelector">toggle</button></div>
+        <table class="table collapse in" id="componentSelector">
+            <thead>
+                <tr>
+                    {% for s in compared_sprints %}
+                        <th>{{ s }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for s in compared_sprints %}
+                        <td>
+                            <div class="list-group" data-sprint="{{ s }}">
+                                {% for c, cl in component_classes[s].iteritems() %}
+                                    <a class="list-group-item component-selector-item"
+                                       data-cls="{{ cl }}">{{ c }}</a>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {# Actual testsuites #}
+    {% for suite in suites|sort %}
+        <div class="panel panel-default panel-comparison-testsuite
+        {% for s in compared_sprints %}
+            {% if components_by_suites[suite][s] %}
+                {{ components_by_suites[suite][s] }}
+            {% endif %}
+        {% endfor %}" data-suite="{{ suite }}">
+            <div class="panel-heading">
+                {{ suite }}
+                {% for s in compared_sprints %}
+                    <span class="label {% if comparison[s][suite]|length %}label-danger{% else %}label-default{% endif %}">{{
+                        comparison[s][suite]|length|int
+                    }}</span>&nbsp;
+                {% endfor %}
+            </div>
+            <div class="panel-body" style="overflow: scroll">
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                        {% for s in compared_sprints %}
+                            <th style="min-width: 380px; max-width: 380px;">{{ s }}</th>
+                        {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for s in compared_sprints %}
+                                <td style="min-width: 380px; max-width: 380px;">
+                                {% if comparison[s][suite] %}
+                                    {{ render_test_results(comparison[s][suite]) }}
+                                {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+{% block customjs %}
+    <script type="text/javascript">
+        var component_classes = {{ component_classes_json|safe }};
+        var selectedClasses = {};
+
+        var refresh_components = function() {
+            $('.panel-comparison-testsuite').hide();
+            var components = [];
+            for (var i in selectedClasses) {
+                components.push('.'+i);
+            }
+            if (components.length == 0) {
+                return;
+            }
+            var selector = components.join(',');
+            window.location = '#'+selector;
+            $(selector).show();
+        };
+
+        var select_cmp_selector = function(elem) {
+            var already_selected = !elem.hasClass('list-group-item-success');
+            elem.closest('.list-group').find('a.list-group-item-success').each(function(){
+                var el = $(this);
+                var cls = el.attr('data-cls');
+                el.removeClass('list-group-item-success');
+                delete selectedClasses[cls];
+            });
+            if (already_selected) {
+                elem.addClass('list-group-item-success');
+                selectedClasses[elem.attr('data-cls')] = true;
+            }
+            refresh_components();
+        };
+
+        $(document).ready(function(){
+            var s = window.location.hash.replace(/^#/, '');
+            console.log(s);
+            $(s).show();
+            var selectors = s.split(',');
+            for (var i in selectors) {
+                var curated = selectors[i].replace(/^\./, '');
+                $("a[data-cls='"+curated+"']").addClass('list-group-item-success');
+            }
+        });
+
+        $('a.component-selector-item').click(function(){
+            select_cmp_selector($(this));
+        });
+    </script>
+{% endblock %}
+

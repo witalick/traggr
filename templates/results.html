@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import render_test_results %}
+{% from "macros.html" import render_grouped_test_results %}
 {% block customjs %}
 
 <script type="text/javascript">
@@ -176,7 +176,7 @@
         </ul>
 
         {% if failed_tests %}
-        <form action="/compare/{{ project }}/{{ sprint }}" method="GET">
+        <form action="/side-by-side/{{ project }}/{{ sprint }}" method="GET">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     Compare Sprints
@@ -202,7 +202,7 @@
         <br>
 
         <div style="display:none" id="failedTestsList">
-            {{ render_test_results(failed_tests) }}
+            {{ render_grouped_test_results(failed_tests, False, "") }}
         </div>
 
         {% endif %}
