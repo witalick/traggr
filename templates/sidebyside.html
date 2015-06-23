@@ -84,6 +84,7 @@
 
     {# Actual testsuites #}
     {% for suite in suites|sort %}
+        {% if lengths_by_suite[suite] %}
         <div class="panel panel-default panel-comparison-testsuite
         {% for s in compared_sprints %}
             {% if components_by_suites[suite][s] %}
@@ -103,7 +104,7 @@
                     <thead>
                         <tr>
                         {% for s in compared_sprints %}
-                            <th style="min-width: 380px; max-width: 380px;">{{ s }}</th>
+                            <th style="min-width: 380px; max-width: 380px;" {% if not component_names_by_suites[suite][s] %}class="no-tests-were-run"{% endif %}>{{ s }}  <span class="label label-default">{{ component_names_by_suites[suite][s] }}</span></th>
                         {% endfor %}
                         </tr>
                     </thead>
@@ -121,6 +122,7 @@
                 </table>
             </div>
         </div>
+        {% endif %}
     {% endfor %}
 
 {% endblock %}
@@ -137,6 +139,7 @@
                 components.push('.'+i);
             }
             if (components.length == 0) {
+                window.location.hash = '';
                 return;
             }
             var selector = components.join(',');
@@ -145,14 +148,11 @@
         };
 
         var select_cmp_selector = function(elem) {
-            var already_selected = !elem.hasClass('list-group-item-success');
-            elem.closest('.list-group').find('a.list-group-item-success').each(function(){
-                var el = $(this);
-                var cls = el.attr('data-cls');
-                el.removeClass('list-group-item-success');
-                delete selectedClasses[cls];
-            });
+            var already_selected = elem.hasClass('list-group-item-success');
             if (already_selected) {
+                elem.removeClass('list-group-item-success');
+                delete selectedClasses[elem.attr('data-cls')];
+            } else {
                 elem.addClass('list-group-item-success');
                 selectedClasses[elem.attr('data-cls')] = true;
             }
@@ -161,11 +161,11 @@
 
         $(document).ready(function(){
             var s = window.location.hash.replace(/^#/, '');
-            console.log(s);
             $(s).show();
             var selectors = s.split(',');
             for (var i in selectors) {
                 var curated = selectors[i].replace(/^\./, '');
+                selectedClasses[curated] = true;
                 $("a[data-cls='"+curated+"']").addClass('list-group-item-success');
             }
         });

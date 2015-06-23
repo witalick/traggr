@@ -36,3 +36,7 @@
 .panel-comparison-testsuite {
     display: none;
 }
+
+th.no-tests-were-run {
+    color: #aaa;
+}
