@@ -67,7 +67,7 @@ def compare_sprints(db, *sprints, **query):
         A helper function that hydrates database results into a collection of
         objects
         """
-        return {TestResult(sprint=sprint, **rec) for rec in db.get_test_results(sprint, **query)}
+        return set([TestResult(sprint=sprint, **rec) for rec in db.get_test_results(sprint, **query)])
 
     ressets = {}
     result = {}
@@ -82,8 +82,8 @@ def compare_sprints(db, *sprints, **query):
         # from elsewhere.
         #
         othersprints = [x for x in sprints if x != sprint]
-        others = {x for key in othersprints for x in ressets[key]}
-        result[sprint] = {x for x in ressets[sprint] if x not in others}
+        others = set([x for key in othersprints for x in ressets[key]])
+        result[sprint] = set([x for x in ressets[sprint] if x not in others])
     return result
 
 def common_results(db, *sprints, **query):
@@ -96,7 +96,7 @@ def common_results(db, *sprints, **query):
         objects
         """
         result = db.get_test_results(sprint, **query)
-        return {TestResult(sprint=sprint, **rec) for rec in result}
+        return set([TestResult(sprint=sprint, **rec) for rec in result])
 
     ressets = {}
     for sprint in sprints:
@@ -104,7 +104,7 @@ def common_results(db, *sprints, **query):
 
     sprint = sprints[0]
     othersprints = sprints[1:]
-    others = {x for key in othersprints for x in ressets[key]}
+    others = set([x for key in othersprints for x in ressets[key]])
     result = others.intersection(ressets[sprint])
 
     return result
