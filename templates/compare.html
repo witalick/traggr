@@ -43,10 +43,10 @@
 
 {% block body %}
     {% if compared_sprints|length == 1 %}
-        <h2>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a>
+        <h4>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a>
             with
             <a href="/{{ project }}/{{ compared_sprints[0] }}">{{ compared_sprints[0] }}</a>
-        </h2>
+        </h4>
     {% else %}
     <h2>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a> with
             {% for s in compared_sprints %}

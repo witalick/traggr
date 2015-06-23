@@ -44,11 +44,11 @@
 {% block body %}
 
     {# Heading #}
-    <h2>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a> with
+    <h4>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a> with
             {% for s in compared_sprints %}
                 {% if s != sprint %}<a href="/{{ project }}/{{ s }}">{{ s }}</a>{% if loop.index < (compared_sprints|length - 1) %},{% endif %}{% endif %}
             {% endfor %}
-    </h2>
+    </h4>
 
     {# Component selector #}
     <div class="panel panel-default">
