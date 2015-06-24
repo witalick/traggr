@@ -2,7 +2,7 @@
     <a class="list-group-item
         {% if result.result in ('failed', 'error') %}
             list-group-item-danger
-        {% elif result.result == 'success' %}
+        {% elif result.result == 'passed' %}
             list-group-item-success
         {% endif %}
     " data-toggle="modal" data-target="#ModalError{{ result.sprint_normalized }}{{ result.component_normalized }}{{ result.suite }}{{ result.test_id }}">
@@ -10,7 +10,7 @@
                 <span class="label
                     {% if result.result in ('failed', 'error') %}
                     label-danger
-                    {% elif result.result == 'success' %}
+                    {% elif result.result == 'passed' %}
                     label-success
                     {% else %}
                     label-default

@@ -105,17 +105,19 @@ def sidebyside_sprints_action(project, sprint):
 
     mysprints = request.args.getlist('sprint')
     mysprints.append(sprint)
-    common = common_results(db, *mysprints, result={'$in': ('failed', 'error')})
+    common = common_results(db, *mysprints)
     common_size = len(common)
-    comparison = compare_sprints(db, *mysprints, result={'$in': ('failed', 'error') })
+    comparison = compare_sprints(db, *mysprints)
     comparison_length = sum([len(x) for x in comparison.itervalues()])
     comparison_sizes = {}
     suites = set()
     component_classes = {}
     components_by_suites = {}
+    component_names_by_suites = {}
     components = {}
     sprint_ctr = 0
     component_ctr = 0
+    lengths_by_suite = {}
     for s in comparison.iterkeys(): # s = sprint
         comparison_sizes[s] = len(comparison[s])
         grouped = regroup_results(comparison[s], 'suite')
@@ -125,15 +127,22 @@ def sidebyside_sprints_action(project, sprint):
             suites.add(k[0])
             # Build CSS classes for (sprint, component)
             for i in groupedres[k[0]]:
-                if component_classes.get(i.sprint) is None: component_classes[i.sprint] = {}
-                curr_component = components.get(i.component)
-                if curr_component is None:
+                component_classes.setdefault(i.sprint, {})
+                curr_component = components.setdefault(i.component, 0)
+                if curr_component == 0:
                     component_ctr += 1
                     components[i.component] = component_ctr
                     curr_component = component_ctr
                 component_classes[s][i.component] = 's_{0}_c_{1}'.format(sprint_ctr, curr_component)
-                if components_by_suites.get(i.suite) is None: components_by_suites[i.suite] = {}
+                components_by_suites.setdefault(i.suite, {})
                 components_by_suites[i.suite][i.sprint] = 's_{0}_c_{1}'.format(sprint_ctr, curr_component)
+                component_names_by_suites.setdefault(i.suite, {})
+                component_names_by_suites[i.suite][i.sprint] = i.component
+                if i.result in ('failed', 'error'):
+                    lengths_by_suite.setdefault(i.suite, 0)
+                    lengths_by_suite[i.suite] += 1
+            groupedres[k[0]] = [x for x in groupedres[k[0]] if x.result in ('failed', 'error')]
+
         comparison[s] = groupedres
         sprint_ctr += 1
 
@@ -151,6 +160,8 @@ def sidebyside_sprints_action(project, sprint):
         comparison=comparison,
         component_classes=component_classes,
         components_by_suites=components_by_suites,
+        component_names_by_suites=component_names_by_suites,
+        lengths_by_suite=lengths_by_suite,
         component_classes_json=json.dumps(component_classes)
     )
 
