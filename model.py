@@ -3,6 +3,7 @@ __author__ = 'yfedevych'
 from itertools import groupby
 import re
 
+
 class TestResult(object):
 
     __slots__ = (
@@ -16,10 +17,11 @@ class TestResult(object):
         'error',
         'sprint',
         'attributes',
-        'component_modified'
+        'component_modified',
+        'unique'
     )
 
-    _normalize_regex = re.compile('[\'\"\(\)\[\]\.,\+\s\*@#\$%\^&\?]')
+    _normalize_regex = re.compile('[\'\"\(\)\[\]\.,\+\s\*@#\$%\^&\?=]')
 
     @property
     def component_normalized(self):
@@ -36,16 +38,37 @@ class TestResult(object):
     def __init__(self, **kwargs):
         for x in self.__slots__:
             setattr(self, x, kwargs.get(x, None))
+        self.unique = False
+
+    def __str__(self):
+        return "<TestResult(%s, %s, %s.%s) = %s>" % (
+            self.sprint,
+            self.component,
+            self.suite,
+            self.test_id,
+            self.result
+        )
+
+    def __repr__(self):
+        return "<TestResult(%s, %s, %s.%s) = %s>" % (
+            self.sprint,
+            self.component,
+            self.suite,
+            self.test_id,
+            self.result
+        )
 
     def __hash__(self):
-        return hash(tuple([
-            self.result,
+        return hash("{0}.{1}.{2}={3}".format(
+            self.component,
+            self.suite,
             self.test_id,
-            self.suite
-        ]))
+            self.result
+        ))
 
     def __eq__(self, other):
         return (
+            self.component == other.component and
             self.result == other.result and
             self.test_id == other.test_id and
             self.suite == other.suite
@@ -57,6 +80,7 @@ class TestResult(object):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
+
 def compare_sprints(db, *sprints, **query):
     """
     Returns a dictionary containing items unique to each sprint
@@ -67,7 +91,10 @@ def compare_sprints(db, *sprints, **query):
         A helper function that hydrates database results into a collection of
         objects
         """
-        return set([TestResult(sprint=sprint, **rec) for rec in db.get_test_results(sprint, **query)])
+        return set([
+            TestResult(sprint=sprint, **rec)
+            for rec in db.get_test_results(sprint, **query)
+        ])
 
     ressets = {}
     result = {}
@@ -83,8 +110,13 @@ def compare_sprints(db, *sprints, **query):
         #
         othersprints = [x for x in sprints if x != sprint]
         others = set([x for key in othersprints for x in ressets[key]])
-        result[sprint] = set([x for x in ressets[sprint] if x not in others])
+        [setattr(x, 'unique', True)
+            for x in ressets[sprint]
+            if x not in others]
+        result[sprint] = ressets[sprint]
+
     return result
+
 
 def common_results(db, *sprints, **query):
     """
@@ -96,7 +128,7 @@ def common_results(db, *sprints, **query):
         objects
         """
         result = db.get_test_results(sprint, **query)
-        return set([TestResult(sprint=sprint, **rec) for rec in result])
+        return list([TestResult(sprint=sprint, **rec) for rec in result])
 
     ressets = {}
     for sprint in sprints:
@@ -108,7 +140,6 @@ def common_results(db, *sprints, **query):
     result = others.intersection(ressets[sprint])
 
     return result
-
 
 
 def regroup_results(results, *keys):

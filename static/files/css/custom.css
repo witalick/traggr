@@ -34,9 +34,23 @@
 }
 
 .panel-comparison-testsuite {
+     display: none; 
+}
+
+.counter-results-unique {
     display: none;
 }
 
 th.no-tests-were-run {
     color: #aaa;
+}
+
+table.results-comparison td,
+table.results-comparison th
+{
+    width: 48%;
+}
+
+.results-comparison-panel {
+    overflow-x: scroll;
 }

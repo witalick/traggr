@@ -1,41 +1,46 @@
 {% extends 'base.html' %}
 {% from 'macros.html' import render_test_results, render_grouped_test_results %}
+
+{% macro component_badges(results) %}
+    {% set badges = {} %}
+    {% for r in results %}
+        {% set dummy = badges.setdefault(r.component, 1) %}
+    {% endfor %}
+    {% for k in badges.keys()|sort %}
+        <span class="label label-default">{{ k }}</span>
+    {% endfor %}
+{% endmacro %}
+
 {% block menu %}
 
         <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 {{ project }} <b class="caret"></b>
             </a>
-
             <ul class="dropdown-menu">
-
                 {% for p in projects%}
-
-                <li><a href="/{{ p }}">{{ p }}</a></li>
-
+                    <li><a href="/{{ p }}">{{ p }}</a></li>
                 {% endfor %}
-
             </ul>
         </li>
 
         <li class="dropdown">
-
             {% if sprints %}
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                     {{ sprint }} <b class="caret"></b>
                 </a>
-
                 <ul class="dropdown-menu">
-
                     {% for s in sprints%}
                     <li><a href="/{{ project }}/{{ s }}">{{ s }}</a></li>
                     {% endfor %}
-
                 </ul>
             {% else %}
                 <a href="/{{ project }}/{{ sprint }}">{{ sprint }} </a>
             {% endif %}
+        </li>
 
+        <li>
+            <a id="toggleUniques" data-value="unique" href="javascript:void(0)">Uniquel Results</a>
         </li>
 
 {% endblock %}
@@ -70,9 +75,14 @@
                     {% for s in compared_sprints %}
                         <td>
                             <div class="list-group" data-sprint="{{ s }}">
-                                {% for c, cl in component_classes[s].iteritems() %}
+                                {% for c in component_stats[s].keys()|sort() %}
+                                    {% if component_stats[s][c] %}
                                     <a class="list-group-item component-selector-item"
-                                       data-cls="{{ cl }}">{{ c }}</a>
+                                       data-cls="{{ components_css[(s,c)] }}">
+                                        <span class="label label-danger">{{ component_stats[s][c] }}</span>
+                                        {{ c }}
+                                    </a>
+                                    {% endif %}
                                 {% endfor %}
                             </div>
                         </td>
@@ -83,68 +93,127 @@
     </div>
 
     {# Actual testsuites #}
-    {% for suite in suites|sort %}
-        {% if lengths_by_suite[suite] %}
-        <div class="panel panel-default panel-comparison-testsuite
-        {% for s in compared_sprints %}
-            {% if components_by_suites[suite][s] %}
-                {{ components_by_suites[suite][s] }}
-            {% endif %}
-        {% endfor %}" data-suite="{{ suite }}">
-            <div class="panel-heading">
-                {{ suite }}
+    <div class="panel panel-default results-comparison-panel">
+    <table class="table results-comparison">
+        <thead>
+            <tr>
                 {% for s in compared_sprints %}
-                    <span class="label {% if comparison[s][suite]|length %}label-danger{% else %}label-default{% endif %}">{{
-                        comparison[s][suite]|length|int
-                    }}</span>&nbsp;
+                <th>{{ s }}</th>
                 {% endfor %}
-            </div>
-            <div class="panel-body" style="overflow: scroll">
-                <table class="table table-responsive">
-                    <thead>
-                        <tr>
-                        {% for s in compared_sprints %}
-                            <th style="min-width: 380px; max-width: 380px;" {% if not component_names_by_suites[suite][s] %}class="no-tests-were-run"{% endif %}>{{ s }}  <span class="label label-default">{{ component_names_by_suites[suite][s] }}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% for s in compared_sprints %}
+                <td data-sprint="{{ s }}">
+                    {% for component in comparison[s].keys()|sort %}
+                    <div data-component="{{ component }}" class="panel panel-default panel-comparison-testsuite {{ components_css[(s, component)] }}">
+                        <div class="panel-heading">
+                            {{ component }}
+                        </div>
+                        <div class="panel-body">
+                        {% for suite, results in comparison[s][component].iteritems() %}
+                        <div class="comparison-testsuite" data-suite="{{ suite }}">
+                            <h5>{{ suite }}</h5>
+                            <ul class="list-group">
+                                {{ render_test_results(results) }}
+                            </ul>
+                        </div>
                         {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            {% for s in compared_sprints %}
-                                <td style="min-width: 380px; max-width: 380px;">
-                                {% if comparison[s][suite] %}
-                                    {{ render_test_results(comparison[s][suite]) }}
-                                {% endif %}
-                                </td>
-                            {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endif %}
-    {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+    </div>
+
 
 {% endblock %}
 
 {% block customjs %}
     <script type="text/javascript">
-        var component_classes = {{ component_classes_json|safe }};
         var selectedClasses = {};
+        var update_testsuites = function() {
+            $('.comparison-testsuite').each(function(){
+                if ($(this).find('.shown').length == 0) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            });
+        }
 
-        var refresh_components = function() {
-            $('.panel-comparison-testsuite').hide();
+        var update_unique = function() {
+            var elem = $('#toggleUniques');
+            if (elem.attr('data-value') == 'unique') {
+                elem.html('Unique Results');
+                $('.test-result').hide();
+                $('.test-result').removeClass('shown');
+                $('.test-result.unique').show();
+                $('.test-result.unique').addClass('shown');
+                $('.counter-results-unique').show();
+                $('.counter-results-all').hide();
+            } else {
+                elem.html('All Results'); 
+                $('.test-result').show();
+                $('.test-result').addClass('shown');
+                $('.counter-results-unique').hide();
+                $('.counter-results-all').show();
+            }
+            update_testsuites();
+            update_location_hash();
+        };
+
+
+        $('#toggleUniques').click(function(){
+            var elem = $(this);
+            if (elem.attr('data-value') == 'all') {
+                elem.attr('data-value', 'unique');
+            } else {
+                elem.attr('data-value', 'all');
+            }
+            update_unique();
+        });
+
+        var update_location_hash = function() {
+            var hashpieces = {
+                'components': '',
+                'show': ''
+            };
             var components = [];
             for (var i in selectedClasses) {
                 components.push('.'+i);
             }
-            if (components.length == 0) {
-                window.location.hash = '';
-                return;
+            if (components.length > 0) {
+                hashpieces['components'] = components.join(',');
             }
-            var selector = components.join(',');
-            window.location = '#'+selector;
-            $(selector).show();
+            hashpieces['show'] = $('#toggleUniques').attr('data-value');
+    
+            var s = "";
+            for (var i in hashpieces) {
+                if (!hashpieces[i]) {
+                    continue;
+                }
+                var elem = i + "=" + hashpieces[i];
+                s += elem + ';';
+            }
+    
+            console.log(s);
+            window.location = '#'+s;
+        };
+
+        var refresh_components = function() {
+            $('.panel-comparison-testsuite').hide();
+            for (var i in selectedClasses) {
+                var selector = '.' + i;
+                $(selector).show();
+                $(selector).addClass('shown');
+            }
+            update_testsuites();
+            update_location_hash();
         };
 
         var select_cmp_selector = function(elem) {
@@ -160,14 +229,31 @@
         };
 
         $(document).ready(function(){
-            var s = window.location.hash.replace(/^#/, '');
-            $(s).show();
-            var selectors = s.split(',');
-            for (var i in selectors) {
-                var curated = selectors[i].replace(/^\./, '');
-                selectedClasses[curated] = true;
-                $("a[data-cls='"+curated+"']").addClass('list-group-item-success');
+            var hsh = window.location.hash.replace(/^#/, '');
+            if (!hsh) {
+                refresh_components();
+                update_unique();
+                return;
             }
+            var elems = hsh.split(';');
+            for (var i in elems) {
+                var piece = elems[i];
+                var tuple = piece.split('=');
+                if (tuple[0] == 'components') {
+                    var s = tuple[1];
+                    $(s).show();
+                    var selectors = s.split(',');
+                    for (var i in selectors) {
+                        var curated = selectors[i].replace(/^\./, '');
+                        selectedClasses[curated] = true;
+                        $("a[data-cls='"+curated+"']").addClass('list-group-item-success');
+                    }
+                } else if (tuple[0] == 'show') {
+                    $('#toggleUniques').attr('data-value', tuple[1]);
+                }
+            }
+            refresh_components();
+            update_unique();
         });
 
         $('a.component-selector-item').click(function(){
