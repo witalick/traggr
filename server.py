@@ -72,6 +72,7 @@ def compare_sprints_action(project, sprint):
     comparison = compare_sprints(db, sprint, *mysprints, result={ '$in': ('failed', 'error') })
     comparison_length = sum([len(x) for x in comparison.itervalues()])
     comparison_sizes = {}
+
     for s in comparison.iterkeys():
         comparison_sizes[s] = len(comparison[s])
         comparison[s] = group_results(comparison[s])
@@ -90,8 +91,10 @@ def compare_sprints_action(project, sprint):
         comparison=comparison
     )
 
+
 @server.route('/side-by-side/<project>/<sprint>')
 def sidebyside_sprints_action(project, sprint):
+
     db = get_db(project)
 
     projects = db.get_project_names()
@@ -104,46 +107,37 @@ def sidebyside_sprints_action(project, sprint):
     sprints.remove(sprint)
 
     mysprints = request.args.getlist('sprint')
-    mysprints.append(sprint)
-    common = common_results(db, *mysprints)
-    common_size = len(common)
+    mysprints.insert(0, sprint)
+
     comparison = compare_sprints(db, *mysprints)
-    comparison_length = sum([len(x) for x in comparison.itervalues()])
-    comparison_sizes = {}
-    suites = set()
-    component_classes = {}
-    components_by_suites = {}
-    component_names_by_suites = {}
-    components = {}
+
+    ultimate = {}
+
+    components_css = {}
+    components_enum = {}
     sprint_ctr = 0
     component_ctr = 0
-    lengths_by_suite = {}
-    for s in comparison.iterkeys(): # s = sprint
-        comparison_sizes[s] = len(comparison[s])
-        grouped = regroup_results(comparison[s], 'suite')
-        groupedres = {}
-        for k, v in grouped: # k = (suite)
-            groupedres[k[0]] = list(v)
-            suites.add(k[0])
-            # Build CSS classes for (sprint, component)
-            for i in groupedres[k[0]]:
-                component_classes.setdefault(i.sprint, {})
-                curr_component = components.setdefault(i.component, 0)
-                if curr_component == 0:
-                    component_ctr += 1
-                    components[i.component] = component_ctr
-                    curr_component = component_ctr
-                component_classes[s][i.component] = 's_{0}_c_{1}'.format(sprint_ctr, curr_component)
-                components_by_suites.setdefault(i.suite, {})
-                components_by_suites[i.suite][i.sprint] = 's_{0}_c_{1}'.format(sprint_ctr, curr_component)
-                component_names_by_suites.setdefault(i.suite, {})
-                component_names_by_suites[i.suite][i.sprint] = i.component
-                if i.result in ('failed', 'error'):
-                    lengths_by_suite.setdefault(i.suite, 0)
-                    lengths_by_suite[i.suite] += 1
-            groupedres[k[0]] = [x for x in groupedres[k[0]] if x.result in ('failed', 'error')]
 
-        comparison[s] = groupedres
+    component_stats = {}
+
+    for spr, results in comparison.iteritems():
+        ultimate.setdefault(spr, {})
+        component_stats.setdefault(spr, {})
+        for r in [x for x in results if x.result != 'passed']:
+            component_num = components_enum.setdefault(
+                r.component, component_ctr
+            )
+            if component_num == component_ctr:
+                component_ctr += 1
+            components_css[(spr, r.component)] = 's{0}c{1}'.format(
+                sprint_ctr, component_num
+            )
+
+            ultimate[spr].setdefault(r.component, {})
+            ultimate[spr][r.component].setdefault(r.suite, [])
+            ultimate[spr][r.component][r.suite].append(r)
+            component_stats[spr].setdefault(r.component, 0)
+            component_stats[spr][r.component] += 1
         sprint_ctr += 1
 
     return render_template(
@@ -151,19 +145,13 @@ def sidebyside_sprints_action(project, sprint):
         project=project,
         projects=projects,
         sprints=sprints,
-        sprint=sprint,
-        suites=list(suites),
         compared_sprints=mysprints,
-        comparison_length=comparison_length,
-        comparison_sizes=comparison_sizes,
-        common_results=common_size,
-        comparison=comparison,
-        component_classes=component_classes,
-        components_by_suites=components_by_suites,
-        component_names_by_suites=component_names_by_suites,
-        lengths_by_suite=lengths_by_suite,
-        component_classes_json=json.dumps(component_classes)
+        sprint=sprint,
+        comparison=ultimate,
+        components_css=components_css,
+        component_stats=component_stats
     )
+
 
 @server.route('/<project>/<sprint>')
 def results(project, sprint):
