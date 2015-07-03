@@ -9,7 +9,7 @@ from flask import Flask, render_template, request, jsonify
 
 from db import AggregationDB, MyMongoClient
 from config import config
-from model import TestResult, regroup_results, compare_sprints, common_results
+from model import TestResult, TestResultsComparison, regroup_results
 
 
 server = Flask(__name__)
@@ -51,49 +51,8 @@ def root():
     return render_template('base.html', projects=projects, latest_sprints=latest_sprints)
 
 
-@server.route('/compare/<project>/<sprint>')
-def compare_sprints_action(project, sprint):
-    db = get_db(project)
-
-    projects = db.get_project_names()
-    if project not in projects:
-        return 'I don\'t have results for this project... Sorry... :/', 404
-
-    sprints = db.get_sprint_names()
-    if sprint not in sprints:
-        return 'I don\'t have results for this sprint... Sorry... :/', 404
-    sprints.remove(sprint)
-
-    mysprints = request.args.getlist('sprint')
-    common = common_results(db, sprint,
-                            *mysprints, result={ '$in': ('failed', 'error') })
-    grouped_common_results = group_results(common)
-    common_size = len(common)
-    comparison = compare_sprints(db, sprint, *mysprints, result={ '$in': ('failed', 'error') })
-    comparison_length = sum([len(x) for x in comparison.itervalues()])
-    comparison_sizes = {}
-
-    for s in comparison.iterkeys():
-        comparison_sizes[s] = len(comparison[s])
-        comparison[s] = group_results(comparison[s])
-
-    return render_template(
-        'compare.html',
-        project=project,
-        projects=projects,
-        sprints=sprints,
-        sprint=sprint,
-        compared_sprints=mysprints,
-        comparison_length=comparison_length,
-        comparison_sizes=comparison_sizes,
-        common_results=common_size,
-        grouped_common_results=grouped_common_results,
-        comparison=comparison
-    )
-
-
-@server.route('/side-by-side/<project>/<sprint>')
-def sidebyside_sprints_action(project, sprint):
+@server.route('/side-by-side/<project>/<sprint>/<other_sprint>')
+def sidebyside_sprints_action(project, sprint, other_sprint):
 
     db = get_db(project)
 
@@ -103,53 +62,25 @@ def sidebyside_sprints_action(project, sprint):
 
     sprints = db.get_sprint_names()
     if sprint not in sprints:
-        return 'I don\'t have results for this sprint... Sorry... :/', 404
+        return 'I don\'t have results for sprint {0}... Sorry... :/'.format(sprint), 404
+    if other_sprint not in sprints:
+        return 'I don\'t have results for sprint {0}... Sorry... :/'.format(other_sprint), 404
+
     sprints.remove(sprint)
 
-    mysprints = request.args.getlist('sprint')
-    mysprints.insert(0, sprint)
+    left = [TestResult(sprint=sprint, **x) for x in db.get_test_results(sprint, result={ '$in': ('failed', 'error') })]
+    right = [TestResult(sprint=other_sprint, **x) for x in db.get_test_results(other_sprint, result={ '$in': ('failed', 'error') })]
 
-    comparison = compare_sprints(db, *mysprints)
-
-    ultimate = {}
-
-    components_css = {}
-    components_enum = {}
-    sprint_ctr = 0
-    component_ctr = 0
-
-    component_stats = {}
-
-    for spr, results in comparison.iteritems():
-        ultimate.setdefault(spr, {})
-        component_stats.setdefault(spr, {})
-        for r in [x for x in results if x.result != 'passed']:
-            component_num = components_enum.setdefault(
-                r.component, component_ctr
-            )
-            if component_num == component_ctr:
-                component_ctr += 1
-            components_css[(spr, r.component)] = 's{0}c{1}'.format(
-                sprint_ctr, component_num
-            )
-
-            ultimate[spr].setdefault(r.component, {})
-            ultimate[spr][r.component].setdefault(r.suite, [])
-            ultimate[spr][r.component][r.suite].append(r)
-            component_stats[spr].setdefault(r.component, 0)
-            component_stats[spr][r.component] += 1
-        sprint_ctr += 1
+    comparison = TestResultsComparison(left, right)
 
     return render_template(
         'sidebyside.html',
         project=project,
         projects=projects,
-        sprints=sprints,
-        compared_sprints=mysprints,
+        other_sprint=other_sprint,
         sprint=sprint,
-        comparison=ultimate,
-        components_css=components_css,
-        component_stats=component_stats
+        sprints=sprints,
+        comparison=comparison
     )
 
 

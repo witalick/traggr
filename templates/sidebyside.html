@@ -1,15 +1,7 @@
 {% extends 'base.html' %}
-{% from 'macros.html' import render_test_results, render_grouped_test_results %}
+{% from 'macros.html' import testresult %}
 
-{% macro component_badges(results) %}
-    {% set badges = {} %}
-    {% for r in results %}
-        {% set dummy = badges.setdefault(r.component, 1) %}
-    {% endfor %}
-    {% for k in badges.keys()|sort %}
-        <span class="label label-default">{{ k }}</span>
-    {% endfor %}
-{% endmacro %}
+{% macro css_component(comparison, sprint, component) %}s{{ sprint }}c{{ comparison.components[component] }}{% endmacro %}
 
 {% block menu %}
 
@@ -24,241 +16,146 @@
             </ul>
         </li>
 
+        {% for rl in ('left', 'right') %}
+        {% set idx = loop.index %}
         <li class="dropdown">
-            {% if sprints %}
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    {{ sprint }} <b class="caret"></b>
-                </a>
-                <ul class="dropdown-menu">
-                    {% for s in sprints%}
-                    <li><a href="/{{ project }}/{{ s }}">{{ s }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <a href="/{{ project }}/{{ sprint }}">{{ sprint }} </a>
-            {% endif %}
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <span>Select a component</span> <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                {% for p in comparison.used_components(idx - 1) %}
+                    <li><a class="component-selector {{ css_component(comparison, idx - 1, p) }}" data-sprint="{{ rl }}" data-cls="{{ css_component(comparison, idx - 1, p) }}" href="">{{ p }}</a></li>
+                {% endfor %}
+            </ul>
         </li>
-
-        <li>
-            <a id="toggleUniques" data-value="unique" href="javascript:void(0)">Uniquel Results</a>
-        </li>
-
+        {% endfor %}
 {% endblock %}
 
 
 {% block body %}
 
     {# Heading #}
-    <h4>Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a> with
-            {% for s in compared_sprints %}
-                {% if s != sprint %}<a href="/{{ project }}/{{ s }}">{{ s }}</a>{% if loop.index < (compared_sprints|length - 1) %},{% endif %}{% endif %}
-            {% endfor %}
+    <h4>
+        <a class="btn btn-default" href="/{{ project }}/{{ sprint }}"><i class="glyphicon glyphicon-arrow-left"></i> Back</a>
+        Comparing <a href="/{{ project }}/{{ sprint }}">{{ sprint }}</a> with <a href="/{{ project }}/{{ other_sprint }}">{{ other_sprint }}</a>
     </h4>
 
-    {# Component selector #}
-    <div class="panel panel-default">
-        <div class="panel-heading">Select Components
-            <button
-                    type="button"
-                    class="btn btn-info btn-sm" data-toggle="collapse"
-                    data-target="#componentSelector">toggle</button></div>
-        <table class="table collapse in" id="componentSelector">
-            <thead>
-                <tr>
-                    {% for s in compared_sprints %}
-                        <th>{{ s }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    {% for s in compared_sprints %}
-                        <td>
-                            <div class="list-group" data-sprint="{{ s }}">
-                                {% for c in component_stats[s].keys()|sort() %}
-                                    {% if component_stats[s][c] %}
-                                    <a class="list-group-item component-selector-item"
-                                       data-cls="{{ components_css[(s,c)] }}">
-                                        <span class="label label-danger">{{ component_stats[s][c] }}</span>
-                                        {{ c }}
-                                    </a>
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        </td>
-                    {% endfor %}
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
     {# Actual testsuites #}
-    <div class="panel panel-default results-comparison-panel">
     <table class="table results-comparison">
         <thead>
             <tr>
-                {% for s in compared_sprints %}
-                <th>{{ s }}</th>
-                {% endfor %}
+                <th>
+                    <span class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            {{ sprint }} <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for s in sprints|sort %}
+                            {% if s != sprint %}
+                                <li><a href="/side-by-side/{{ project }}/{{ s }}/{{ other_sprint }}">{{ s }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </span>
+                </th>
+                <th>
+                    <span class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            {{ other_sprint }} <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for s in sprints|sort %}
+                            {% if s != other_sprint %}
+                                <li><a href="/side-by-side/{{ project }}/{{ sprint }}/{{ s }}">{{ s }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </span>                    
+                </th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                {% for s in compared_sprints %}
-                <td data-sprint="{{ s }}">
-                    {% for component in comparison[s].keys()|sort %}
-                    <div data-component="{{ component }}" class="panel panel-default panel-comparison-testsuite {{ components_css[(s, component)] }}">
-                        <div class="panel-heading">
-                            {{ component }}
-                        </div>
-                        <div class="panel-body">
-                        {% for suite, results in comparison[s][component].iteritems() %}
-                        <div class="comparison-testsuite" data-suite="{{ suite }}">
-                            <h5>{{ suite }}</h5>
-                            <ul class="list-group">
-                                {{ render_test_results(results) }}
-                            </ul>
-                        </div>
-                        {% endfor %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                </td>
-                {% endfor %}
+            {% for suite, left, right in comparison %}{% if left|length + right|length > 0 %}
+            <tr class="suite-header" data-suite="{{ suite }}">
+                <th colspan="2">{{ suite }}</th>
             </tr>
+            <tr class="suite-body" data-suite="{{ suite }}">
+                <td class="list-group left-sprint">{% for result in left|sort(attribute='test_id') %}{{ testresult(result, 'has-component '~css_component(comparison, 0, result.component)) }}{% endfor %}</td>
+                <td class="list-group right-sprint">{% for result in right|sort(attribute='test_id') %}{{ testresult(result, 'has-component '~css_component(comparison, 1, result.component)) }}{% endfor %}</td>
+            </tr>
+            {% endif %}{% endfor %}
         </tbody>
     </table>
-    </div>
 
 
 {% endblock %}
 
 {% block customjs %}
     <script type="text/javascript">
-        var selectedClasses = {};
-        var update_testsuites = function() {
-            $('.comparison-testsuite').each(function(){
-                if ($(this).find('.shown').length == 0) {
-                    $(this).hide();
+    $(document).ready(function(){
+        var window_parameters = {
+        };
+        $('.component-selector').click(function(e){
+            e.preventDefault();
+            var ul = $(this).closest('ul');
+            var li = $(this).closest('li');
+            var a = ul.closest('li').find('.dropdown-toggle span');
+            a.html($(this).html());
+            var cls = $(this).attr('data-cls');
+            window_parameters[$(this).attr('data-sprint')] = cls;
+            select_components(window_parameters['left'], window_parameters['right']);
+            hide_invisible();
+            refresh_history();
+        });
+        function select_components(left, right) {
+            var selector = 'table.results-comparison a.'+left+', table.results-comparison a.'+right;
+            console.log(selector);
+            $('.has-component').removeClass('visible');
+            $(selector).addClass('visible');
+        }
+        function hide_invisible() {
+            $('tr.suite-body').each(function(){
+                var coll = $(this).find('a.test-result.visible');
+                var s = $(this).attr('data-suite');
+                if (!coll.length) {
+                    $('tr[data-suite="'+s+'"]').hide();
                 } else {
-                    $(this).show();
+                    $('tr[data-suite="'+s+'"]').show();
                 }
+                $(this).find('a').hide();
+                $(this).find('a.test-result.visible').show();
             });
         }
-
-        var update_unique = function() {
-            var elem = $('#toggleUniques');
-            if (elem.attr('data-value') == 'unique') {
-                elem.html('Unique Results');
-                $('.test-result').hide();
-                $('.test-result').removeClass('shown');
-                $('.test-result.unique').show();
-                $('.test-result.unique').addClass('shown');
-                $('.counter-results-unique').show();
-                $('.counter-results-all').hide();
-            } else {
-                elem.html('All Results'); 
-                $('.test-result').show();
-                $('.test-result').addClass('shown');
-                $('.counter-results-unique').hide();
-                $('.counter-results-all').show();
-            }
-            update_testsuites();
-            update_location_hash();
-        };
-
-
-        $('#toggleUniques').click(function(){
-            var elem = $(this);
-            if (elem.attr('data-value') == 'all') {
-                elem.attr('data-value', 'unique');
-            } else {
-                elem.attr('data-value', 'all');
-            }
-            update_unique();
-        });
-
-        var update_location_hash = function() {
-            var hashpieces = {
-                'components': '',
-                'show': ''
-            };
-            var components = [];
-            for (var i in selectedClasses) {
-                components.push('.'+i);
-            }
-            if (components.length > 0) {
-                hashpieces['components'] = components.join(',');
-            }
-            hashpieces['show'] = $('#toggleUniques').attr('data-value');
-    
-            var s = "";
-            for (var i in hashpieces) {
-                if (!hashpieces[i]) {
-                    continue;
-                }
-                var elem = i + "=" + hashpieces[i];
-                s += elem + ';';
-            }
-    
-            console.log(s);
-            window.location = '#'+s;
-        };
-
-        var refresh_components = function() {
-            $('.panel-comparison-testsuite').hide();
-            for (var i in selectedClasses) {
-                var selector = '.' + i;
-                $(selector).show();
-                $(selector).addClass('shown');
-            }
-            update_testsuites();
-            update_location_hash();
-        };
-
-        var select_cmp_selector = function(elem) {
-            var already_selected = elem.hasClass('list-group-item-success');
-            if (already_selected) {
-                elem.removeClass('list-group-item-success');
-                delete selectedClasses[elem.attr('data-cls')];
-            } else {
-                elem.addClass('list-group-item-success');
-                selectedClasses[elem.attr('data-cls')] = true;
-            }
-            refresh_components();
-        };
-
-        $(document).ready(function(){
-            var hsh = window.location.hash.replace(/^#/, '');
+        function process_history() {
+            var hsh = window.location.hash;
             if (!hsh) {
-                refresh_components();
-                update_unique();
                 return;
             }
-            var elems = hsh.split(';');
-            for (var i in elems) {
-                var piece = elems[i];
-                var tuple = piece.split('=');
-                if (tuple[0] == 'components') {
-                    var s = tuple[1];
-                    $(s).show();
-                    var selectors = s.split(',');
-                    for (var i in selectors) {
-                        var curated = selectors[i].replace(/^\./, '');
-                        selectedClasses[curated] = true;
-                        $("a[data-cls='"+curated+"']").addClass('list-group-item-success');
-                    }
-                } else if (tuple[0] == 'show') {
-                    $('#toggleUniques').attr('data-value', tuple[1]);
-                }
+            hsh = hsh.replace(/^#/, '');
+            var components = hsh.split(';');
+            for (var i in components) {
+                var current_component = components[i];
+                var elements = current_component.split('=');
+                window_parameters[elements[0]] = elements[1] || true;
             }
-            refresh_components();
-            update_unique();
-        });
-
-        $('a.component-selector-item').click(function(){
-            select_cmp_selector($(this));
-        });
+        }
+        function refresh_history() {
+            var buffer = [];
+            for (var i in window_parameters) {
+                buffer.push(i+'='+window_parameters[i]);
+            }
+            window.location.hash = '#'+buffer.join(';');
+        }
+        function window_make_visible() {
+            if(window_parameters['left'] && window_parameters['right']) {
+                $('.component-selector.'+window_parameters['left']).trigger('click');
+                $('.component-selector.'+window_parameters['right']).trigger('click');
+            }
+        }
+        process_history();
+        window_make_visible();
+        hide_invisible();
+    });
     </script>
 {% endblock %}
 

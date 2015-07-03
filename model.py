@@ -2,7 +2,7 @@ __author__ = 'yfedevych'
 
 from itertools import groupby
 import re
-
+import copy
 
 class TestResult(object):
 
@@ -59,8 +59,7 @@ class TestResult(object):
         )
 
     def __hash__(self):
-        return hash("{0}.{1}.{2}={3}".format(
-            self.component,
+        return hash("{0}.{1} = {2}".format(
             self.suite,
             self.test_id,
             self.result
@@ -68,54 +67,78 @@ class TestResult(object):
 
     def __eq__(self, other):
         return (
-            self.component == other.component and
             self.result == other.result and
-            self.test_id == other.test_id and
-            self.suite == other.suite
+            self.suite == other.suite and
+            self.test_id == other.test_id
         )
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise IndexError(item)
 
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
 
-def compare_sprints(db, *sprints, **query):
-    """
-    Returns a dictionary containing items unique to each sprint
-    result, keyed by sprint.
-    """
-    def _get_results(db, sprint, **query):
-        """
-        A helper function that hydrates database results into a collection of
-        objects
-        """
-        return set([
-            TestResult(sprint=sprint, **rec)
-            for rec in db.get_test_results(sprint, **query)
-        ])
+class TestResultsComparison(object):
 
-    ressets = {}
-    result = {}
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+        self._iter = None
+        lsuites = set([x.suite for x in self.left])
+        rsuites = set([x.suite for x in self.right])
+        self.suites = sorted(list(lsuites.union(rsuites)))
+        self.left_by_suite = {}
+        self.right_by_suite = {}
+        self.all_left_by_suite = {}
+        self.all_right_by_suite = {}
+        self.components = {}
 
-    for sprint in sprints:
-        ressets[sprint] = _get_results(db, sprint, **query)
+        self.unique_left = []
+        self.unique_right = []
 
-    for sprint in sprints:
-        #
-        # strip the result sets to only elements that are not
-        # present elsewhere. others is a set containing results
-        # from elsewhere.
-        #
-        othersprints = [x for x in sprints if x != sprint]
-        others = set([x for key in othersprints for x in ressets[key]])
-        [setattr(x, 'unique', True)
-            for x in ressets[sprint]
-            if x not in others]
-        result[sprint] = ressets[sprint]
+        component_counter = 0
 
-    return result
+        for result in self.left + self.right:
+            x = self.components.setdefault(result.component, component_counter)
+            if x == component_counter:
+                component_counter += 1
+
+        for suite in self.suites:
+            onleft = set([x for x in self.left if x.suite == suite])
+            onright = set([x for x in self.right if x.suite == suite])
+            self.left_by_suite[suite] = list(onleft.difference(onright))
+            self.right_by_suite[suite] = list(onright.difference(onleft))
+            self.all_left_by_suite[suite] = list(onleft)
+            self.all_right_by_suite[suite] = list(onright)
+            self.unique_left += self.left_by_suite[suite]
+            self.unique_right += self.right_by_suite[suite]
+
+    def suite_components(self, suite):
+        l = set([x.component for x in self.all_left_by_suite[suite]])
+        r = set([x.component for x in self.all_right_by_suite[suite]])
+        return list(l), list(r)
+
+    def used_components(self, sprint):
+        current = self.unique_left
+        if sprint != 0:
+            current = self.unique_right
+        return sorted(list(set([x.component for x in current])))
+
+    def __iter__(self):
+        for suite in self.suites:
+            yield suite, self.left_by_suite[suite], self.right_by_suite[suite]
+
+    def next(self):
+        if self._iter is None:
+            self._iter = iter(self)
+        return next(self._iter)
+
+    def reset(self):
+        self._iter = None
 
 
 def common_results(db, *sprints, **query):

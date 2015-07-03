@@ -176,26 +176,22 @@
         </ul>
 
         {% if failed_tests %}
-        <form action="/side-by-side/{{ project }}/{{ sprint }}" method="GET">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    Compare Sprints
-                    <button type="button" class="btn btn-info btn-sm" data-toggle="collapse" role="button" data-target="#compareSprints">toggle</button>
-                    <button type="submit" id="compareSubmit" class="btn btn-sm btn-success">Go <i class="glyphicon glyphicon-chevron-right"></i></button>
-                    <span class="badge" id="comparisonCounter"></span>
-                </div>
-                <div class="collapse list-group" id="compareSprints">
-                    {% for s in sprints %}
-                        {% if s != sprint %}
-                            <a class="cmprow list-group-item container">
-                                <span class="col-sm-1"><input type="checkbox" name="sprint" value="{{ s }}"></span>
-                                <span class="col">{{ s }}</span>
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Compare Sprints
+                <button type="button" class="btn btn-info btn-sm" data-toggle="collapse" role="button" data-target="#compareSprints">toggle</button>
+                <span class="badge" id="comparisonCounter"></span>
             </div>
-        </form>
+            <div class="collapse list-group" id="compareSprints">
+                {% for s in sprints %}
+                    {% if s != sprint %}
+                        <a class="cmprow list-group-item container" href="/side-by-side/{{ project }}/{{ sprint }}/{{ s }}">
+                            {{ s }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
 
 
 
