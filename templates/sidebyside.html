@@ -75,7 +75,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for suite, left, right in comparison %}{% if left|length + right|length > 0 %}
+            {% for suite, left, right in comparison.iter_all() %}{% if left|length + right|length > 0 %}
             <tr class="suite-header" data-suite="{{ suite }}">
                 <th colspan="2">{{ suite }}</th>
             </tr>

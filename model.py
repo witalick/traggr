@@ -110,10 +110,14 @@ class TestResultsComparison(object):
         for suite in self.suites:
             onleft = set([x for x in self.left if x.suite == suite])
             onright = set([x for x in self.right if x.suite == suite])
-            self.left_by_suite[suite] = list(onleft.difference(onright))
-            self.right_by_suite[suite] = list(onright.difference(onleft))
+            uniqleft = onleft.difference(onright)
+            uniqright = onright.difference(onleft)
+            self.left_by_suite[suite] = list(uniqleft)
+            self.right_by_suite[suite] = list(uniqright)
             self.all_left_by_suite[suite] = list(onleft)
             self.all_right_by_suite[suite] = list(onright)
+            [setattr(x, 'unique', True) for x in self.all_left_by_suite[suite] if x in uniqleft]
+            [setattr(x, 'unique', True) for x in self.all_right_by_suite[suite] if x in uniqright]
             self.unique_left += self.left_by_suite[suite]
             self.unique_right += self.right_by_suite[suite]
 
@@ -139,6 +143,11 @@ class TestResultsComparison(object):
 
     def reset(self):
         self._iter = None
+
+    def iter_all(self):
+        for suite in self.suites:
+            yield suite, self.all_left_by_suite[suite], self.all_right_by_suite[suite]
+
 
 
 def common_results(db, *sprints, **query):

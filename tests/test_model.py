@@ -195,3 +195,39 @@ class TestTraggrModel(TestCase):
         self.assertEqual(len(left), 0)
         self.assertEqual(len(right), 1)
 
+    def test_comparison_all_iteration(self):
+        m1 = model.TestResultsComparison([
+            model.TestResult(sprint='s01', component='s01c01', suite='FirstSuite', test_id='test_01', result='failed'),
+            model.TestResult(sprint='s01', component='s01c01', suite='FirstSuite', test_id='test_02', result='error'),
+            model.TestResult(sprint='s01', component='s01c01', suite='SecondSuite', test_id='test_01', result='failed'),
+            model.TestResult(sprint='s02', component='s01c01', suite='FourthSuite', test_id='test_01', result='passed'),
+        ], [
+            model.TestResult(sprint='s02', component='s02c01', suite='FirstSuite', test_id='test_01', result='failed'),
+            model.TestResult(sprint='s02', component='s02c01', suite='FirstSuite', test_id='test_02', result='error'),
+            model.TestResult(sprint='s02', component='s02c01', suite='SecondSuite', test_id='test_01', result='failed'),
+            model.TestResult(sprint='s02', component='s02c01', suite='SecondSuite', test_id='test_02', result='passed'),
+            model.TestResult(sprint='s02', component='s02c01', suite='ThirdSuite', test_id='test_01', result='passed'),
+        ])
+        iterator = m1.iter_all()
+        suite, left, right = next(iterator)
+        self.assertEqual(suite, 'FirstSuite')
+        self.assertEqual(len(left), 2)
+        self.assertEqual(len(right), 2)
+        self.assertEqual(len([x for x in left if x.unique]), 0)
+        self.assertEqual(len([x for x in right if x.unique]), 0)
+        suite, left, right = next(iterator)
+        self.assertEqual(suite, 'FourthSuite')
+        self.assertEqual(len(left), 1)
+        self.assertEqual(len(right), 0)
+        self.assertEqual(len([x for x in left if x.unique]), 1)
+        suite, left, right = next(iterator)
+        self.assertEqual(suite, 'SecondSuite')
+        self.assertEqual(len([x for x in left if x.unique]), 0)
+        self.assertEqual(len([x for x in right if x.unique]), 1)
+        self.assertEqual(len(left), 1)
+        self.assertEqual(len(right), 2)
+        suite, left, right = next(iterator)
+        self.assertEqual(suite, 'ThirdSuite')
+        self.assertEqual(len(left), 0)
+        self.assertEqual(len(right), 1)
+        self.assertEqual(len([x for x in right if x.unique]), 1)
