@@ -11,12 +11,12 @@
 
 {% macro testresult(result, classes=None) %}
 {% filter trim %}
-    <a class="list-group-item test-result {{ _itemclass(result) }}{% if classes %} {{ classes }}{% endif %}{% if result.unique%} unique{% endif %}"
+    <a class="list-group-item test-result {{ _itemclass(result) }}{% if classes %} {{ classes }}{% endif %} {% if result.unique%}unique{% else %}non-unique{% endif %}"
        data-toggle="modal" data-target="#ModalError{{ result.sprint_normalized }}{{ result.component_normalized }}{{ result.suite }}{{ result.test_id }}">
             <h5 class="list-group-item-heading">
                 <span class="label {{ _labelclass(result) }}">{{ result.result }}</span>
                 {% if result.unique %}
-                    <span class="label {{ _labelclass(result) }}">&#x2022;</span>
+                    <span class="label {{ _labelclass(result) }}"><i class="glyphicon glyphicon-star"></i></span>
                 {% endif %}
                 {{ result.test_id }}
             </h5>

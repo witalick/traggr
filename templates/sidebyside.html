@@ -29,6 +29,11 @@
             </ul>
         </li>
         {% endfor %}
+        <li><p class="navbar-btn" >
+            <a class="btn btn-default" id="unique-switcher" data-value="all"><i class="glyphicon glyphicon-star-empty"></i> <span>All Results</span></a>
+            </p>
+        </li>
+
 {% endblock %}
 
 
@@ -95,6 +100,15 @@
     $(document).ready(function(){
         var window_parameters = {
         };
+        function update_unique_button() {
+            var el = $('#unique-switcher');
+            if (window_parameters['show'] == 'unique') {
+                el.attr('data-value', 'unique');
+                el.find('i.glyphicon').removeClass('glyphicon-star-empty').addClass('glyphicon-star');
+                el.find('span').html('Unique Results');
+                hide_invisible();
+            }
+        }
         $('.component-selector').click(function(e){
             e.preventDefault();
             var ul = $(this).closest('ul');
@@ -109,15 +123,35 @@
         });
         function select_components(left, right) {
             var selector = 'table.results-comparison a.'+left+', table.results-comparison a.'+right;
-            console.log(selector);
+            if (window_parameters['show'] == 'unique') {
+                selector = 'table.results-comparison a.unique.'+left+', table.results-comparison a.unique.'+right;
+            }
             $('.has-component').removeClass('visible');
             $(selector).addClass('visible');
         }
+        $('#unique-switcher').click(function(){
+            var el = $(this);
+            if (el.attr('data-value') == 'all') {
+                el.attr('data-value', 'unique');
+                window_parameters['show'] = 'unique';
+                el.find('span').html('Unique Results');
+                el.find('i.glyphicon').addClass('glyphicon-star').removeClass('glyphicon-star-empty');
+            } else {
+                el.attr('data-value', 'all');
+                el.find('i.glyphicon').addClass('glyphicon-star-empty').removeClass('glyphicon-star');
+                el.find('span').html('All Results');
+                window_parameters['show'] = 'all';
+            }
+            select_components(window_parameters['left'], window_parameters['right']);
+            hide_invisible();
+            refresh_history();
+        });
         function hide_invisible() {
             $('tr.suite-body').each(function(){
                 var coll = $(this).find('a.test-result.visible');
+                var collen = coll.length;
                 var s = $(this).attr('data-suite');
-                if (!coll.length) {
+                if (!collen) {
                     $('tr[data-suite="'+s+'"]').hide();
                 } else {
                     $('tr[data-suite="'+s+'"]').show();
@@ -138,6 +172,7 @@
                 var elements = current_component.split('=');
                 window_parameters[elements[0]] = elements[1] || true;
             }
+            update_unique_button();
         }
         function refresh_history() {
             var buffer = [];
