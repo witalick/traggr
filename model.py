@@ -41,7 +41,8 @@ class TestResult(object):
         self.unique = False
 
     def __str__(self):
-        return "<TestResult(%s, %s, %s.%s) = %s>" % (
+        return "<%sTestResult(%s, %s, %s.%s) = %s>" % (
+            '*' if self.unique else '',
             self.sprint,
             self.component,
             self.suite,
@@ -50,7 +51,8 @@ class TestResult(object):
         )
 
     def __repr__(self):
-        return "<TestResult(%s, %s, %s.%s) = %s>" % (
+        return "<%sTestResult(%s, %s, %s.%s) = %s>" % (
+            '*' if self.unique else '',
             self.sprint,
             self.component,
             self.suite,
@@ -90,6 +92,10 @@ class TestResultsComparison(object):
         self._iter = None
         lsuites = set([x.suite for x in self.left])
         rsuites = set([x.suite for x in self.right])
+        self.l_components = [
+            sorted(list(set([x.component for x in self.left]))),
+            sorted(list(set([x.component for x in self.right]))),
+        ]
         self.suites = sorted(list(lsuites.union(rsuites)))
         self.left_by_suite = {}
         self.right_by_suite = {}
@@ -116,8 +122,8 @@ class TestResultsComparison(object):
             self.right_by_suite[suite] = list(uniqright)
             self.all_left_by_suite[suite] = list(onleft)
             self.all_right_by_suite[suite] = list(onright)
-            [setattr(x, 'unique', True) for x in self.all_left_by_suite[suite] if x in uniqleft]
-            [setattr(x, 'unique', True) for x in self.all_right_by_suite[suite] if x in uniqright]
+            [setattr(x, 'unique', True) for x in self.all_left_by_suite[suite] if x not in onright]
+            [setattr(x, 'unique', True) for x in self.all_right_by_suite[suite] if x not in onleft]
             self.unique_left += self.left_by_suite[suite]
             self.unique_right += self.right_by_suite[suite]
 
@@ -127,10 +133,7 @@ class TestResultsComparison(object):
         return list(l), list(r)
 
     def used_components(self, sprint):
-        current = self.unique_left
-        if sprint != 0:
-            current = self.unique_right
-        return sorted(list(set([x.component for x in current])))
+        return copy.copy(self.l_components[sprint])
 
     def __iter__(self):
         for suite in self.suites:

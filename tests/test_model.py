@@ -231,3 +231,24 @@ class TestTraggrModel(TestCase):
         self.assertEqual(len(left), 0)
         self.assertEqual(len(right), 1)
         self.assertEqual(len([x for x in right if x.unique]), 1)
+
+    def test_uniqueness(self):
+        m1 = model.TestResultsComparison([
+            model.TestResult(sprint='qa18-EDGEPRISM_4_2_7_0_011-Jul-05-1107', component='Component Load Tests', suite='TestSuiteStress404BackupHost', test_id='test_case_stress_rewrite_404_backup_tcphost_general_with_back_references_combined', result='failed'),
+        ], [
+            model.TestResult(sprint='qa18-EDGEPRISM_4_2_7_0_011-Jul-05-0407', component='Component Load Tests', suite='TestSuiteStress404BackupHost', test_id='test_case_stress_rewrite_404_backup_tcphost_general_with_back_references_combined', result='failed'),
+        ])
+        self.assertEqual(len(m1.all_left_by_suite['TestSuiteStress404BackupHost']), 1)
+        self.assertEqual(len(m1.all_right_by_suite['TestSuiteStress404BackupHost']), 1)
+        [self.assertFalse(x.unique) for x in m1.all_left_by_suite['TestSuiteStress404BackupHost']]
+        [self.assertFalse(x.unique) for x in m1.all_right_by_suite['TestSuiteStress404BackupHost']]
+
+    def test_components(self):
+        m1 = model.TestResultsComparison([
+            model.TestResult(sprint='qa18-EDGEPRISM_4_2_7_0_011-Jul-05-1107', component='Component Load Tests', suite='TestSuiteStress404BackupHost', test_id='test_case_stress_rewrite_404_backup_tcphost_general_with_back_references_combined', result='failed'),
+        ], [
+            model.TestResult(sprint='qa18-EDGEPRISM_4_2_7_0_011-Jul-05-0407', component='Component Load Tests', suite='TestSuiteStress404BackupHost', test_id='test_case_stress_rewrite_404_backup_tcphost_general_with_back_references_combined', result='failed'),
+        ])
+        self.assertEqual(len(m1.used_components(0)), 1)
+        self.assertEqual(len(m1.used_components(1)), 1)
+
