@@ -48,9 +48,10 @@ th.no-tests-were-run {
 table.results-comparison td,
 table.results-comparison th
 {
-    width: 48%;
+    width: 47%;
 }
 
 .results-comparison-panel {
     overflow-x: scroll;
 }
+
