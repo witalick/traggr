@@ -48,10 +48,10 @@
 {% endfilter %}
 {% endmacro %}
 
-{% macro render_grouped_test_results(results, collapse, id) %}
+{% macro render_grouped_test_results(results, collapse, id, components_visible=True) %}
     <ul class="list-group collapse {% if not collapse %}in{% endif %}" id="{{ id }}">
     {% for component in results|sort %}
-        <li class="list-group-item">
+        <li class="list-group-item results-component" {% if not components_visible %}style="display: none"{% endif %} data-component="{{ component }}">
         <h4 class="list-group-item-heading">{{ component }}</h4>
         {% for suite in results[component]|sort %}
             <div class="panel panel-default">
