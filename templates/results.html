@@ -52,13 +52,22 @@
             countComparisonRows();
         });
 
-        $("#spanContextFailed").click(function() {
+        var all_components_visible = false;
 
-            if ($("#failedTestsList").is(":visible")) {
-                $("#failedTestsList").hide();
-            } else {
-                $("#failedTestsList").show();
-            };
+        $("#spanContextFailed").click(function() {
+            $('.results-component').each(function(){
+                if (all_components_visible) {
+                    $(this).hide();
+                    all_components_visible = false;
+                } else {
+                    $(this).show();
+                    all_components_visible = true;
+                }
+            });
+        });
+
+        $(".failed-component").click(function() {
+            $('.results-component[data-component="'+$(this).attr('data-component')+'"]').toggle();
         });
 
         window.removeComponentWithConfirmation = function(project, sprint, component) {
@@ -136,7 +145,7 @@
 
         <div class="alert alert-info" on>
             <a href="#" class="close" data-dismiss="alert" id="testinfo">&times;</a>
-            <strong>Note:</strong> Click a total failed tests badge to see a list of failed tests for all components.
+            <strong>Note:</strong> Click a failed tests badge to see a list of failed tests for that component, or total failed tests badge to see all failures.
         </div>
 
         <ul class="list-group">
@@ -156,7 +165,7 @@
                     <span class="badge alert-success pull-right">{{ component.passed }}</span>
                 {% endif %}
                 {% if component.failed != 0 %}
-                    <span class="badge alert-danger pull-right">{{ component.failed }}</span>
+                    <span class="badge alert-danger pull-right failed-component" data-component="{{ component.name }}">{{ component.failed }}</span>
                 {% endif %}
 
             </li>
@@ -197,8 +206,8 @@
 
         <br>
 
-        <div style="display:none" id="failedTestsList">
-            {{ render_grouped_test_results(failed_tests, False, "") }}
+        <div id="failedTestsList">
+            {{ render_grouped_test_results(failed_tests, False, "", False) }}
         </div>
 
         {% endif %}
