@@ -125,7 +125,7 @@ $(document).ready(function () {
         if (dont_reload){
             modal_add_test_case.attr('dont_reload', dont_reload)
         }
-        modal_add_test_case.modal();
+        modal_add_test_case.modal({backdrop: 'static', keyboard: true});
     };
 
     $("#btnAddTestCaseCancel").click(function () {
